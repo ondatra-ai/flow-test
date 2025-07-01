@@ -1,0 +1,48 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Project Structure and Implementation Rules
+
+## Directory Structure
+```
+./
+├── src/
+│   ├── cli/
+│   │   ├── chat.ts           # Chat interface implementation
+│   │   ├── renderer.ts       # UI rendering logic
+│   │   └── input-handler.ts  # User input processing
+│   ├── flows/
+│   │   ├── flow-loader.ts    # Load and validate flow files
+│   │   ├── flow-executor.ts  # Execute flow steps
+│   │   ├── condition-evaluator.ts # Evaluate conditions
+│   │   └── types.ts          # Flow type definitions
+│   ├── mcp/
+│   │   ├── server-manager.ts # Manage MCP server lifecycle
+│   │   ├── client.ts         # MCP client implementation
+│   │   ├── tool-registry.ts  # Tool discovery and caching
+│   │   └── types.ts          # MCP type definitions
+│   ├── config/
+│   │   ├── config-loader.ts  # Load .flows configuration
+│   │   └── validator.ts      # Validate configurations
+│   ├── utils/
+│   │   ├── logger.ts         # Logging utilities
+│   │   └── errors.ts         # Custom error classes
+│   └── index.ts              # Main entry point
+├── tests/
+│   ├── unit/                 # Unit tests (mirrors src structure)
+│   └── integration/          # Integration tests
+├── examples/
+│   └── .flows/               # Example configurations
+│       ├── flows/
+│       │   └── example-flow.json
+│       └── servers/
+│           └── example-server.json
+├── docs/
+│   ├── usage.md              # Usage documentation
+│   ├── flow-format.md        # Flow format reference
+│   └── examples.md           # Example flows and use cases
+└── scripts/
+    └── build.ts              # Build script
+```
