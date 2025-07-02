@@ -23,7 +23,7 @@ Flow files must be placed in `.flows/flows/` directory and have a `.json` extens
 ```json
 {
   "id": "unique-flow-id",
-  "name": "Human Readable Flow Name", 
+  "name": "Human Readable Flow Name",
   "description": "Detailed description of what this flow does",
   "initialStep": "step-id",
   "steps": {
@@ -60,6 +60,7 @@ Prompt steps send instructions to the AI and provide tools for task execution.
 ```
 
 **Fields:**
+
 - **type**: Must be `"prompt"`
 - **prompt**: Clear, specific instruction for the AI
 - **tools**: Array of tool names available for this step
@@ -67,6 +68,7 @@ Prompt steps send instructions to the AI and provide tools for task execution.
 - **nextStep**: ID of the next step (null for end of flow)
 
 **Example:**
+
 ```json
 {
   "type": "prompt",
@@ -91,15 +93,17 @@ Condition steps evaluate JavaScript expressions to determine flow branching.
 ```
 
 **Fields:**
+
 - **type**: Must be `"condition"`
 - **condition**: JavaScript expression returning boolean
 - **yes**: Step ID to execute if condition is true
 - **no**: Step ID to execute if condition is false
 
 **Example:**
+
 ```json
 {
-  "type": "condition", 
+  "type": "condition",
   "condition": "response.toLowerCase().includes('typescript')",
   "yes": "typescript-component",
   "no": "javascript-component"
@@ -120,6 +124,7 @@ Use these variables in prompts and conditions:
 ### Usage Examples
 
 **In Prompts:**
+
 ```json
 {
   "prompt": "Based on the user's request: '{{user_input}}', create the appropriate component type."
@@ -127,6 +132,7 @@ Use these variables in prompts and conditions:
 ```
 
 **In Conditions:**
+
 ```json
 {
   "condition": "user_input.includes('functional') || response.includes('hooks')"
@@ -183,7 +189,7 @@ Use JavaScript expressions for sophisticated branching:
 ```json
 // ✅ Good
 "gather-user-requirements"
-"create-component-file" 
+"create-component-file"
 "add-unit-tests"
 
 // ❌ Bad
@@ -215,19 +221,21 @@ Use JavaScript expressions for sophisticated branching:
 ### Prompt Writing
 
 **Be Specific and Clear**
+
 ```json
 // ✅ Good
 {
   "prompt": "Create a TypeScript interface for a User with properties: id (number), name (string), email (string), and createdAt (Date). Include JSDoc comments for each property."
 }
 
-// ❌ Poor  
+// ❌ Poor
 {
   "prompt": "Make a user interface"
 }
 ```
 
 **Provide Context**
+
 ```json
 {
   "prompt": "Based on the existing codebase structure in {{step_data.project_info}}, create a new service class that follows the established patterns."
@@ -235,6 +243,7 @@ Use JavaScript expressions for sophisticated branching:
 ```
 
 **Use Action-Oriented Language**
+
 ```json
 {
   "prompt": "Generate, validate, and save the component file with proper TypeScript types and error handling."
@@ -254,7 +263,7 @@ Each step should have one clear purpose:
     "nextStep": "create-tests"
   },
   "create-tests": {
-    "type": "prompt", 
+    "type": "prompt",
     "prompt": "Create unit tests for the component",
     "nextStep": "update-exports"
   }
@@ -262,6 +271,7 @@ Each step should have one clear purpose:
 ```
 
 **Logical Flow Structure**
+
 ```json
 {
   "initialStep": "gather-requirements",
@@ -278,7 +288,7 @@ Each step should have one clear purpose:
       "no": "gather-requirements"
     },
     "create-component": {
-      "type": "prompt", 
+      "type": "prompt",
       "prompt": "Create the component with validated requirements",
       "nextStep": null
     }
@@ -289,16 +299,18 @@ Each step should have one clear purpose:
 ### Error Handling
 
 **Provide Fallback Paths**
+
 ```json
 {
   "type": "condition",
   "condition": "step_data.component_type === 'class'",
   "yes": "create-class-component",
-  "no": "create-functional-component"  
+  "no": "create-functional-component"
 }
 ```
 
 **Include Retry Logic**
+
 ```json
 {
   "validate-creation": {
@@ -332,7 +344,7 @@ Each step should have one clear purpose:
       "type": "prompt",
       "prompt": "Create a React functional component named {{response}} in the src/components directory. Include TypeScript types and basic structure.",
       "tools": ["write_file", "list_files"],
-      "mcpServer": "filesystem", 
+      "mcpServer": "filesystem",
       "nextStep": null
     }
   }
@@ -344,7 +356,7 @@ Each step should have one clear purpose:
 ```json
 {
   "id": "api-generator",
-  "name": "API Endpoint Generator", 
+  "name": "API Endpoint Generator",
   "description": "Creates REST API endpoints with full CRUD operations",
   "initialStep": "analyze-project",
   "steps": {
@@ -359,7 +371,7 @@ Each step should have one clear purpose:
       "type": "prompt",
       "prompt": "What entity do you want to create API endpoints for? Describe the data structure and required operations.",
       "tools": [],
-      "mcpServer": "filesystem", 
+      "mcpServer": "filesystem",
       "nextStep": "check-database"
     },
     "check-database": {
@@ -379,7 +391,7 @@ Each step should have one clear purpose:
       "type": "prompt",
       "prompt": "Create in-memory data structure for {{user_input}} suitable for development/testing.",
       "tools": ["write_file"],
-      "mcpServer": "filesystem", 
+      "mcpServer": "filesystem",
       "nextStep": "create-controller"
     },
     "create-controller": {
@@ -412,18 +424,21 @@ Each step should have one clear purpose:
 ### Common Issues
 
 **Invalid JSON Syntax**
+
 ```bash
 # Validate JSON syntax
 cat .flows/flows/my-flow.json | jq .
 ```
 
 **Missing Step References**
+
 ```bash
 # Check for undefined step references
 claude-code-cli --validate
 ```
 
 **Tool Not Available**
+
 ```bash
 # List available tools for server
 claude-code-cli --list-tools --server filesystem
@@ -441,4 +456,4 @@ claude-code-cli --list-tools --server filesystem
 - **Minimize tool usage** in each step
 - **Avoid complex conditions** that might be slow to evaluate
 - **Use caching** for repeated operations
-- **Batch related operations** in single steps when possible 
+- **Batch related operations** in single steps when possible

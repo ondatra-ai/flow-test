@@ -27,11 +27,13 @@ This document provides a high-level overview of the Claude Code CLI architecture
 **Purpose**: Provides interactive user interface using Ink (React for CLI)
 
 **Components**:
+
 - `chat.ts` - Main chat loop and message handling
 - `renderer.ts` - UI rendering and formatting
 - `input-handler.ts` - User input processing and validation
 
 **Responsibilities**:
+
 - Display conversational interface
 - Handle user input and commands
 - Render AI responses and tool outputs
@@ -42,12 +44,14 @@ This document provides a high-level overview of the Claude Code CLI architecture
 **Purpose**: Executes JSON-defined workflows with conditional logic
 
 **Components**:
+
 - `flow-loader.ts` - Load and validate flow files
 - `flow-executor.ts` - Execute flow steps and manage state
 - `condition-evaluator.ts` - Evaluate JavaScript expressions safely
 - `types.ts` - Flow type definitions and interfaces
 
 **Flow Execution Process**:
+
 ```
 Load Flow → Validate → Execute Initial Step → Evaluate Conditions → Next Step
      ↑                                                                 ↓
@@ -59,12 +63,14 @@ Load Flow → Validate → Execute Initial Step → Evaluate Conditions → Next
 **Purpose**: Manages communication with external MCP servers
 
 **Components**:
+
 - `server-manager.ts` - Lifecycle management of MCP servers
 - `client.ts` - MCP protocol implementation
 - `tool-registry.ts` - Tool discovery and caching
 - `types.ts` - MCP type definitions
 
 **MCP Server Lifecycle**:
+
 ```
 Configuration → Start Servers → Discover Tools → Register Tools → Handle Requests
       ↓                                                                  ↑
@@ -76,10 +82,12 @@ Monitor Health ←─────────────── Restart on Failu
 **Purpose**: Handles loading and validation of `.flows` directory
 
 **Components**:
+
 - `config-loader.ts` - Load flows and server configurations
 - `validator.ts` - Validate JSON schemas and references
 
 **Configuration Structure**:
+
 ```
 .flows/
 ├── flows/         # Flow definitions
@@ -93,6 +101,7 @@ Monitor Health ←─────────────── Restart on Failu
 **Purpose**: Shared utilities and infrastructure
 
 **Components**:
+
 - `logger.ts` - Structured logging with Winston
 - `errors.ts` - Custom error classes and handling
 
@@ -106,7 +115,7 @@ sequenceDiagram
     participant Config
     participant MCP
     participant Flow
-    
+
     CLI->>Config: Load .flows directory
     Config->>Config: Validate configurations
     CLI->>MCP: Start MCP servers
@@ -124,7 +133,7 @@ sequenceDiagram
     participant Flow
     participant AI
     participant MCP
-    
+
     User->>Chat: Send message
     Chat->>Flow: Execute flow step
     Flow->>AI: Send prompt with context
@@ -157,7 +166,7 @@ export class FlowExecutor {
 Components communicate through events and callbacks:
 
 ```typescript
-flowExecutor.on('stepCompleted', (result) => {
+flowExecutor.on('stepCompleted', result => {
   chatInterface.displayResult(result);
 });
 ```
@@ -231,6 +240,7 @@ interface FlowState {
 ### 1. New Step Types
 
 Add new flow step types by:
+
 - Defining new step interface
 - Implementing step executor
 - Registering with flow engine
@@ -238,6 +248,7 @@ Add new flow step types by:
 ### 2. Custom MCP Servers
 
 Create custom tool providers:
+
 - Implement MCP protocol
 - Define available tools
 - Handle tool execution
@@ -245,6 +256,7 @@ Create custom tool providers:
 ### 3. AI Provider Integration
 
 Support new AI providers:
+
 - Implement AI provider interface
 - Handle authentication and rate limiting
 - Convert between message formats
@@ -274,6 +286,7 @@ Support new AI providers:
 ### 1. Structured Logging
 
 All components log structured data:
+
 - Flow execution steps
 - MCP server communication
 - AI provider interactions
@@ -282,6 +295,7 @@ All components log structured data:
 ### 2. Metrics Collection
 
 Track key performance indicators:
+
 - Flow execution time
 - Tool success/failure rates
 - AI provider response times
@@ -290,9 +304,10 @@ Track key performance indicators:
 ### 3. Health Checks
 
 Monitor system health:
+
 - MCP server availability
 - AI provider connectivity
 - File system access
 - Configuration validity
 
-This architecture supports the project's goals of providing a flexible, extensible CLI tool for AI-powered development workflows while maintaining high code quality, security, and performance standards. 
+This architecture supports the project's goals of providing a flexible, extensible CLI tool for AI-powered development workflows while maintaining high code quality, security, and performance standards.

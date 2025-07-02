@@ -74,12 +74,14 @@ Most common transport type for local MCP servers:
 ```
 
 **Benefits:**
+
 - Simple setup and configuration
 - Low latency communication
 - Automatic process management
 - No network configuration required
 
 **Use Cases:**
+
 - File system operations
 - Local development tools
 - Git operations
@@ -107,12 +109,14 @@ Used for remote MCP servers or services:
 ```
 
 **Benefits:**
+
 - Can connect to remote services
 - Supports load balancing
 - Language-agnostic server implementation
 - Better for production deployments
 
 **Use Cases:**
+
 - External API integrations
 - Remote database access
 - Cloud services
@@ -133,6 +137,7 @@ Servers that provide executable tools:
 ```
 
 **Examples:**
+
 - File operations (read, write, delete)
 - Git commands (commit, push, pull)
 - Database queries
@@ -152,6 +157,7 @@ Servers that provide readable resources:
 ```
 
 **Examples:**
+
 - File contents
 - Database schemas
 - API documentation
@@ -171,6 +177,7 @@ Servers that provide AI prompts or templates:
 ```
 
 **Examples:**
+
 - Code generation templates
 - Documentation templates
 - Test case generators
@@ -197,6 +204,7 @@ Servers that provide AI prompts or templates:
 ```
 
 **Available Tools:**
+
 - `list_files` - List directory contents
 - `read_file` - Read file contents
 - `write_file` - Create or update files
@@ -220,6 +228,7 @@ Servers that provide AI prompts or templates:
 ```
 
 **Available Tools:**
+
 - `git_status` - Check repository status
 - `git_add` - Stage files for commit
 - `git_commit` - Create commits
@@ -247,6 +256,7 @@ Servers that provide AI prompts or templates:
 ```
 
 **Available Tools:**
+
 - `execute_query` - Run SQL queries
 - `get_schema` - Retrieve database schema
 - `create_table` - Create new tables
@@ -271,6 +281,7 @@ Servers that provide AI prompts or templates:
 ```
 
 **Available Tools:**
+
 - `fetch_url` - Download web pages
 - `extract_text` - Extract text content
 - `find_links` - Find links on pages
@@ -293,6 +304,7 @@ Store sensitive data in environment variables:
 ```
 
 **Best Practices:**
+
 - Never hardcode credentials in configuration files
 - Use environment variable substitution
 - Rotate credentials regularly
@@ -305,9 +317,12 @@ Restrict file system access appropriately:
 ```json
 {
   "args": [
-    "--root", "./src",
-    "--allowed-extensions", ".ts,.js,.json",
-    "--deny-paths", "node_modules,dist,.env"
+    "--root",
+    "./src",
+    "--allowed-extensions",
+    ".ts,.js,.json",
+    "--deny-paths",
+    "node_modules,dist,.env"
   ]
 }
 ```
@@ -428,24 +443,24 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
         inputSchema: {
           type: 'object',
           properties: {
-            input: { type: 'string' }
-          }
-        }
-      }
-    ]
+            input: { type: 'string' },
+          },
+        },
+      },
+    ],
   };
 });
 
 // Handle tool calls
-server.setRequestHandler(CallToolRequestSchema, async (request) => {
+server.setRequestHandler(CallToolRequestSchema, async request => {
   if (request.params.name === 'my_tool') {
     return {
       content: [
         {
           type: 'text',
-          text: `Processed: ${request.params.arguments?.input}`
-        }
-      ]
+          text: `Processed: ${request.params.arguments?.input}`,
+        },
+      ],
     };
   }
   throw new Error(`Unknown tool: ${request.params.name}`);
@@ -475,16 +490,19 @@ await server.connect(transport);
 ### Server Not Starting
 
 **Check command path:**
+
 ```bash
 which mcp-server-filesystem
 ```
 
 **Verify configuration:**
+
 ```bash
 claude-code-cli --validate
 ```
 
 **Check logs:**
+
 ```bash
 tail -f ~/.claude-code-cli/logs/server-manager.log
 ```
@@ -492,11 +510,13 @@ tail -f ~/.claude-code-cli/logs/server-manager.log
 ### Tool Discovery Issues
 
 **List available tools:**
+
 ```bash
 claude-code-cli --list-tools --server filesystem
 ```
 
 **Test server manually:**
+
 ```bash
 mcp-server-filesystem --root ./
 ```
@@ -504,32 +524,38 @@ mcp-server-filesystem --root ./
 ### Communication Errors
 
 **Check server health:**
+
 ```bash
 claude-code-cli --check-servers
 ```
 
 **Enable debug logging:**
+
 ```bash
 claude-code-cli --debug
 ```
 
 **Verify transport configuration:**
+
 - For STDIO: Ensure command is executable
 - For HTTP: Verify URL and network connectivity
 
 ### Performance Issues
 
 **Monitor server resources:**
+
 ```bash
 ps aux | grep mcp-server
 ```
 
 **Check response times:**
+
 ```bash
 claude-code-cli --benchmark-servers
 ```
 
 **Optimize configuration:**
+
 - Reduce tool scope when possible
 - Use local servers for better performance
 - Implement caching in custom servers
@@ -602,4 +628,4 @@ claude-code-cli --restart-servers
 2. **Regular security updates** for server dependencies
 3. **Audit server logs** for suspicious activity
 4. **Isolate sensitive operations** in dedicated servers
-5. **Use secure transport** for production deployments 
+5. **Use secure transport** for production deployments

@@ -11,6 +11,7 @@ claude-code-cli
 ```
 
 The CLI will:
+
 1. Load configuration from `.flows/` directory
 2. Start configured MCP servers
 3. Present an interactive chat interface
@@ -97,18 +98,21 @@ Each flow maintains context throughout execution:
 Tools are provided by MCP servers and vary based on your configuration. Common tools include:
 
 **File Operations**
+
 - `list_files` - List files in directory
 - `read_file` - Read file contents
 - `write_file` - Create or update files
 - `delete_file` - Remove files
 
 **Git Operations**
+
 - `git_status` - Check repository status
 - `git_add` - Stage files
 - `git_commit` - Create commits
 - `git_push` - Push changes
 
 **Search Operations**
+
 - `grep_search` - Search text in files
 - `find_files` - Find files by pattern
 - `semantic_search` - AI-powered code search
@@ -149,7 +153,7 @@ Do you want to proceed? (y/N)
 Flows can use context variables for dynamic behavior:
 
 - `{{response}}` - Last AI response
-- `{{user_input}}` - Last user input  
+- `{{user_input}}` - Last user input
 - `{{step_data}}` - Data from previous steps
 - `{{flow_vars}}` - Flow-level variables
 
@@ -191,6 +195,7 @@ claude-code-cli --validate
 ```
 
 Output:
+
 ```
 ✅ Configuration valid
 ✅ All flows validated
@@ -227,20 +232,23 @@ The CLI watches for configuration changes and reloads automatically:
 ### Effective Prompting
 
 **Clear and Specific**
+
 ```
 ✅ Good: "Create a React functional component called UserCard that displays name, email, and avatar"
 ❌ Poor: "Make a component"
 ```
 
 **Provide Context**
+
 ```
 ✅ Good: "Add error handling to the login function in auth.ts"
 ❌ Poor: "Fix the error"
 ```
 
 **Break Down Complex Tasks**
+
 ```
-✅ Good: 
+✅ Good:
 1. "Create a user model interface"
 2. "Create a user service class"
 3. "Add user CRUD operations"
@@ -251,16 +259,19 @@ The CLI watches for configuration changes and reloads automatically:
 ### Flow Design
 
 **Keep Steps Focused**
+
 - Each step should have a single, clear purpose
 - Use descriptive step IDs and prompts
 - Limit tools to what's actually needed
 
 **Use Conditions Wisely**
+
 - Test condition logic thoroughly
 - Use clear, readable condition expressions
 - Provide fallback paths for edge cases
 
 **Handle Errors Gracefully**
+
 - Include error handling in flow design
 - Provide clear error messages
 - Allow recovery and retry options
@@ -268,11 +279,13 @@ The CLI watches for configuration changes and reloads automatically:
 ### Security Considerations
 
 **File Operations**
+
 - Always validate file paths
 - Be cautious with file deletion
 - Review generated code before execution
 
 **API Usage**
+
 - Monitor API costs and usage
 - Set appropriate rate limits
 - Never commit API keys to version control
@@ -282,16 +295,19 @@ The CLI watches for configuration changes and reloads automatically:
 ### Common Issues
 
 **Flow Not Starting**
+
 - Check flow JSON syntax
 - Verify step ID references
 - Ensure MCP server is running
 
 **Tool Not Available**
+
 - Verify MCP server configuration
 - Check server logs for errors
 - Confirm tool names match server capabilities
 
 **AI Not Responding**
+
 - Check API key configuration
 - Verify network connectivity
 - Review rate limiting settings
@@ -305,6 +321,7 @@ claude-code-cli --debug
 ```
 
 This provides detailed information about:
+
 - Configuration loading
 - MCP server communication
 - Flow execution steps
@@ -343,7 +360,8 @@ grep "ERROR" ~/.claude-code-cli/logs/claude-cli.log
 ### Integration with IDEs
 
 The CLI works great alongside your favorite IDE:
+
 - Keep the CLI running in a terminal
 - Use it for complex refactoring tasks
 - Generate boilerplate code quickly
-- Automate repetitive development tasks 
+- Automate repetitive development tasks

@@ -5,7 +5,7 @@ This guide covers everything needed to contribute to the Claude Code CLI project
 ## Prerequisites
 
 - **Node.js**: Version 18 or higher
-- **npm**: Version 8 or higher  
+- **npm**: Version 8 or higher
 - **Git**: For version control
 - **TypeScript**: Global installation recommended (`npm install -g typescript`)
 - **Code Editor**: VS Code recommended with TypeScript extensions
@@ -118,6 +118,7 @@ The project uses the strictest TypeScript settings:
 ```
 
 **Key Rules:**
+
 - No `any` types except when absolutely necessary
 - All functions must have explicit return types
 - All variables must be explicitly typed when not obvious
@@ -169,11 +170,7 @@ The project uses Husky for pre-commit hooks:
     }
   },
   "lint-staged": {
-    "*.{ts,tsx}": [
-      "eslint --fix",
-      "prettier --write",
-      "git add"
-    ]
+    "*.{ts,tsx}": ["eslint --fix", "prettier --write", "git add"]
   }
 }
 ```
@@ -222,18 +219,21 @@ describe('FlowExecutor', () => {
 ### Testing Guidelines
 
 **Unit Tests:**
+
 - Test individual functions and classes in isolation
 - Mock external dependencies
 - Focus on business logic and edge cases
 - Aim for 80% coverage minimum
 
 **Integration Tests:**
+
 - Test interactions between components
 - Use real MCP servers when possible
 - Test complete user workflows
 - Verify data flow and state management
 
 **Example Unit Test:**
+
 ```typescript
 import { describe, it, expect, vi } from 'vitest';
 import { FlowLoader } from '../src/flows/flow-loader.js';
@@ -241,20 +241,22 @@ import { FlowLoader } from '../src/flows/flow-loader.js';
 describe('FlowLoader', () => {
   it('should load valid flow configuration', async () => {
     const mockFs = vi.mocked(fs);
-    mockFs.readFile.mockResolvedValue(JSON.stringify({
-      id: 'test-flow',
-      name: 'Test Flow',
-      initialStep: 'start',
-      steps: {
-        start: {
-          type: 'prompt',
-          prompt: 'Hello',
-          tools: [],
-          mcpServer: 'test',
-          nextStep: null
-        }
-      }
-    }));
+    mockFs.readFile.mockResolvedValue(
+      JSON.stringify({
+        id: 'test-flow',
+        name: 'Test Flow',
+        initialStep: 'start',
+        steps: {
+          start: {
+            type: 'prompt',
+            prompt: 'Hello',
+            tools: [],
+            mcpServer: 'test',
+            nextStep: null,
+          },
+        },
+      })
+    );
 
     const loader = new FlowLoader();
     const flow = await loader.loadFlow('test-flow.json');
@@ -297,10 +299,10 @@ export class FlowLoader {
     try {
       const content = await this.fileSystem.readFile(flowPath);
       const flowData = JSON.parse(content);
-      
+
       this.validator.validateFlow(flowData);
       this.logger.info('Flow loaded successfully', { flowId: flowData.id });
-      
+
       return flowData as Flow;
     } catch (error) {
       this.logger.error('Failed to load flow', { flowPath, error });
@@ -318,7 +320,7 @@ Use custom error classes with proper inheritance:
 // errors.ts
 export abstract class BaseError extends Error {
   abstract readonly code: string;
-  
+
   constructor(
     message: string,
     public readonly cause?: Error
@@ -351,7 +353,7 @@ export class FlowExecutor {
     this.logger.info('Executing flow step', {
       stepType: step.type,
       stepId: step.id,
-      flowId: this.currentFlow.id
+      flowId: this.currentFlow.id,
     });
 
     try {
@@ -361,7 +363,7 @@ export class FlowExecutor {
       this.logger.error('Step execution failed', {
         stepId: step.id,
         error: error.message,
-        stack: error.stack
+        stack: error.stack,
       });
       throw error;
     }
@@ -374,6 +376,7 @@ export class FlowExecutor {
 ### 1. Development Process
 
 1. **Create Feature Branch**
+
    ```bash
    git checkout -b feature/your-feature-name
    ```
@@ -384,6 +387,7 @@ export class FlowExecutor {
    - Update documentation as needed
 
 3. **Run Quality Checks**
+
    ```bash
    npm run lint        # Check code style
    npm run type-check  # Verify TypeScript
@@ -392,6 +396,7 @@ export class FlowExecutor {
    ```
 
 4. **Commit Changes**
+
    ```bash
    git add .
    git commit -m "feat: add new flow execution feature"
@@ -415,6 +420,7 @@ type(scope): description
 ```
 
 **Types:**
+
 - `feat`: New feature
 - `fix`: Bug fix
 - `docs`: Documentation changes
@@ -424,6 +430,7 @@ type(scope): description
 - `chore`: Maintenance tasks
 
 **Examples:**
+
 ```
 feat(flows): add conditional step execution
 fix(mcp): handle server connection timeout
@@ -436,22 +443,27 @@ test(cli): add integration tests for chat interface
 **PR Title:** Use conventional commit format
 
 **PR Description Template:**
+
 ```markdown
 ## Description
+
 Brief description of changes
 
 ## Type of Change
+
 - [ ] Bug fix
 - [ ] New feature
 - [ ] Breaking change
 - [ ] Documentation update
 
 ## Testing
+
 - [ ] Unit tests added/updated
 - [ ] Integration tests added/updated
 - [ ] Manual testing completed
 
 ## Checklist
+
 - [ ] Code follows style guidelines
 - [ ] Self-review completed
 - [ ] Documentation updated
@@ -475,6 +487,7 @@ npm run dev -- --debug
 ### VS Code Configuration
 
 `.vscode/launch.json`:
+
 ```json
 {
   "version": "0.2.0",
@@ -499,16 +512,19 @@ npm run dev -- --debug
 ### Common Issues
 
 **TypeScript Errors:**
+
 - Ensure all imports use `.js` extensions for compiled output
 - Check that types are properly exported/imported
 - Verify strict null checks are handled
 
 **Test Failures:**
+
 - Check for proper mocking of external dependencies
 - Ensure async operations are properly awaited
 - Verify test isolation (no shared state)
 
 **Build Issues:**
+
 - Clear `dist/` directory: `rm -rf dist`
 - Reinstall dependencies: `rm -rf node_modules && npm install`
 - Check for circular dependencies
@@ -521,10 +537,7 @@ Use proper async patterns:
 
 ```typescript
 // Good - Parallel execution
-const [flows, servers] = await Promise.all([
-  loadFlows(),
-  loadServers()
-]);
+const [flows, servers] = await Promise.all([loadFlows(), loadServers()]);
 
 // Bad - Sequential execution
 const flows = await loadFlows();
@@ -549,7 +562,7 @@ export class MCPServerManager {
     } catch (error) {
       this.logger.warn('Server failed to start, continuing without it', {
         serverName: config.name,
-        error: error.message
+        error: error.message,
       });
       // Continue execution without this server
     }
@@ -570,6 +583,7 @@ Follow semantic versioning (MAJOR.MINOR.PATCH):
 ### Release Steps
 
 1. **Update Version**
+
    ```bash
    npm version patch  # or minor/major
    ```
@@ -584,6 +598,7 @@ Follow semantic versioning (MAJOR.MINOR.PATCH):
    - Update documentation if needed
 
 4. **Tag and Release**
+
    ```bash
    git tag v1.0.0
    git push origin v1.0.0
@@ -599,6 +614,7 @@ Follow semantic versioning (MAJOR.MINOR.PATCH):
 ### Adding New MCP Server Support
 
 1. **Define Server Types**
+
    ```typescript
    // mcp/types.ts
    export interface CustomServerConfig extends BaseServerConfig {
@@ -607,6 +623,7 @@ Follow semantic versioning (MAJOR.MINOR.PATCH):
    ```
 
 2. **Implement Server Client**
+
    ```typescript
    // mcp/clients/custom-client.ts
    export class CustomMCPClient extends BaseMCPClient {
@@ -623,6 +640,7 @@ Follow semantic versioning (MAJOR.MINOR.PATCH):
 ### Extending Flow Capabilities
 
 1. **Add New Step Type**
+
    ```typescript
    // flows/types.ts
    export interface CustomStep extends BaseStep {
@@ -632,6 +650,7 @@ Follow semantic versioning (MAJOR.MINOR.PATCH):
    ```
 
 2. **Implement Step Executor**
+
    ```typescript
    // flows/executors/custom-executor.ts
    export class CustomStepExecutor implements StepExecutor {
@@ -647,4 +666,4 @@ Follow semantic versioning (MAJOR.MINOR.PATCH):
    this.stepExecutors.set('custom', new CustomStepExecutor());
    ```
 
-This development guide provides the foundation for contributing to the Claude Code CLI project. For specific questions or clarification on any topic, refer to the existing codebase or create an issue for discussion. 
+This development guide provides the foundation for contributing to the Claude Code CLI project. For specific questions or clarification on any topic, refer to the existing codebase or create an issue for discussion.

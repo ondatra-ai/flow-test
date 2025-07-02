@@ -40,6 +40,7 @@ mkdir -p .flows/flows .flows/servers
 Create server configuration files in `.flows/servers/`:
 
 **Example: `.flows/servers/filesystem.json`**
+
 ```json
 {
   "name": "filesystem",
@@ -54,10 +55,11 @@ Create server configuration files in `.flows/servers/`:
 ```
 
 **Example: `.flows/servers/git.json`**
+
 ```json
 {
   "name": "git",
-  "command": "mcp-server-git", 
+  "command": "mcp-server-git",
   "args": [],
   "transportType": "stdio",
   "capabilities": {
@@ -71,6 +73,7 @@ Create server configuration files in `.flows/servers/`:
 Create a flow file in `.flows/flows/`:
 
 **Example: `.flows/flows/hello-world.json`**
+
 ```json
 {
   "id": "hello-world",
@@ -86,7 +89,7 @@ Create a flow file in `.flows/flows/`:
       "nextStep": "end"
     },
     "end": {
-      "type": "prompt", 
+      "type": "prompt",
       "prompt": "Thank the user and say goodbye.",
       "tools": [],
       "mcpServer": "filesystem",
@@ -129,21 +132,25 @@ claude-code-cli
 ### Common Issues
 
 **1. Command not found**
+
 - Ensure Node.js and npm are properly installed
 - For global installation, check npm global bin path: `npm config get prefix`
 - Add npm global bin to your PATH
 
 **2. MCP Server not starting**
+
 - Verify server commands are in your PATH
 - Check server configuration syntax
 - Review server logs for error messages
 
 **3. AI API errors**
+
 - Verify API keys are set correctly
 - Check API key permissions and quotas
 - Ensure network connectivity
 
 **4. Flow validation errors**
+
 - Validate JSON syntax in flow files
 - Check step ID references are correct
 - Verify tool names match MCP server capabilities
@@ -160,4 +167,4 @@ claude-code-cli
 - Read the [Usage Guide](usage.md) to learn how to use the CLI
 - Explore [Flow Format Reference](flow-format.md) to create custom flows
 - Check [Examples](examples.md) for inspiration
-- Review [MCP Server Configuration](mcp-servers.md) for advanced setups 
+- Review [MCP Server Configuration](mcp-servers.md) for advanced setups

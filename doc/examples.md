@@ -9,6 +9,7 @@ This document provides practical examples of flows, configurations, and real-wor
 A simple introduction flow to test the system.
 
 **`.flows/flows/hello-world.json`**
+
 ```json
 {
   "id": "hello-world",
@@ -39,6 +40,7 @@ A simple introduction flow to test the system.
 Complete workflow for creating React components with TypeScript, tests, and documentation.
 
 **`.flows/flows/react-component.json`**
+
 ```json
 {
   "id": "react-component",
@@ -136,4 +138,4 @@ Automated code review flow that analyzes changes for quality, security, and best
 3. **Handle edge cases** - Include error paths and validation
 4. **Test thoroughly** - Verify all paths through your flows
 
-These examples provide a foundation for creating your own flows and understanding how to leverage the Claude Code CLI for development tasks. 
+These examples provide a foundation for creating your own flows and understanding how to leverage the Claude Code CLI for development tasks.

@@ -1,80 +1,178 @@
-# Claude Code CLI Documentation
+# Claude Code CLI
 
-This directory contains comprehensive documentation for the Claude Code CLI project.
+A TypeScript-based CLI application that clones claude-code functionality with a chat-based interface. The application integrates with AI models through MCP (Model Context Protocol) servers and executes custom-defined flows.
 
-## Documentation Structure
+## Overview
 
-### User Documentation
+This project provides a command-line interface similar to claude-code, with the following key features:
 
-- **[Installation Guide](doc/installation.md)** - Complete setup and installation instructions
-- **[Usage Guide](doc/usage.md)** - How to use the CLI effectively
-- **[Flow Format Reference](doc/flow-format.md)** - Complete guide to creating and editing flows
-- **[MCP Server Configuration](doc/mcp-servers.md)** - Setting up and managing MCP servers
-- **[Examples](doc/examples.md)** - Practical examples and use cases
+- **Code generation and editing capabilities** - AI-powered code generation and modification
+- **MCP Server Integration** - Connect to multiple MCP servers for various tool capabilities  
+- **Custom Flow System** - JSON-based flow definitions for complex AI-driven workflows
+- **Chat Interface** - Interactive conversational interface similar to claude-code
 
-### Developer Documentation
+## Quick Start
 
-- **[Development Guide](doc/development.md)** - Complete guide for contributors
-- **[Architecture Overview](doc/architecture.md)** - System design and component architecture
+1. **Install dependencies:**
+   ```bash
+   npm install
+   ```
 
-## Quick Links
+2. **Build the project:**
+   ```bash
+   npm run build
+   ```
 
-### Getting Started
-1. [Install the CLI](doc/installation.md#installation-methods)
-2. [Set up your first configuration](doc/installation.md#configuration-setup)  
-3. [Try the hello world example](doc/examples.md#hello-world-flow)
-4. [Explore advanced examples](doc/examples.md#development-workflows)
+3. **Run the CLI:**
+   ```bash
+   npm start
+   ```
+   
+   This should output: `Claude Code CLI`
 
-### Key Concepts
-- **Flows**: JSON-based workflow definitions that guide AI interactions
-- **MCP Servers**: External processes that provide tools and capabilities
-- **Steps**: Individual actions within a flow (prompts or conditions)
-- **Tools**: Functions provided by MCP servers for file operations, git commands, etc.
+## Available Commands
 
-### Common Tasks
-- [Creating a new flow](doc/flow-format.md#basic-flow-schema)
-- [Adding an MCP server](doc/mcp-servers.md#basic-configuration-schema)
-- [Setting up project-specific configurations](doc/installation.md#configuration-setup)
-- [Debugging flow execution](doc/usage.md#troubleshooting)
+### Development Commands
+- `npm run dev` - Run in development mode with hot reload
+- `npm run build` - Build the TypeScript project
+- `npm start` - Run the built application
 
-## Architecture Overview
+### Code Quality Commands
+- `npm run lint` - Run ESLint to check code quality
+- `npm run lint:fix` - Automatically fix ESLint issues
+- `npm run format` - Format code with Prettier
+- `npm run format:check` - Check if code is properly formatted
+- `npm run type-check` - Run TypeScript type checking
 
-```Claude Code CLI
-├── Chat Interface (Ink-based UI)
-├── Flow Engine (JSON workflow execution)
-├── MCP Integration (External tool providers)
-├── Configuration Management (.flows directory)
-└── AI Model Integration (OpenAI, Anthropic, etc.)
+### Testing Commands
+- `npm test` - Run tests with Vitest
+- `npm run test:ui` - Run tests with UI interface
+- `npm run test:coverage` - Run tests with coverage report
+
+### Quality Control
+- `npm run pre-commit` - Run all checks (type-check, lint, format-check, test)
+
+## Code Quality Standards
+
+This project enforces strict code quality standards:
+
+- **Max 300 lines per file**
+- **Max 80 characters per line** 
+- **Max complexity of 10 per function**
+- **Max 50 lines per function**
+- **Max 5 parameters per function**
+- **Strict TypeScript** with no `any` types
+- **Comprehensive ESLint rules** with Prettier integration
+
+## Architecture
+
+The application is built with a modular architecture:
+
+- **Configuration-driven** from `.flows` folder in current working directory
+- **Multi-server support** for simultaneous MCP server connections
+- **Branching flow logic** with conditional execution
+- **Tool discovery** for available MCP server capabilities
+- **Strict TypeScript** implementation with comprehensive error handling
+
+## Project Structure
+
+```
+./
+├── src/                    # Source code
+│   ├── cli/               # Chat interface implementation (planned)
+│   ├── flows/             # Flow execution engine  
+│   │   └── types.ts       # Flow type definitions
+│   ├── mcp/               # MCP server integration
+│   │   └── types.ts       # MCP type definitions
+│   ├── config/            # Configuration management (planned)
+│   ├── utils/             # Utilities and helpers
+│   │   ├── logger.ts      # Logging utilities
+│   │   └── errors.ts      # Custom error classes
+│   └── index.ts           # Main entry point
+├── tests/                 # Test files
+│   └── unit/              # Unit tests
+│       └── utils/         # Utility tests
+├── examples/              # Example configurations
+│   └── .flows/           # Example flow and server configs
+├── doc/                   # Documentation
+├── scripts/               # Build and utility scripts
+│   └── build.ts          # Build script
+└── dist/                  # Compiled JavaScript output
 ```
 
-## Contributing to Documentation
+## Development Setup
 
-When updating documentation:
+### Prerequisites
+- Node.js 18+ 
+- npm
 
-1. **Keep it current** - Update docs when features change
-2. **Include examples** - Show don't just tell
-3. **Test instructions** - Verify all commands and examples work
-4. **Cross-reference** - Link between related sections
-5. **Consider all users** - From beginners to advanced developers
+### Development Workflow
+1. Make changes to TypeScript files in `src/`
+2. Run `npm run type-check` to verify types
+3. Run `npm run lint` to check code quality
+4. Run `npm test` to run tests
+5. Run `npm run build` to compile
+6. Run `npm start` to test the application
 
-### Documentation Standards
+### Adding New Features
+Follow the established patterns:
+- Add types in appropriate `types.ts` files
+- Create tests in `tests/` directory 
+- Use the custom error classes from `utils/errors.ts`
+- Follow the logging patterns from `utils/logger.ts`
+- Maintain the strict TypeScript and ESLint rules
 
-- Use clear, concise language
-- Include code examples with proper syntax highlighting
-- Provide step-by-step instructions
-- Add troubleshooting sections for common issues
-- Include links to related documentation
-- Use consistent formatting and structure
+## Configuration
 
-## Feedback
+The application reads configuration from a `.flows` folder structure:
 
-If you find issues with the documentation or have suggestions for improvement:
+```
+.flows/
+├── flows/
+│   └── *.json    # Flow definition files
+└── servers/
+    └── *.json    # MCP server configuration files
+```
 
-1. Check existing issues in the project repository
-2. Create a new issue with the "documentation" label
-3. Provide specific details about what's unclear or missing
-4. Suggest improvements where possible
+See the `examples/.flows/` directory for reference configurations.
+
+## Documentation
+
+- [Installation](doc/installation.md) - Setup and installation guide
+- [Usage](doc/usage.md) - How to use the CLI
+- [Flow Format](doc/flow-format.md) - Flow definition reference
+- [MCP Servers](doc/mcp-servers.md) - MCP server configuration
+- [Examples](doc/examples.md) - Example flows and use cases
+- [Development](doc/development.md) - Development guide for contributors
+- [Architecture](doc/architecture.md) - System architecture overview
+
+## Current Implementation Status
+
+This is the initial project setup with:
+
+✅ **Completed:**
+- TypeScript project structure with strict settings
+- ESLint with comprehensive rules (max lines, complexity, etc.)
+- Prettier integration for code formatting
+- Vitest for testing with coverage reporting
+- Basic CLI structure with Commander.js
+- Type definitions for flows and MCP servers
+- Utility classes for logging and error handling
+- Example configurations
+- Build and development scripts
+
+🚧 **In Progress:**
+- Flow execution engine implementation
+- MCP server integration
+- Chat interface implementation
+- Configuration loading and validation
+
+📋 **Planned:**
+- AI model integration
+- Interactive chat interface
+- Flow debugging tools
+- Plugin system
 
 ## License
 
-This documentation is part of the Claude Code CLI project and follows the same license terms. 
+MIT License 
