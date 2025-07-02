@@ -1,6 +1,30 @@
-# Claude-Code CLI Clone Rules
+# Ondatra Code Rules
 
-This directory contains all the rules and specifications for the Claude-Code CLI clone project.
+This directory contains all the rules and specifications for the Ondatra Code project.
+
+## Rule Categories
+
+### Core Architecture
+- **Configuration Structure**: How the `.flows` folder works
+- **Flow System Architecture**: Step structure and conditional execution
+- **MCP Integration**: Server management and tool discovery
+
+### Development Standards
+- **TypeScript Configuration**: Strictest settings and type safety
+- **Code Quality Standards**: ESLint, Prettier, testing requirements
+- **Error Handling**: Comprehensive error management
+
+### Project Structure
+- **Directory Organization**: How files should be organized
+- **Naming Conventions**: File and code naming standards
+- **Implementation Priorities**: What to build in what order
+
+## Key Features
+- **Chat Interface**: Interactive conversational UI like claude-code
+- **MCP Servers**: Multiple server connections for extended capabilities
+- **Flow Engine**: JSON-based workflow definitions with branching
+- **Tool Discovery**: Automatic detection of available MCP tools
+- **TypeScript**: Strict type safety throughout the application
 
 ## Rule Files
 

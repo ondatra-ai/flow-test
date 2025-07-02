@@ -39,10 +39,15 @@ alwaysApply: true
 │       │   └── example-flow.json
 │       └── servers/
 │           └── example-server.json
-├── docs/
+├── doc/
+│   ├── installation.md       # Installation and setup guide
 │   ├── usage.md              # Usage documentation
 │   ├── flow-format.md        # Flow format reference
-│   └── examples.md           # Example flows and use cases
+│   ├── mcp-servers.md        # MCP server configuration guide
+│   ├── examples.md           # Example flows and use cases
+│   ├── development.md        # Development guide for contributors
+│   └── architecture.md       # System architecture overview
+├── README.md                 # Main project documentation
 └── scripts/
     └── build.ts              # Build script
 ```

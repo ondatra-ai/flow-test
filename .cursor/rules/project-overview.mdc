@@ -3,10 +3,10 @@ description:
 globs: 
 alwaysApply: true
 ---
-# Claude-Code CLI Clone Project Overview
+# Ondatra Code Project Overview
 
 ## Project Description
-A TypeScript-based CLI application that clones claude-code functionality with a chat-based interface. The application integrates with AI models through MCP (Model Context Protocol) servers and executes custom-defined flows.
+An interactive conversational interface similar to claude-code. The application integrates with AI models through MCP (Model Context Protocol) servers and executes custom-defined flows.
 
 ## Core Features
 - **Code generation and editing capabilities** - AI-powered code generation and modification

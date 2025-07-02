@@ -1,0 +1,8 @@
+node_modules/
+dist/
+*.log
+*.json
+!.prettierrc.json
+!package.json
+!tsconfig.json
+!vitest.config.ts 
