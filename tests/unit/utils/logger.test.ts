@@ -1,19 +1,21 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, MockInstance } from 'vitest';
 
 import { ConsoleLogger, LogLevel } from '../../../src/utils/logger';
 
 describe('ConsoleLogger', () => {
-  let consoleLogSpy: ReturnType<typeof vi.spyOn>;
+  let consoleLogSpy: MockInstance;
+  let consoleErrorSpy: MockInstance;
 
   beforeEach(() => {
     consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+    consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   it('should log error messages', () => {
     const logger = new ConsoleLogger(LogLevel.ERROR);
     logger.error('Test error message');
 
-    expect(consoleLogSpy).toHaveBeenCalledWith(
+    expect(consoleErrorSpy).toHaveBeenCalledWith(
       expect.stringContaining('ERROR: Test error message')
     );
   });
@@ -34,4 +36,4 @@ describe('ConsoleLogger', () => {
       expect.stringContaining(JSON.stringify(meta))
     );
   });
-}); 
+});

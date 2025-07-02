@@ -63,10 +63,15 @@ export class ConsoleLogger implements Logger {
   ): void {
     const timestamp = new Date().toISOString();
     const metaString = meta ? ` ${JSON.stringify(meta)}` : '';
-    // eslint-disable-next-line no-console
-    console.log(
-      `[${timestamp}] ${level.toUpperCase()}: ${message}${metaString}`
-    );
+    if (level === LogLevel.ERROR) {
+      console.error(
+        `[${timestamp}] ${level.toUpperCase()}: ${message}${metaString}`
+      );
+    } else {
+      console.log(
+        `[${timestamp}] ${level.toUpperCase()}: ${message}${metaString}`
+      );
+    }
   }
 }
 

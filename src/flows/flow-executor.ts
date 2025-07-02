@@ -109,7 +109,9 @@ export class FlowExecutor {
         // Log the error but continue to the error step
         logger.warn(
           `Error in prompt step ${this.context.currentStep}:`,
-          error as Record<string, unknown>
+          error instanceof Error
+            ? { message: error.message, stack: error.stack }
+            : { error: String(error) }
         );
         return step.onError;
       }

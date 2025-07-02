@@ -4,7 +4,6 @@
     "module": "ESNext",
     "moduleResolution": "node",
     "outDir": "./dist",
-    "rootDir": "./src",
     "strict": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
@@ -29,15 +28,9 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true
   },
-  "include": [
-    "src/**/*"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "tests"
-  ],
+  "include": ["src/**/*", "tests/**/*"],
+  "exclude": ["node_modules", "dist"],
   "ts-node": {
     "esm": true
   }
-} 
+}

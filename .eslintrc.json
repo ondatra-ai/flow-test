@@ -64,5 +64,13 @@
     "node_modules/",
     "*.js",
     "*.d.ts"
+  ],
+  "overrides": [
+    {
+      "files": ["src/utils/logger.ts"],
+      "rules": {
+        "no-console": "off"
+      }
+    }
   ]
 } 
