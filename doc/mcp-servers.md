@@ -1,6 +1,6 @@
-# MCP Server Configuration Guide
+# MCP Server Configuration
 
-This document provides comprehensive guidance for configuring and managing MCP (Model Context Protocol) servers with the Claude Code CLI.
+This document provides comprehensive guidance for configuring and managing MCP (Model Context Protocol) servers with Ondatra Code.
 
 ## Overview
 
@@ -337,7 +337,7 @@ Configure network restrictions for HTTP servers:
     "url": "https://api.example.com/mcp",
     "headers": {
       "Authorization": "Bearer ${API_TOKEN}",
-      "User-Agent": "claude-code-cli/1.0"
+      "User-Agent": "ondatra-code/1.0"
     },
     "timeout": 30000,
     "retries": 3
@@ -400,7 +400,7 @@ Configure server-specific logging:
   "command": "mcp-server-postgres",
   "logging": {
     "level": "info",
-    "file": "~/.claude-code-cli/logs/database-server.log",
+    "file": "~/.ondatra-code/logs/database-server.log",
     "rotateSize": "10MB",
     "rotateCount": 5
   },
@@ -498,13 +498,13 @@ which mcp-server-filesystem
 **Verify configuration:**
 
 ```bash
-claude-code-cli --validate
+ondatra-code --validate
 ```
 
 **Check logs:**
 
 ```bash
-tail -f ~/.claude-code-cli/logs/server-manager.log
+tail -f ~/.ondatra-code/logs/server-manager.log
 ```
 
 ### Tool Discovery Issues
@@ -512,7 +512,7 @@ tail -f ~/.claude-code-cli/logs/server-manager.log
 **List available tools:**
 
 ```bash
-claude-code-cli --list-tools --server filesystem
+ondatra-code --list-tools --server filesystem
 ```
 
 **Test server manually:**
@@ -526,13 +526,13 @@ mcp-server-filesystem --root ./
 **Check server health:**
 
 ```bash
-claude-code-cli --check-servers
+ondatra-code --check-servers
 ```
 
 **Enable debug logging:**
 
 ```bash
-claude-code-cli --debug
+ondatra-code --debug
 ```
 
 **Verify transport configuration:**
@@ -551,7 +551,7 @@ ps aux | grep mcp-server
 **Check response times:**
 
 ```bash
-claude-code-cli --benchmark-servers
+ondatra-code --benchmark-servers
 ```
 
 **Optimize configuration:**
@@ -568,13 +568,13 @@ Servers are automatically managed by the CLI:
 
 ```bash
 # Start CLI (starts all configured servers)
-claude-code-cli
+ondatra-code
 
 # Stop all servers
-claude-code-cli --stop-servers
+ondatra-code --stop-servers
 
 # Restart specific server
-claude-code-cli --restart-server filesystem
+ondatra-code --restart-server filesystem
 ```
 
 ### Monitoring
@@ -583,13 +583,13 @@ Check server status:
 
 ```bash
 # List running servers
-claude-code-cli --list-servers --status
+ondatra-code --list-servers --status
 
 # Get detailed server info
-claude-code-cli --server-info filesystem
+ondatra-code --server-info filesystem
 
 # View server logs
-claude-code-cli --server-logs git
+ondatra-code --server-logs git
 ```
 
 ### Updates
@@ -601,7 +601,7 @@ Update server versions:
 npm update -g mcp-server-filesystem mcp-server-git
 
 # Restart servers after update
-claude-code-cli --restart-servers
+ondatra-code --restart-servers
 ```
 
 ## Best Practices

@@ -7,7 +7,7 @@
 Run the CLI in any directory that contains a `.flows` configuration:
 
 ```bash
-claude-code-cli
+ondatra-code
 ```
 
 The CLI will:
@@ -22,7 +22,7 @@ The CLI will:
 The CLI provides a chat-based interface similar to claude-code:
 
 ```
-╭─ Claude Code CLI ─────────────────────────────────╮
+╭─ Ondatra Code ────────────────────────────────────╮
 │                                                   │
 │ 🤖 Assistant: Hello! How can I help you today?   │
 │                                                   │
@@ -40,22 +40,22 @@ The CLI provides a chat-based interface similar to claude-code:
 
 ```bash
 # Show version
-claude-code-cli --version
+ondatra-code --version
 
 # Enable debug mode
-claude-code-cli --debug
+ondatra-code --debug
 
 # Use specific configuration directory
-claude-code-cli --config-dir /path/to/.flows
+ondatra-code --config-dir /path/to/.flows
 
 # List available flows
-claude-code-cli --list-flows
+ondatra-code --list-flows
 
 # Run specific flow
-claude-code-cli --flow hello-world
+ondatra-code --flow hello-world
 
 # Check configuration
-claude-code-cli --validate
+ondatra-code --validate
 ```
 
 ## Working with Flows
@@ -191,7 +191,7 @@ then stage it using the git server.
 Check your configuration for errors:
 
 ```bash
-claude-code-cli --validate
+ondatra-code --validate
 ```
 
 Output:
@@ -209,13 +209,13 @@ See what's available in your configuration:
 
 ```bash
 # List all flows
-claude-code-cli --list-flows
+ondatra-code --list-flows
 
 # List MCP servers
-claude-code-cli --list-servers
+ondatra-code --list-servers
 
 # List available tools
-claude-code-cli --list-tools
+ondatra-code --list-tools
 ```
 
 ### Configuration Hot Reload
@@ -317,7 +317,7 @@ The CLI watches for configuration changes and reloads automatically:
 Enable detailed logging:
 
 ```bash
-claude-code-cli --debug
+ondatra-code --debug
 ```
 
 This provides detailed information about:
@@ -334,10 +334,10 @@ Check log files for detailed error information:
 
 ```bash
 # View latest logs
-tail -f ~/.claude-code-cli/logs/claude-cli.log
+tail -f ~/.ondatra-code/logs/ondatra-cli.log
 
 # Search for errors
-grep "ERROR" ~/.claude-code-cli/logs/claude-cli.log
+grep "ERROR" ~/.ondatra-code/logs/ondatra-cli.log
 ```
 
 ## Tips and Tricks

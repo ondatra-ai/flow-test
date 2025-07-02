@@ -1,6 +1,6 @@
 # Development Guide
 
-This guide covers everything needed to contribute to the Claude Code CLI project, from setting up the development environment to implementing new features.
+This guide covers everything needed to contribute to the Ondatra Code project, from setting up the development environment to implementing new features.
 
 ## Prerequisites
 
@@ -17,7 +17,7 @@ This guide covers everything needed to contribute to the Claude Code CLI project
 ```bash
 # Clone the repository
 git clone <repository-url>
-cd claude-code-cli
+cd ondatra-code
 
 # Install dependencies
 npm install
@@ -35,7 +35,7 @@ npm run dev
 ### 2. Project Structure Overview
 
 ```
-claude-code-cli/
+ondatra-code/
 ├── src/
 │   ├── cli/                  # Chat interface implementation
 │   │   ├── chat.ts          # Main chat loop
@@ -666,4 +666,4 @@ Follow semantic versioning (MAJOR.MINOR.PATCH):
    this.stepExecutors.set('custom', new CustomStepExecutor());
    ```
 
-This development guide provides the foundation for contributing to the Claude Code CLI project. For specific questions or clarification on any topic, refer to the existing codebase or create an issue for discussion.
+This development guide provides the foundation for contributing to the Ondatra Code project. For specific questions or clarification on any topic, refer to the existing codebase or create an issue for discussion.

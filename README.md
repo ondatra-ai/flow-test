@@ -1,10 +1,10 @@
-# Claude Code CLI
+# Ondatra Code
 
-A TypeScript-based CLI application that clones claude-code functionality with a chat-based interface. The application integrates with AI models through MCP (Model Context Protocol) servers and executes custom-defined flows.
+An interactive conversational interface similar to claude-code. Built with TypeScript, this application integrates with AI models through MCP (Model Context Protocol) servers and executes custom-defined flows.
 
 ## Overview
 
-This project provides a command-line interface similar to claude-code, with the following key features:
+Ondatra Code provides a command-line interface similar to claude-code, with the following key features:
 
 - **Code generation and editing capabilities** - AI-powered code generation and modification
 - **MCP Server Integration** - Connect to multiple MCP servers for various tool capabilities  
@@ -28,7 +28,7 @@ This project provides a command-line interface similar to claude-code, with the 
    npm start
    ```
    
-   This should output: `Claude Code CLI`
+   This should output: `Ondatra Code`
 
 ## Available Commands
 

@@ -434,14 +434,14 @@ cat .flows/flows/my-flow.json | jq .
 
 ```bash
 # Check for undefined step references
-claude-code-cli --validate
+ondatra-code --validate
 ```
 
 **Tool Not Available**
 
 ```bash
 # List available tools for server
-claude-code-cli --list-tools --server filesystem
+ondatra-code --list-tools --server filesystem
 ```
 
 ### Debugging Tips

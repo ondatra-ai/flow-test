@@ -4,7 +4,10 @@ import { execSync } from 'node:child_process';
 import { rmSync, existsSync } from 'node:fs';
 
 /**
- * Build script for the Claude Code CLI project
+ * Build script for the Ondatra Code project
+ *
+ * This script handles TypeScript compilation and any additional
+ * build steps required for production deployment.
  */
 async function build(): Promise<void> {
   try {

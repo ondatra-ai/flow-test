@@ -1,6 +1,6 @@
 # Architecture Overview
 
-This document provides a high-level overview of the Claude Code CLI architecture, explaining how the different components work together to provide AI-powered development workflows.
+This document provides a high-level overview of the Ondatra Code architecture, explaining how the different components work together to provide AI-powered development workflows.
 
 ## System Overview
 

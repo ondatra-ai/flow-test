@@ -13,7 +13,7 @@ For developers who want to contribute or modify the CLI:
 ```bash
 # Clone the repository
 git clone <repository-url>
-cd claude-code-cli
+cd ondatra-code
 
 # Install dependencies
 npm install
@@ -120,11 +120,11 @@ Test your installation:
 
 ```bash
 # Check CLI is installed
-claude-code-cli --version
+ondatra-code --version
 
 # Run in a directory with .flows configuration
 cd your-project
-claude-code-cli
+ondatra-code
 ```
 
 ## Troubleshooting
@@ -157,8 +157,8 @@ claude-code-cli
 
 ### Getting Help
 
-- Check logs in `~/.claude-code-cli/logs/`
-- Run with debug mode: `claude-code-cli --debug`
+- Check logs in `~/.ondatra-code/logs/`
+- Run with debug mode: `ondatra-code --debug`
 - Review documentation in the `doc/` folder
 - Submit issues on the project repository
 

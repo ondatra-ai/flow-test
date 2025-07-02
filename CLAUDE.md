@@ -1,10 +1,10 @@
-# Ondatra-Code CLI Clone Project
+# Ondatra Code
 
-A TypeScript-based CLI application that replicates claude-code functionality with MCP (Model Context Protocol) server integration and custom flow definitions.
+An interactive conversational interface similar to claude-code with MCP (Model Context Protocol) server integration and custom flow definitions.
 
 ## Project Overview
 
-This project aims to create a chat-based CLI application similar to claude-code that can:
+Ondatra Code aims to create a chat-based CLI application similar to claude-code that can:
 - Generate and edit code through AI-powered conversations
 - Integrate with multiple MCP servers for extended capabilities
 - Execute custom-defined flows with branching logic
@@ -100,14 +100,14 @@ The application reads all configuration from the `.flows` folder in the current 
 
 ## Usage
 
-Once installed globally (`npm install -g ondatra-code-cli`) or via npx:
+Once installed globally (`npm install -g ondatra-code`) or via npx:
 
 ```bash
 # Run in a directory with .flows configuration
-ondatra-code-cli
+ondatra-code
 
 # Or with npx
-npx ondatra-code-cli
+npx ondatra-code
 ```
 
 The CLI will:
@@ -118,7 +118,7 @@ The CLI will:
 
 ## Project Rules
 
-Detailed development rules and standards are defined in `.cursor/rules/ondatra-code-cli/`:
+Detailed development rules and standards are defined in `.cursor/rules/ondatra-code/`:
 - Project overview and core features
 - Architecture patterns and design decisions
 - Development standards (TypeScript, testing, code quality)

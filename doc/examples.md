@@ -1,6 +1,6 @@
 # Examples and Use Cases
 
-This document provides practical examples of flows, configurations, and real-world use cases for the Claude Code CLI.
+This document provides practical examples of flows, configurations, and real-world use cases for Ondatra Code.
 
 ## Quick Start Examples
 
@@ -26,7 +26,7 @@ A simple introduction flow to test the system.
     },
     "end": {
       "type": "prompt",
-      "prompt": "Thank the user for using Claude Code CLI and encourage them to try more complex flows.",
+      "prompt": "Thank the user for using Ondatra Code and encourage them to try more complex flows.",
       "tools": [],
       "mcpServer": "filesystem",
       "nextStep": null
@@ -138,4 +138,4 @@ Automated code review flow that analyzes changes for quality, security, and best
 3. **Handle edge cases** - Include error paths and validation
 4. **Test thoroughly** - Verify all paths through your flows
 
-These examples provide a foundation for creating your own flows and understanding how to leverage the Claude Code CLI for development tasks.
+These examples provide a foundation for creating your own flows and understanding how to leverage Ondatra Code for development tasks.
