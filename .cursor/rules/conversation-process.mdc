@@ -1,0 +1,27 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Process Pull Request Comments
+
+## Purpose
+This workflow processes analyzed pull request comments from `./tmp/PR_CONVERSATIONS.md` and executes actions based on the Decision field for each relevant comment.
+
+## Process
+
+### 1. Read Analysis File
+- Load `./tmp/PR_CONVERSATIONS.md` 
+- Parse all comments
+
+### 2. Process Each Conversation
+1. if Status is OUTDATED, mark it as resolved 
+2. if Decision is IGNORE or Empty on you can't recognise what to do then go to next item
+3. if Decision is RESOLVE then just mark it as resolved  
+3. if Decision is Process, then process it carefully, using commun rules and then mark it as resolved 
+
+## Notes
+
+- To mark converssatio resolves use command `npx tsx scripts/resolve-pr-conversation.ts`
+
+

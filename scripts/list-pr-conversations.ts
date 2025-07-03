@@ -15,6 +15,12 @@ interface Comment {
   url: string;
 }
 
+interface Conversation {
+  id: string;
+  isResolved: boolean;
+  comments: Comment[];
+}
+
 interface CommentNode {
   path: string | null;
   line: number | null;
@@ -29,6 +35,7 @@ interface CommentNode {
 }
 
 interface ThreadNode {
+  id: string;
   isResolved: boolean;
   comments: {
     nodes: CommentNode[];
@@ -63,6 +70,7 @@ function buildGraphQLQuery(): string {
         pullRequest(number: $prNumber) {
           reviewThreads(first: 100) {
             nodes {
+              id
               isResolved
               comments(first: 10) {
                 nodes {
@@ -86,13 +94,13 @@ function buildGraphQLQuery(): string {
   `;
 }
 
-function parseComments(data: GraphQLResponse): Comment[] {
-  const comments: Comment[] = [];
+function parseConversations(data: GraphQLResponse): Conversation[] {
+  const conversations: Conversation[] = [];
 
   data.data.repository.pullRequest.reviewThreads.nodes.forEach(
     (thread: ThreadNode) => {
-      thread.comments.nodes.forEach((comment: CommentNode) => {
-        comments.push({
+      const comments: Comment[] = thread.comments.nodes.map(
+        (comment: CommentNode) => ({
           file: comment.path,
           line: comment.line,
           author: comment.author.login,
@@ -102,12 +110,18 @@ function parseComments(data: GraphQLResponse): Comment[] {
           resolved: thread.isResolved,
           diffHunk: comment.diffHunk,
           url: comment.url,
-        });
+        })
+      );
+
+      conversations.push({
+        id: thread.id,
+        isResolved: thread.isResolved,
+        comments,
       });
     }
   );
 
-  return comments;
+  return conversations;
 }
 
 function getPRComments(prNumber: string): void {
@@ -120,16 +134,19 @@ function getPRComments(prNumber: string): void {
     );
 
     const data = JSON.parse(result) as GraphQLResponse;
-    const comments = parseComments(data);
+    const conversations = parseConversations(data);
 
-    // Sort by creation date
-    comments.sort(
-      (a, b) =>
-        new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-    );
+    // Sort by creation date of first comment in each conversation
+    conversations.sort((a: Conversation, b: Conversation) => {
+      const aFirstComment = a.comments[0]?.createdAt || '';
+      const bFirstComment = b.comments[0]?.createdAt || '';
+      return (
+        new Date(aFirstComment).getTime() - new Date(bFirstComment).getTime()
+      );
+    });
 
     // Output JSON by default for programmatic use
-    console.log(JSON.stringify(comments, null, 2));
+    console.log(JSON.stringify(conversations, null, 2));
   } catch (error) {
     console.error('Error fetching PR comments:', error);
     process.exit(1);

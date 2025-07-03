@@ -4,6 +4,7 @@ import 'reflect-metadata';
 import { program } from 'commander';
 
 import { container, configureContainer } from './config/container.js';
+import { TOKENS } from './config/tokens.js';
 import type { Logger } from './utils/logger.js';
 
 // Configure dependency injection container
@@ -16,7 +17,7 @@ configureContainer();
  * basic version information and help commands.
  */
 async function main(): Promise<void> {
-  const logger = container.resolve<Logger>('Logger');
+  const logger = container.resolve<Logger>(TOKENS.Logger);
 
   program
     .name('ondatra-code')
@@ -42,7 +43,7 @@ async function main(): Promise<void> {
 }
 
 main().catch((error: unknown) => {
-  const logger = container.resolve<Logger>('Logger');
+  const logger = container.resolve<Logger>(TOKENS.Logger);
   logger.info('Ondatra Code');
   logger.error('Failed to start application:', {
     error: error instanceof Error ? error.message : String(error),

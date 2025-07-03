@@ -11,7 +11,7 @@ This workflow analyzes pull request comments against the current codebase to ide
 ## Process
 
 1. Get PR Number: `npx tsx scripts/get-pr-number.ts`
-2. Fetch PR Comments: `npx tsx scripts/list-pr-comments.ts <PR_NUMBER>`
+2. Fetch PR Comments: `npx tsx scripts/list-pr-conversations.ts <PR_NUMBER>`
 3. Analyze Comments
 For each comment retrieved:
 - Review the comment content
@@ -39,15 +39,15 @@ Create a detailed report that includes:
 - **Vague comments**: Comments without specific details (e.g., "this looks wrong") should be marked as RELEVANT
 - **Decision field**: Always leave the Decision field empty for the user to fill in later
 
-### 5. Save the analysis report to `./tmp/PR_COMMENTS.md`, Use the following structure:
+### 5. Save the analysis report to `./tmp/PR_CONVERSATIONS.md`, Use the following structure:
 
 ```markdown
 # All Conversations for PR #4:
 
 ## ❌ OUTDATED (Fixed by previous changes):
 
-
 ### **<relative path to file>:<line>** 
+Id: <conversation id>
 Author: <the author of a comment>
 Description: <once sentence up to 40 words what actually this comment about>
 ----
@@ -58,6 +58,7 @@ Status: <RELEVANT>:<Explanation why this is relevant>
 ## ✅ STILL RELEVANT (Need to be fixed):
 
 ### **<relative path to file>:<line>** 
+Id: <conversation id>
 Author: <the author of a comment>
 Description: <once sentence up to 40 words what actually this comment about>
 ----
