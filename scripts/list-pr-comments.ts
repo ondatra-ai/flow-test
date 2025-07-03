@@ -8,7 +8,9 @@ interface Comment {
   line: number | null;
   author: string;
   body: string;
+  createdAt: string;
   outdated: boolean;
+  resolved: boolean;
   diffHunk: string;
   url: string;
 }
@@ -17,6 +19,7 @@ interface CommentNode {
   path: string | null;
   line: number | null;
   body: string;
+  createdAt: string;
   outdated: boolean;
   diffHunk: string;
   url: string;
@@ -26,6 +29,7 @@ interface CommentNode {
 }
 
 interface ThreadNode {
+  isResolved: boolean;
   comments: {
     nodes: CommentNode[];
   };
@@ -59,11 +63,13 @@ function buildGraphQLQuery(): string {
         pullRequest(number: $prNumber) {
           reviewThreads(first: 100) {
             nodes {
+              isResolved
               comments(first: 10) {
                 nodes {
                   path
                   line
                   body
+                  createdAt
                   outdated
                   diffHunk
                   url
@@ -91,7 +97,9 @@ function parseComments(data: GraphQLResponse): Comment[] {
           line: comment.line,
           author: comment.author.login,
           body: comment.body,
+          createdAt: comment.createdAt,
           outdated: comment.outdated,
+          resolved: thread.isResolved,
           diffHunk: comment.diffHunk,
           url: comment.url,
         });
@@ -114,7 +122,13 @@ function getPRComments(prNumber: string): void {
     const data = JSON.parse(result) as GraphQLResponse;
     const comments = parseComments(data);
 
-    // Output comments as JSON
+    // Sort by creation date
+    comments.sort(
+      (a, b) =>
+        new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+    );
+
+    // Output JSON by default for programmatic use
     console.log(JSON.stringify(comments, null, 2));
   } catch (error) {
     console.error('Error fetching PR comments:', error);
