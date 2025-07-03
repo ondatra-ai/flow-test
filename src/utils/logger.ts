@@ -77,8 +77,3 @@ export class ConsoleLogger implements Logger {
     }
   }
 }
-
-/**
- * Default logger instance
- */
-export const logger: Logger = new ConsoleLogger();
