@@ -30,7 +30,7 @@ For each comment retrieved:
 Create a detailed report that includes:
 - Summary of all comments analyzed
 - List of comments that are still relevant
-- if issue is still relevant, provice recommendation for addressing the comment
+- if issue is still relevant, provide recommendation for addressing the comment
 - Any comments that need further investigation
 
 #### Edge Cases:
@@ -65,7 +65,7 @@ Description: <once sentence up to 40 words what actually this comment about>
 <Full text of original comment>
 ----
 Status: <RELEVANT>:<Explanation why this is relevant>
-Recommendation: <Recommentation whether this issue needs to be processed or ignored>
+Recommendation: <Recommendation whether this issue needs to be processed or ignored>
 Decision: 
 
 ```
