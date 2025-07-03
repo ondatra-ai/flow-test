@@ -3,12 +3,12 @@
   "version": "1.0.0",
   "description": "Ondatra Code - An interactive conversational interface similar to claude-code with MCP server integration and custom flows",
   "type": "module",
-  "main": "dist/index.js",
+  "main": "dist/src/index.js",
   "bin": {
-    "ondatra-code": "dist/index.js"
+    "ondatra-code": "dist/src/index.js"
   },
   "scripts": {
-    "start": "node dist/index.js",
+    "start": "node dist/src/index.js",
     "dev": "tsx src/index.ts",
     "build": "tsc",
     "test": "vitest --run",
@@ -52,7 +52,9 @@
     "vitest": "^1.0.4"
   },
   "dependencies": {
-    "commander": "^11.1.0"
+    "commander": "^11.1.0",
+    "reflect-metadata": "^0.2.2",
+    "tsyringe": "^4.10.0"
   },
   "engines": {
     "node": ">=18.0.0"

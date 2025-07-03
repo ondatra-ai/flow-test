@@ -1,3 +1,5 @@
+import { injectable } from 'tsyringe';
+
 /**
  * Log levels for the application
  */
@@ -21,6 +23,7 @@ export interface Logger {
 /**
  * Simple console logger implementation
  */
+@injectable()
 export class ConsoleLogger implements Logger {
   constructor(private readonly level: LogLevel = LogLevel.INFO) {}
 
