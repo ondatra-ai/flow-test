@@ -13,11 +13,9 @@ alwaysApply: true
 │   │   ├── chat.ts           # Chat interface implementation
 │   │   ├── renderer.ts       # UI rendering logic
 │   │   └── input-handler.ts  # User input processing
-│   ├── flows/
-│   │   ├── flow-loader.ts    # Load and validate flow files
-│   │   ├── flow-executor.ts  # Execute flow steps
-│   │   ├── condition-evaluator.ts # Evaluate conditions
-│   │   └── types.ts          # Flow type definitions
+│   ├── services/
+│   │   └── flow-service/
+│   │       └── flow-service.ts   # Flow service implementation
 │   ├── mcp/
 │   │   ├── server-manager.ts # Manage MCP server lifecycle
 │   │   ├── client.ts         # MCP client implementation
