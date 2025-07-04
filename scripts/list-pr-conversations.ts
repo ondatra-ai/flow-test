@@ -97,8 +97,9 @@ function buildGraphQLQuery(): string {
 function parseConversations(data: GraphQLResponse): Conversation[] {
   const conversations: Conversation[] = [];
 
-  data.data.repository.pullRequest.reviewThreads.nodes.forEach(
-    (thread: ThreadNode) => {
+  data.data.repository.pullRequest.reviewThreads.nodes
+    .filter((thread: ThreadNode) => !thread.isResolved)
+    .forEach((thread: ThreadNode) => {
       const comments: Comment[] = thread.comments.nodes.map(
         (comment: CommentNode) => ({
           file: comment.path,
@@ -118,8 +119,7 @@ function parseConversations(data: GraphQLResponse): Conversation[] {
         isResolved: thread.isResolved,
         comments,
       });
-    }
-  );
+    });
 
   return conversations;
 }
