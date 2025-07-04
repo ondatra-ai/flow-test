@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import { describe, it, expect, vi, beforeEach, MockInstance } from 'vitest';
 
 import { ConsoleLogger, LogLevel } from '../../../src/utils/logger';
