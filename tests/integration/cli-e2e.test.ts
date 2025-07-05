@@ -4,16 +4,17 @@ import { TestEnvironment } from './utils/test-environment.js';
 
 let testEnv: TestEnvironment;
 
+// Setup and cleanup for all tests
+beforeAll(() => {
+  testEnv = new TestEnvironment();
+  testEnv.setup();
+});
+
+afterAll(() => {
+  testEnv.cleanup();
+});
+
 describe('CLI E2E Tests - Setup', () => {
-  beforeAll(() => {
-    testEnv = new TestEnvironment();
-    testEnv.setup();
-  });
-
-  afterAll(() => {
-    testEnv.cleanup();
-  });
-
   it('should initialize test environment', () => {
     expect(testEnv).toBeDefined();
   });

@@ -21,11 +21,13 @@ export interface RunCommandOptions {
  */
 export class TestEnvironment {
   private readonly CLI_PATH: string;
+  private readonly NODE_PATH: string;
   private activeProcesses: ChildProcess[] = [];
   private testDataDir?: string;
 
   constructor() {
     this.CLI_PATH = resolve(__dirname, '../../../dist/src/index.js');
+    this.NODE_PATH = process.execPath; // Get absolute path to Node.js
   }
 
   /**
@@ -42,6 +44,33 @@ export class TestEnvironment {
     // Create a temporary test data directory
     this.testDataDir = resolve(__dirname, '../temp-test-data');
     this.createTestFlowsConfiguration();
+
+    // Verify the test environment was created correctly
+    this.verifyTestEnvironment();
+  }
+
+  /**
+   * Verify that the test environment was set up correctly
+   */
+  private verifyTestEnvironment(): void {
+    if (!this.testDataDir) {
+      throw new Error('Test data directory not initialized');
+    }
+
+    const requiredPaths = [
+      this.testDataDir,
+      resolve(this.testDataDir, '.flows'),
+      resolve(this.testDataDir, '.flows/flows'),
+      resolve(this.testDataDir, '.flows/servers'),
+      resolve(this.testDataDir, '.flows/flows/test-flow.json'),
+      resolve(this.testDataDir, '.flows/servers/test-server.json'),
+    ];
+
+    for (const path of requiredPaths) {
+      if (!existsSync(path)) {
+        throw new Error(`Required test path does not exist: ${path}`);
+      }
+    }
   }
 
   /**
@@ -78,14 +107,21 @@ export class TestEnvironment {
     return new Promise((resolve, reject) => {
       const spawnOptions: SpawnOptionsWithoutStdio = {
         stdio: ['pipe', 'pipe', 'pipe'],
+        env: { ...process.env }, // Ensure environment is properly inherited
       };
 
-      if (workingDirectory) {
-        spawnOptions.cwd = workingDirectory;
+      // Set working directory, defaulting to test data directory
+      const cwd = workingDirectory || this.getTestDataDir();
+
+      if (!existsSync(cwd)) {
+        reject(new Error(`Working directory does not exist: ${cwd}`));
+        return;
       }
 
+      spawnOptions.cwd = cwd;
+
       const childProcess = spawn(
-        'node',
+        this.NODE_PATH, // Use absolute path to avoid PATH issues
         [this.CLI_PATH, ...args],
         spawnOptions
       );
@@ -229,6 +265,14 @@ export class TestEnvironment {
     if (!this.testDataDir) {
       throw new Error('Test data directory not initialized');
     }
+
+    // Verify the directory still exists
+    if (!existsSync(this.testDataDir)) {
+      throw new Error(
+        `Test data directory no longer exists: ${this.testDataDir}`
+      );
+    }
+
     return this.testDataDir;
   }
 
