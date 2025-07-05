@@ -4,7 +4,7 @@ This guide covers everything needed to contribute to the Ondatra Code project, f
 
 ## Prerequisites
 
-- **Node.js**: Version 18 or higher
+- **Node.js**: Version 22 or higher
 - **npm**: Version 8 or higher
 - **Git**: For version control
 - **TypeScript**: Global installation recommended (`npm install -g typescript`)

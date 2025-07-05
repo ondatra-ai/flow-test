@@ -28,7 +28,13 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true
   },
-  "include": ["src/**/*", "tests/**/*", "scripts/**/*", "e2e/**/*"],
+  "include": [
+    "src/**/*",
+    "tests/**/*",
+    "scripts/**/*",
+    "e2e/**/*",
+    "vitest.config.ts"
+  ],
   "exclude": ["node_modules", "dist", "tests/integration/data/**/*"],
   "ts-node": {
     "esm": true

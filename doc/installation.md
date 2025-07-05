@@ -2,7 +2,7 @@
 
 ## Prerequisites
 
-- **Node.js**: Version 18 or higher
+- **Node.js**: Version 22 or higher
 - **npm**: Version 8 or higher (comes with Node.js)
 - **TypeScript**: Version 5 or higher (installed globally or via npm)
 
