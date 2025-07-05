@@ -8,44 +8,77 @@ alwaysApply: true
 ## Directory Structure
 ```
 ./
-├── src/
-│   ├── cli/
-│   │   ├── chat.ts           # Chat interface implementation
-│   │   ├── renderer.ts       # UI rendering logic
-│   │   └── input-handler.ts  # User input processing
-│   ├── services/
-│   │   └── flow-service/
-│   │       └── flow-service.ts   # Flow service implementation
-│   ├── mcp/
-│   │   ├── server-manager.ts # Manage MCP server lifecycle
-│   │   ├── client.ts         # MCP client implementation
-│   │   ├── tool-registry.ts  # Tool discovery and caching
-│   │   └── types.ts          # MCP type definitions
-│   ├── config/
-│   │   ├── config-loader.ts  # Load .flows configuration
-│   │   └── validator.ts      # Validate configurations
-│   ├── utils/
-│   │   ├── logger.ts         # Logging utilities
-│   │   └── errors.ts         # Custom error classes
-│   └── index.ts              # Main entry point
-├── tests/
-│   ├── unit/                 # Unit tests (mirrors src structure)
-│   └── integration/          # Integration tests
-├── examples/
-│   └── .flows/               # Example configurations
-│       ├── flows/
-│       │   └── example-flow.json
-│       └── servers/
-│           └── example-server.json
-├── doc/
-│   ├── installation.md       # Installation and setup guide
-│   ├── usage.md              # Usage documentation
-│   ├── flow-format.md        # Flow format reference
-│   ├── mcp-servers.md        # MCP server configuration guide
-│   ├── examples.md           # Example flows and use cases
-│   ├── development.md        # Development guide for contributors
-│   └── architecture.md       # System architecture overview
-├── README.md                 # Main project documentation
-└── scripts/
-    └── build.ts              # Build script
+├── src/                                   # Source code directory for the application
+│   ├── cli/                               # Command-line interface components
+│   │   ├── chat.ts                        # Chat interface implementation (empty, awaits implementation)
+│   │   ├── renderer.ts                    # UI rendering logic for terminal output (empty, awaits implementation)
+│   │   └── input-handler.ts               # User input processing and validation (empty, awaits implementation)
+│   ├── services/                          # Business logic services
+│   │   └── flow-service/                  # Flow execution service directory
+│   │       └── flow-service.ts            # Flow service implementation with basic class structure
+│   ├── mcp/                               # Model Context Protocol integration
+│   │   ├── server-manager.ts              # Manage MCP server lifecycle and processes (empty, awaits implementation)
+│   │   ├── client.ts                      # MCP client implementation for communication (empty, awaits implementation)
+│   │   ├── tool-registry.ts               # Tool discovery and caching mechanisms (empty, awaits implementation)
+│   │   └── types.ts                       # MCP type definitions including server configs and tool interfaces
+│   ├── config/                            # Configuration management
+│   │   ├── config-loader.ts               # Load .flows configuration files (empty, awaits implementation)
+│   │   ├── validator.ts                   # Validate configurations and flow files (empty, awaits implementation)
+│   │   ├── container.ts                   # Dependency injection container setup using tsyringe
+│   │   └── tokens.ts                      # DI tokens definitions using symbols for type safety
+│   ├── utils/                             # Utility functions and helpers
+│   │   ├── logger.ts                      # Logging utilities with console logger implementation and structured logging
+│   │   ├── errors.ts                      # Custom error classes for configuration, flow, MCP, and validation errors
+│   │   └── test-templates.ts              # Test template utilities for generating e2e test files and page objects
+│   └── index.ts                           # Main entry point with CLI setup and test generation commands
+├── tests/                                 # Testing infrastructure
+│   ├── unit/                              # Unit tests (mirrors src structure)
+│   │   └── utils/                         # Unit tests for utility functions
+│   │       ├── errors.test.ts             # Tests for custom error classes and error handling
+│   │       ├── logger.test.ts             # Tests for logging functionality and log levels
+│   │       ├── test-directory.test.ts     # Tests for test directory creation utilities
+│   │       └── timestamp.test.ts          # Tests for timestamp generation functionality
+│   ├── integration/                       # Integration tests
+│   │   ├── cli-e2e.test.ts                # End-to-end tests for CLI functionality and commands
+│   │   ├── test-generation-e2e.test.ts    # Integration tests for test generation features
+│   │   ├── README.md                      # Documentation for integration test setup and execution
+│   │   └── data/                          # Test data directory (contains test fixtures and examples)
+│   └── test-utils/                        # Test utilities
+│       ├── file-utils.ts                  # File structure utilities for getting directory contents recursively
+│       ├── test-directory.ts              # Test directory creation with timestamp-based naming
+│       ├── test-environment.ts            # Test environment setup and configuration (empty, awaits implementation)
+│       └── timestamp.ts                   # Timestamp generation for unique test directory names
+├── examples/                              # Example configurations and samples
+│   └── .flows/                            # Example configurations
+│       ├── flows/                         # Example flow definition files
+│       │   └── example-flow.json          # Sample flow definition with steps and conditions (empty, awaits implementation)
+│       └── servers/                       # Example MCP server configurations
+│           └── example-server.json        # Sample MCP server configuration file (empty, awaits implementation)
+├── doc/                                   # Project documentation
+│   ├── installation.md                    # Installation and setup guide for users
+│   ├── usage.md                           # Usage documentation and examples
+│   ├── flow-format.md                     # Flow format reference and specification
+│   ├── mcp-servers.md                     # MCP server configuration guide
+│   ├── examples.md                        # Example flows and use cases
+│   ├── development.md                     # Development guide for contributors
+│   └── architecture.md                    # System architecture overview and design decisions
+├── scripts/                               # Build and utility scripts
+│   ├── build.ts                           # Build script for TypeScript compilation and production deployment
+│   ├── get-pr-number.ts                   # PR number utility using GitHub CLI to find associated pull requests
+│   ├── list-pr-conversations.ts           # List PR conversations script (empty, awaits implementation)
+│   └── resolve-pr-conversation.ts         # Resolve PR conversation script (empty, awaits implementation)
+├── coverage/                              # Test coverage reports generated by Vitest
+├── test_results/                          # Test execution results and output files
+├── CLAUDE.md                              # Claude AI integration documentation with project overview and usage
+├── README.md                              # Main project documentation with setup and basic information
+├── package.json                           # Node.js dependencies, scripts, and project metadata for Ondatra Code CLI
+├── package-lock.json                      # Locked dependency versions for reproducible builds
+├── tsconfig.json                          # TypeScript configuration with strict compiler settings
+└── vitest.config.ts                       # Vitest test configuration for unit and integration testing
 ```
+
+## Test Data Structure
+- All content beneath `tests/integration/data/` contains test data and fixtures
+- Test data includes example projects, expected outputs, and test scenarios
+- Test data structure may vary based on specific test requirements
+- Do not expand all files in test data directory in documentation
