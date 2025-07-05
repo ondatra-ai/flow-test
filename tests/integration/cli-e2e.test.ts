@@ -1,12 +1,12 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 
-import { TestEnvironment } from './utils/test-environment.js';
+import { TestEnvironment } from '../test-utils/test-environment.js';
 
 let testEnv: TestEnvironment;
 
 // Setup and cleanup for all tests
 beforeAll(() => {
-  testEnv = new TestEnvironment('cli-e2e');
+  testEnv = new TestEnvironment();
   testEnv.setup();
 });
 

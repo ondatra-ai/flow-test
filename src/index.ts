@@ -161,7 +161,7 @@ async function generateTests(): Promise<void> {
     await fs.mkdir(pagesDir, { recursive: true });
 
     // Create all the necessary files
-    await createPlaywrightConfig(join(e2eDir, 'playwright.config.ts'));
+    await createPlaywrightConfig(join(process.cwd(), 'playwright.config.ts'));
     await createTestDescription(join(e2eDir, 'desc.md'));
     await createTestSpec(join(e2eDir, 'login.spec.js'));
     await createPageObjects(pagesDir);

@@ -11,33 +11,9 @@ import {
   afterEach,
 } from 'vitest';
 
-import { TestEnvironment } from './utils/test-environment.js';
-
-/**
- * Create a timestamp string for unique test directories
- */
-function createTimestamp(): string {
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, '0');
-  const day = String(now.getDate()).padStart(2, '0');
-  const hours = String(now.getHours()).padStart(2, '0');
-  const minutes = String(now.getMinutes()).padStart(2, '0');
-  const seconds = String(now.getSeconds()).padStart(2, '0');
-
-  return `${year}-${month}-${day}_${hours}-${minutes}-${seconds}`;
-}
-
-/**
- * Create test directory path
- */
-function createTestDirPath(taskName: string): string {
-  const dateTime = createTimestamp();
-  const testName = taskName.replace(/[^a-zA-Z0-9-_]/g, '_').toLowerCase();
-  const testResultsDir = resolve('./test_results');
-
-  return join(testResultsDir, dateTime, testName);
-}
+import { getFileStructure } from '../test-utils/file-utils.js';
+import { createTestDirPath } from '../test-utils/test-directory.js';
+import { TestEnvironment } from '../test-utils/test-environment.js';
 
 /**
  * Copy a directory recursively
@@ -60,45 +36,15 @@ async function copyDirectory(src: string, dest: string): Promise<void> {
 }
 
 /**
- * Get file structure (just file paths, not content)
- */
-async function getFileStructure(dirPath: string): Promise<string[]> {
-  const files: string[] = [];
-
-  try {
-    const entries = await fs.readdir(dirPath, { withFileTypes: true });
-
-    for (const entry of entries) {
-      const fullPath = join(dirPath, entry.name);
-
-      if (entry.isDirectory()) {
-        const subFiles = await getFileStructure(fullPath);
-        files.push(...subFiles.map(f => join(entry.name, f)));
-      } else {
-        files.push(entry.name);
-      }
-    }
-  } catch {
-    // Directory doesn't exist or can't be read
-  }
-
-  return files.sort();
-}
-
-/**
  * Helper function to set up initial test state
  */
-async function setupInitialState(tempTestDir: string): Promise<void> {
-  const initialStatePath = resolve(
-    __dirname,
-    'data/create-login-tests/initial-state'
-  );
+async function setupInitialState(
+  tempTestDir: string,
+  testDataPath: string
+): Promise<void> {
+  const initialStatePath = resolve(__dirname, testDataPath, 'initial-state');
 
   await copyDirectory(initialStatePath, tempTestDir);
-
-  // Verify initial state
-  const initialFiles = await getFileStructure(tempTestDir);
-  expect(initialFiles).toContain('playwright.config.ts');
 }
 
 /**
@@ -121,23 +67,16 @@ async function runCliCommand(
 /**
  * Helper function to verify the generated file structure
  */
-async function verifyGeneratedStructure(tempTestDir: string): Promise<void> {
-  const e2eDir = join(tempTestDir, 'e2e', 'login-functionality');
-  const actualFiles = await getFileStructure(e2eDir);
+async function verifyGeneratedStructure(
+  tempTestDir: string,
+  testDataPath: string
+): Promise<void> {
+  const resultsStatePath = resolve(__dirname, testDataPath, 'results-state');
+  const expected = await getFileStructure(resultsStatePath);
 
-  // Check that all expected files exist
-  const expectedFiles = [
-    'desc.md',
-    'login.spec.js',
-    'pages/LoginPage.js',
-    'pages/LogoutPage.js',
-    'pages/MemberPage.js',
-    'playwright.config.ts',
-  ];
+  const actual = await getFileStructure(tempTestDir);
 
-  for (const expectedFile of expectedFiles) {
-    expect(actualFiles).toContain(expectedFile);
-  }
+  expect(actual).toEqual(expected);
 }
 
 /**
@@ -149,7 +88,7 @@ describe('CLI E2E Tests - tests:generate command', () => {
   let tempTestDir: string;
 
   beforeAll(() => {
-    testEnv = new TestEnvironment('test-generation');
+    testEnv = new TestEnvironment();
     testEnv.setup();
   });
 
@@ -169,14 +108,23 @@ describe('CLI E2E Tests - tests:generate command', () => {
     // The test_results directory is gitignored
   });
 
-  it('should generate e2e test structure from initial state', async () => {
-    // Step 1: Set up initial state
-    await setupInitialState(tempTestDir);
+  it.each([
+    {
+      testName: 'create-login-tests',
+      testDataPath: 'data/create-login-tests',
+    },
+  ])(
+    'should generate e2e test structure from initial state for $testName',
+    async ({ testDataPath }) => {
+      // Step 1: Set up initial state
+      await setupInitialState(tempTestDir, testDataPath);
 
-    // Step 2: Run the tests:generate CLI command
-    await runCliCommand(testEnv, tempTestDir);
+      // Step 2: Run the tests:generate CLI command
+      await runCliCommand(testEnv, tempTestDir);
 
-    // Step 3: Verify the generated structure
-    await verifyGeneratedStructure(tempTestDir);
-  }, 15000);
+      // Step 3: Verify the generated structure
+      await verifyGeneratedStructure(tempTestDir, testDataPath);
+    },
+    15000
+  );
 });
