@@ -1,7 +1,4 @@
 #!/usr/bin/env node
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 
 import { IncomingMessage } from 'http';
 import * as https from 'https';

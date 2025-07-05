@@ -16,7 +16,7 @@ This directory contains the Docker configuration for the Goodday MCP Server.
 
 ## Environment Configuration
 
-Create a `.env` file in the `mcps/` directory (one level up) with the following content:
+Create a `.env` file in the project root (next to `docker-compose.mcps.yml`) with the following content:
 
 ```bash
 # Goodday MCP Server Configuration
@@ -25,16 +25,16 @@ GOODDAY_API_TOKEN=your_goodday_api_token_here
 
 ## Running the Server
 
-From the `mcps/` directory, run:
+From the project root, run:
 
 ```bash
-docker compose up goodday-mcp
+docker compose -f docker-compose.mcps.yml up goodday-mcp
 ```
 
 Or to run all MCP servers:
 
 ```bash
-docker compose up
+docker compose -f docker-compose.mcps.yml up
 ```
 
 ## Server Details

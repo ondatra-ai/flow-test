@@ -27,7 +27,7 @@ EXPOSE 8000
 
 # Health check to ensure the server is running
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD python -c "import goodday_mcp.main; print('MCP server is available')" || exit 1
+    CMD ["sh", "-c", "python -c \"import goodday_mcp.main; print('MCP server is available')\" || exit 1"]
 
 # Run the goodday-mcp server using the correct function
 CMD ["python", "-c", "from goodday_mcp.main import run_cli; run_cli()"] 
