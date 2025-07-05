@@ -160,10 +160,7 @@ function postToSlack(message: string): void {
 
   const postData: string = JSON.stringify(payload);
   const slackOptions = createSlackOptions(webhookUrl, postData);
-  const slackReq = https.request(
-    slackOptions,
-    handleSlackResponse
-  ) as https.ClientRequest;
+  const slackReq = https.request(slackOptions, handleSlackResponse);
 
   slackReq.on('error', (err: Error) => {
     process.stderr.write(`Error posting to Slack: ${err.message}\n`);
@@ -259,7 +256,7 @@ function handleGitHubResponse(res: IncomingMessage): void {
 }
 
 // Make the GitHub API request
-const req = https.request(options, handleGitHubResponse) as https.ClientRequest;
+const req = https.request(options, handleGitHubResponse);
 
 req.on('error', (err: Error) => {
   process.stderr.write(`Error making request: ${err.message}\n`);
