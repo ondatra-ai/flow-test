@@ -23,6 +23,6 @@ This workflow processes analyzed pull request comments from `./tmp/PR_CONVERSATI
 ## Notes
 - If Id: Local then no need to resolve conversation, it's made by local tool
 - To mark conversation resolved use command `npx tsx scripts/resolve-pr-conversation.ts COVERSTION_ID Comments`
-- Use comment provided in Decision, rephrase it to fix English, but keep wording. If process was processes, than create 7-15 words comment what ws made exactly.
+- Use comment provided in Decision, rephrase it to fix English, but keep wording. If conversation was processed, than create 7-15 words comment what ws made exactly.
 
 
