@@ -1,0 +1,32 @@
+services:
+  # Goodday MCP Server
+  goodday-mcp:
+    build:
+      context: ./mcps/goodday-mcp
+      dockerfile: Dockerfile
+    container_name: goodday-mcp-server
+    environment:
+      - GOODDAY_API_TOKEN=${GOODDAY_API_TOKEN}
+    networks:
+      - mcp-network
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD', 'python', '-c', "import goodday_mcp.main; print('OK')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    volumes:
+      - mcp-logs:/app/logs
+    ports:
+      - '8001:8000'
+
+networks:
+  mcp-network:
+    driver: bridge
+    name: mcp-servers-network
+
+volumes:
+  # Shared volumes for logs and data
+  mcp-logs:
+    driver: local
