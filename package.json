@@ -11,12 +11,11 @@
     "start": "node dist/src/index.js",
     "dev": "tsx src/index.ts",
     "build": "tsc",
-    "test": "npm run build && vitest --run",
+    "test": "vitest --run",
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
-    "test:coverage": "npm run build && vitest --coverage --run",
     "test:unit": "vitest --run tests/unit",
-    "test:e2e": "npm run build && vitest --run tests/integration",
+    "test:e2e": "vitest --run tests/integration",
     "test:e2e:watch": "npm run build && vitest tests/integration",
     "lint": "eslint \"src/**/*.ts\" \"tests/**/*.ts\" \"scripts/**/*.ts\"",
     "lint:fix": "eslint \"src/**/*.ts\" \"tests/**/*.ts\" \"scripts/**/*.ts\" --fix",
@@ -60,6 +59,6 @@
     "tsyringe": "^4.10.0"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=22.0.0"
   }
 }

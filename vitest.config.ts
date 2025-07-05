@@ -6,25 +6,25 @@ export default defineConfig({
     environment: 'node',
     coverage: {
       provider: 'v8',
-      reporter: ['text', 'json', 'html'],
+      reporter: ['text', 'json', 'html', 'lcov'],
       exclude: [
         'node_modules/',
         'dist/',
         'tests/',
         '**/*.d.ts',
         '**/*.config.*',
-        '**/index.ts'
+        '**/index.ts',
       ],
       thresholds: {
         global: {
           branches: 80,
           functions: 80,
           lines: 80,
-          statements: 80
-        }
-      }
+          statements: 80,
+        },
+      },
     },
     include: ['tests/**/*.test.ts', 'src/**/*.test.ts'],
-    exclude: ['node_modules/', 'dist/']
-  }
-}); 
+    exclude: ['node_modules/', 'dist/'],
+  },
+});
