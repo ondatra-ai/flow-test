@@ -25,9 +25,14 @@ export class TestEnvironment {
   private activeProcesses: ChildProcess[] = [];
   private testDataDir?: string;
 
-  constructor() {
+  constructor(testId?: string) {
     this.CLI_PATH = resolve(__dirname, '../../../dist/src/index.js');
     this.NODE_PATH = process.execPath; // Get absolute path to Node.js
+
+    // Generate a unique test data directory name
+    const uniqueId =
+      testId || `test-${Date.now()}-${Math.random().toString(36).substring(7)}`;
+    this.testDataDir = resolve(__dirname, `../temp-test-data-${uniqueId}`);
   }
 
   /**
@@ -41,8 +46,7 @@ export class TestEnvironment {
       );
     }
 
-    // Create a temporary test data directory
-    this.testDataDir = resolve(__dirname, '../temp-test-data');
+    // Create the test flows configuration
     this.createTestFlowsConfiguration();
 
     // Verify the test environment was created correctly

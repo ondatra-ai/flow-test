@@ -39,4 +39,4 @@ describe('Custom Errors', () => {
     expect(error.name).toBe('ValidationError');
     expect(error.code).toBe('VALIDATION_ERROR');
   });
-}); 
+});

@@ -6,7 +6,7 @@ let testEnv: TestEnvironment;
 
 // Setup and cleanup for all tests
 beforeAll(() => {
-  testEnv = new TestEnvironment();
+  testEnv = new TestEnvironment('cli-e2e');
   testEnv.setup();
 });
 
