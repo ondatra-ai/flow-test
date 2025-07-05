@@ -38,7 +38,7 @@ function addCommentToThread(threadId: string, comment: string): void {
     const query = `mutation {
       addPullRequestReviewThreadReply(input: {
         pullRequestReviewThreadId: "${threadId}",
-        body: "${comment.replace(/"/g, '\\"').replace(/\n/g, '\\n')}"
+        body: "${comment.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, '\\n')}"
       }) {
         comment {
           id
