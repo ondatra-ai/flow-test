@@ -245,7 +245,7 @@ Servers that provide AI prompts or templates:
   "command": "mcp-server-postgres",
   "args": ["--connection-string", "${DATABASE_URL}"],
   "env": {
-    "DATABASE_URL": "postgresql://user:pass@localhost:5432/mydb"
+    "DATABASE_URL": "postgresql://****:****@localhost:5432/mydb"
   },
   "transportType": "stdio",
   "capabilities": {

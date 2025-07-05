@@ -1,7 +1,6 @@
 ---
-description: 
-globs: 
-alwaysApply: true
+globs: *.ts
+alwaysApply: false
 ---
 # Ondatra Code Project Overview
 
