@@ -26,7 +26,7 @@ export class TestEnvironment {
   private testDataDir?: string;
 
   constructor() {
-    this.CLI_PATH = resolve(__dirname, '../../../dist/src/index.js');
+    this.CLI_PATH = resolve(__dirname, '../../dist/src/index.js');
     this.NODE_PATH = process.execPath; // Get absolute path to Node.js
 
     // Generate a unique test data directory name
