@@ -1,5 +1,8 @@
+import { injectable, inject } from 'tsyringe';
+
+import { TOKENS } from '../config/tokens.js';
 import { FlowExecutionError } from '../utils/errors.js';
-import { logger } from '../utils/logger.js';
+import { Logger } from '../utils/logger.js';
 
 import {
   StepType,
@@ -14,11 +17,13 @@ import {
 /**
  * Flow executor class responsible for running flows
  */
+@injectable()
 export class FlowExecutor {
   private readonly flowDefinition: FlowDefinition;
   private context: FlowContext;
 
   constructor(
+    @inject(TOKENS.Logger) private readonly logger: Logger,
     flowDefinition: FlowDefinition,
     initialContext?: Partial<FlowContext>
   ) {
@@ -107,7 +112,7 @@ export class FlowExecutor {
     } catch (error) {
       if (step.onError) {
         // Log the error but continue to the error step
-        logger.warn(
+        this.logger.warn(
           `Error in prompt step ${this.context.currentStep}:`,
           error instanceof Error
             ? { message: error.message, stack: error.stack }
@@ -132,9 +137,9 @@ export class FlowExecutor {
   private async performPromptExecution(step: PromptStep): Promise<void> {
     // TODO: Integrate with MCP server to execute the prompt
     // This is a placeholder implementation
-    logger.debug(`Executing prompt: ${step.prompt}`);
-    logger.debug(`Using tools: ${step.tools.join(', ')}`);
-    logger.debug(`MCP Server: ${step.mcpServer}`);
+    this.logger.debug(`Executing prompt: ${step.prompt}`);
+    this.logger.debug(`Using tools: ${step.tools.join(', ')}`);
+    this.logger.debug(`MCP Server: ${step.mcpServer}`);
 
     // Simulate async execution
     await new Promise(resolve => setTimeout(resolve, 100));
@@ -164,7 +169,7 @@ export class FlowExecutor {
   private evaluateCondition(condition: string): boolean {
     // TODO: Implement safe condition evaluation
     // This is a placeholder that returns true for demo purposes
-    logger.debug(`Evaluating condition: ${condition}`);
+    this.logger.debug(`Evaluating condition: ${condition}`);
     return true;
   }
 
