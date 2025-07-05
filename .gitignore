@@ -19,6 +19,7 @@ coverage/
 # Vitest
 coverage/
 test-results/
+test_results/
 
 # TypeScript build outputs
 dist/

@@ -2,7 +2,7 @@ import 'reflect-metadata';
 
 import { container } from 'tsyringe';
 
-import { Logger, ConsoleLogger } from '../utils/logger.js';
+import { Logger, ConsoleLogger, LogLevel } from '../utils/logger.js';
 
 import { TOKENS } from './tokens.js';
 
@@ -11,7 +11,9 @@ import { TOKENS } from './tokens.js';
  */
 export function configureContainer(): void {
   // Register Logger with ConsoleLogger implementation as singleton
-  container.registerSingleton<Logger>(TOKENS.Logger, ConsoleLogger);
+  container.register<Logger>(TOKENS.Logger, {
+    useFactory: () => new ConsoleLogger(LogLevel.INFO),
+  });
 }
 
 /**

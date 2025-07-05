@@ -18,10 +18,10 @@ This workflow processes analyzed pull request comments from `./tmp/PR_CONVERSATI
 1. if Status is OUTDATED, mark it as resolved 
 2. if Decision is IGNORE or Empty on you can't recognise what to do then go to next item
 3. if Decision is RESOLVE then just mark it as resolved  
-3. if Decision is Process, then process it carefully, using common rules and then mark it as resolved 
+3. if Decision is Process, then process it carefully, using common rules and then mark it as resolved
 
 ## Notes
-
+- If Id: Local then no need to resolve conversation, it's made by local tool
 - To mark conversation resolved use command `npx tsx scripts/resolve-pr-conversation.ts`
 
 
