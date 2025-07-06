@@ -7,37 +7,42 @@ An interactive conversational interface similar to claude-code. Built with TypeS
 Ondatra Code provides a command-line interface similar to claude-code, with the following key features:
 
 - **Code generation and editing capabilities** - AI-powered code generation and modification
-- **MCP Server Integration** - Connect to multiple MCP servers for various tool capabilities  
+- **MCP Server Integration** - Connect to multiple MCP servers for various tool capabilities
 - **Custom Flow System** - JSON-based flow definitions for complex AI-driven workflows
 - **Chat Interface** - Interactive conversational interface similar to claude-code
 
 ## Quick Start
 
 1. **Install dependencies:**
+
    ```bash
    npm install
    ```
 
 2. **Build the project:**
+
    ```bash
    npm run build
    ```
 
 3. **Run the CLI:**
+
    ```bash
    npm start
    ```
-   
+
    This should output: `Ondatra Code`
 
 ## Available Commands
 
 ### Development Commands
+
 - `npm run dev` - Run in development mode with hot reload
 - `npm run build` - Build the TypeScript project
 - `npm start` - Run the built application
 
 ### Code Quality Commands
+
 - `npm run lint` - Run ESLint to check code quality
 - `npm run lint:fix` - Automatically fix ESLint issues
 - `npm run format` - Format code with Prettier
@@ -45,11 +50,13 @@ Ondatra Code provides a command-line interface similar to claude-code, with the 
 - `npm run type-check` - Run TypeScript type checking
 
 ### Testing Commands
+
 - `npm test` - Run tests with Vitest
 - `npm run test:ui` - Run tests with UI interface
 - `npm run test:coverage` - Run tests with coverage report
 
 ### Quality Control
+
 - `npm run pre-commit` - Run all checks (type-check, lint, format-check, test)
 
 ## Code Quality Standards
@@ -57,7 +64,7 @@ Ondatra Code provides a command-line interface similar to claude-code, with the 
 This project enforces strict code quality standards:
 
 - **Max 300 lines per file**
-- **Max 80 characters per line** 
+- **Max 80 characters per line**
 - **Max complexity of 10 per function**
 - **Max 50 lines per function**
 - **Max 5 parameters per function**
@@ -80,7 +87,7 @@ The application is built with a modular architecture:
 ./
 ├── src/                    # Source code
 │   ├── cli/               # Chat interface implementation (planned)
-│   ├── flows/             # Flow execution engine  
+│   ├── flows/             # Flow execution engine
 │   │   └── types.ts       # Flow type definitions
 │   ├── mcp/               # MCP server integration
 │   │   └── types.ts       # MCP type definitions
@@ -103,10 +110,12 @@ The application is built with a modular architecture:
 ## Development Setup
 
 ### Prerequisites
-- Node.js 18+ 
+
+- Node.js 22+
 - npm
 
 ### Development Workflow
+
 1. Make changes to TypeScript files in `src/`
 2. Run `npm run type-check` to verify types
 3. Run `npm run lint` to check code quality
@@ -115,9 +124,11 @@ The application is built with a modular architecture:
 6. Run `npm start` to test the application
 
 ### Adding New Features
+
 Follow the established patterns:
+
 - Add types in appropriate `types.ts` files
-- Create tests in `tests/` directory 
+- Create tests in `tests/` directory
 - Use the custom error classes from `utils/errors.ts`
 - Follow the logging patterns from `utils/logger.ts`
 - Maintain the strict TypeScript and ESLint rules
@@ -151,6 +162,7 @@ See the `examples/.flows/` directory for reference configurations.
 This is the initial project setup with:
 
 ✅ **Completed:**
+
 - TypeScript project structure with strict settings
 - ESLint with comprehensive rules (max lines, complexity, etc.)
 - Prettier integration for code formatting
@@ -162,12 +174,14 @@ This is the initial project setup with:
 - Build and development scripts
 
 🚧 **In Progress:**
+
 - Flow execution engine implementation
 - MCP server integration
 - Chat interface implementation
 - Configuration loading and validation
 
 📋 **Planned:**
+
 - AI model integration
 - Interactive chat interface
 - Flow debugging tools
@@ -175,4 +189,4 @@ This is the initial project setup with:
 
 ## License
 
-MIT License 
+MIT License
