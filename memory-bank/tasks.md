@@ -255,7 +255,7 @@
 
 - [x] Remove `examples/` directory
 - [x] **PRESERVE** `docker-compose.mcps.yml` - MCP servers configuration
-- [x] Remove `sonar-project.properties`
+- [x] **PRESERVE** `sonar-project.properties` - Essential for SonarQube/SonarCloud CI/CD integration
 - [x] **PRESERVE** `scripts/` directory - Essential for CI/CD processes
 - [x] **PRESERVE** `.env.example` - Essential for MCP server configuration
 - [x] Update `package.json` dependencies (lint scripts updated to include scripts)
@@ -288,13 +288,13 @@
 - `tests/unit/utils/errors.test.ts`, `tests/integration/cli-e2e.test.ts`
 - Entire `doc/` directory
 - `examples/` directory
-- `sonar-project.properties`
 
 ### Files Preserved (As Required)
 
 - ✅ `mcps/` directory - MCP servers
 - ✅ `docker-compose.mcps.yml` - MCP servers Docker configuration
 - ✅ `scripts/` directory - Essential for CI/CD processes
+- ✅ `sonar-project.properties` - Essential for SonarQube/SonarCloud CI/CD integration
 - ✅ `.env.example` - Essential for MCP server configuration (Goodday API token)
 - ✅ `tests/integration/data/` - Essential test data for integration tests
 - ✅ `memory-bank/` - Memory bank structure
@@ -349,6 +349,7 @@ flow-test/
 ├── memory-bank/                    # Preserved memory bank
 ├── .env.example                    # PRESERVED - MCP server configuration template
 ├── docker-compose.mcps.yml         # PRESERVED - MCP servers Docker config
+├── sonar-project.properties        # PRESERVED - SonarQube/SonarCloud CI/CD config
 ├── package.json                    # Updated dependencies/scripts
 ├── tsconfig.json                   # TypeScript configuration
 ├── vitest.config.ts                # Test configuration
@@ -358,8 +359,8 @@ flow-test/
 ## Estimated File Reduction Achieved
 
 - **Before**: ~50+ files across multiple directories
-- **After**: ~28 essential files (including test data, MCP infrastructure, CI/CD scripts, and configuration)
-- **Reduction**: ~44% of codebase successfully removed
+- **After**: ~29 essential files (including test data, MCP infrastructure, CI/CD scripts, and configuration)
+- **Reduction**: ~42% of codebase successfully removed
 
 **✅ ALL SUCCESS CRITERIA MET**
 
