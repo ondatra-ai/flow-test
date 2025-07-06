@@ -9,85 +9,92 @@ alwaysApply: true
 ```
 ./
 ├── src/                                   # Source code directory for the application
-│   ├── cli/                               # Command-line interface components
-│   │   ├── chat.ts                        # Chat interface implementation (empty, awaits implementation)
-│   │   ├── renderer.ts                    # UI rendering logic for terminal output (empty, awaits implementation)
-│   │   └── input-handler.ts               # User input processing and validation (empty, awaits implementation)
-│   ├── flows/                             # Flow execution and management
-│   │   ├── condition-evaluator.ts         # Flow condition evaluation logic
-│   │   ├── flow-executor.ts               # Flow execution engine
-│   │   ├── flow-loader.ts                 # Flow definition loading
-│   │   └── types.ts                       # Flow type definitions
-│   ├── services/                          # Business logic services
-│   │   └── flow-service/                  # Flow execution service directory
-│   │       └── flow-service.ts            # Flow service implementation with basic class structure
-│   ├── mcp/                               # Model Context Protocol integration
-│   │   ├── server-manager.ts              # Manage MCP server lifecycle and processes (empty, awaits implementation)
-│   │   ├── client.ts                      # MCP client implementation for communication (empty, awaits implementation)
-│   │   ├── tool-registry.ts               # Tool discovery and caching mechanisms (empty, awaits implementation)
-│   │   └── types.ts                       # MCP type definitions including server configs and tool interfaces
-│   ├── config/                            # Configuration management
-│   │   ├── config-loader.ts               # Load .flows configuration files (empty, awaits implementation)
-│   │   ├── validator.ts                   # Validate configurations and flow files (empty, awaits implementation)
+│   ├── config/                            # Configuration management and dependency injection
 │   │   ├── container.ts                   # Dependency injection container setup using tsyringe
 │   │   └── tokens.ts                      # DI tokens definitions using symbols for type safety
 │   ├── utils/                             # Utility functions and helpers
-│   │   ├── logger.ts                      # Logging utilities with console logger implementation and structured logging
-│   │   ├── errors.ts                      # Custom error classes for configuration, flow, MCP, and validation errors
-│   │   └── test-templates.ts              # Test template utilities for generating e2e test files and page objects
+│   │   ├── logger.ts                      # Logging utilities with console logger implementation
+│   │   └── test-templates.ts              # Test template utilities for generating e2e test files
 │   └── index.ts                           # Main entry point with CLI setup and test generation commands
+├── memory-bank/                           # AI Memory Bank system for task management
+│   ├── archive/                           # Completed task archives
+│   ├── creative/                          # Creative phase documentation
+│   ├── reflection/                        # Task reflection documents
+│   ├── activeContext.md                   # Current active context
+│   ├── productContext.md                  # Product-specific context
+│   ├── projectbrief.md                    # Project overview and objectives
+│   ├── progress.md                        # Overall project progress
+│   ├── style-guide.md                     # Code style and design guidelines
+│   ├── systemPatterns.md                  # System patterns and standards
+│   ├── tasks.md                           # Current task tracking
+│   └── techContext.md                     # Technical context and decisions
+├── custom_modes/                          # Custom operational modes for AI workflows
+│   ├── creative_instructions.md           # Creative phase instructions
+│   ├── implement_instructions.md          # Implementation mode instructions
+│   ├── plan_instructions.md               # Planning phase instructions
+│   ├── reflect_archive_instructions.md    # Reflection and archival instructions
+│   └── van_instructions.md                # VAN mode instructions
 ├── mcps/                                  # MCP server implementations
 │   └── goodday-mcp/                       # Example MCP server implementation
-│       ├── Dockerfile                     # Docker configuration for goodday MCP server
-│       └── README.md                      # Documentation for goodday MCP server
 ├── tests/                                 # Testing infrastructure
 │   ├── unit/                              # Unit tests (mirrors src structure)
 │   │   └── utils/                         # Unit tests for utility functions
-│   │       ├── errors.test.ts             # Tests for custom error classes and error handling
-│   │       ├── logger.test.ts             # Tests for logging functionality and log levels
-│   │       ├── test-directory.test.ts     # Tests for test directory creation utilities
-│   │       └── timestamp.test.ts          # Tests for timestamp generation functionality
 │   ├── integration/                       # Integration tests
-│   │   ├── cli-e2e.test.ts                # End-to-end tests for CLI functionality and commands
-│   │   ├── test-generation-e2e.test.ts    # Integration tests for test generation features
-│   │   ├── README.md                      # Documentation for integration test setup and execution
-│   │   └── data/                          # Test data directory (contains test fixtures and examples)
+│   │   ├── data/                          # Test data directory with fixtures and examples
+│   │   └── test-generation-e2e.test.ts    # Integration tests for test generation features
 │   └── test-utils/                        # Test utilities
-│       ├── file-utils.ts                  # File structure utilities for getting directory contents recursively
-│       ├── test-directory.ts              # Test directory creation with timestamp-based naming
-│       ├── test-environment.ts            # Test environment setup and configuration (empty, awaits implementation)
-│       └── timestamp.ts                   # Timestamp generation for unique test directory names
-├── examples/                              # Example configurations and samples
-│   └── .flows/                            # Example configurations
-│       ├── flows/                         # Example flow definition files
-│       │   └── example-flow.json          # Sample flow definition with steps and conditions (empty, awaits implementation)
-│       └── servers/                       # Example MCP server configurations
-│           └── example-server.json        # Sample MCP server configuration file (empty, awaits implementation)
-├── doc/                                   # Project documentation
-│   ├── installation.md                    # Installation and setup guide for users
-│   ├── usage.md                           # Usage documentation and examples
-│   ├── flow-format.md                     # Flow format reference and specification
-│   ├── mcp-servers.md                     # MCP server configuration guide
-│   ├── examples.md                        # Example flows and use cases
-│   ├── development.md                     # Development guide for contributors
-│   └── architecture.md                    # System architecture overview and design decisions
+│       ├── file-utils.ts                  # File structure utilities
+│       ├── test-directory.ts              # Test directory creation utilities
+│       ├── test-environment.ts            # Test environment setup
+│       └── timestamp.ts                   # Timestamp generation utilities
 ├── scripts/                               # Build and utility scripts
-│   ├── build.ts                           # Build script for TypeScript compilation and production deployment
-│   ├── get-pr-number.ts                   # PR number utility using GitHub CLI to find associated pull requests
-│   ├── list-pr-conversations.ts           # List PR conversations script (empty, awaits implementation)
-│   └── resolve-pr-conversation.ts         # Resolve PR conversation script (empty, awaits implementation)
+│   ├── build.ts                           # Build script for TypeScript compilation
+│   ├── get-pr-number.ts                   # PR number utility using GitHub CLI
+│   ├── list-pr-conversations.ts           # List PR conversations script
+│   ├── merged-prs-last-24h.ts             # Recent PR tracking script
+│   └── resolve-pr-conversation.ts         # Resolve PR conversation script
 ├── coverage/                              # Test coverage reports generated by Vitest
 ├── test_results/                          # Test execution results and output files
-├── .env.example                           # Environment variables example file
 ├── docker-compose.mcps.yml                # Docker compose configuration for MCP servers
 ├── sonar-project.properties               # SonarQube project configuration
-├── CLAUDE.md                              # Claude AI integration documentation with project overview and usage
-├── README.md                              # Main project documentation with setup and basic information
-├── package.json                           # Node.js dependencies, scripts, and project metadata for Ondatra Code CLI
-├── package-lock.json                      # Locked dependency versions for reproducible builds
+├── CLAUDE.md                              # Claude AI integration documentation
+├── README.md                              # Main project documentation
+├── package.json                           # Node.js dependencies and project metadata
 ├── tsconfig.json                          # TypeScript configuration with strict compiler settings
-└── vitest.config.ts                       # Vitest test configuration for unit and integration testing
+└── vitest.config.ts                       # Vitest test configuration
 ```
+
+## Key Architectural Concepts
+
+### Core Application Structure
+- **src/**: Main application code with utilities and configuration
+- **index.ts**: Entry point for CLI and test generation functionality
+
+### AI Memory Bank System
+- **memory-bank/**: Centralized knowledge management system
+- Tracks project context, tasks, and progress
+- Maintains creative documentation and reflection archives
+- Enforces system patterns and quality standards
+
+### Custom Operational Modes
+- **custom_modes/**: AI workflow instructions for different phases
+- Supports creative, implementation, planning, and reflection phases
+- Enables structured AI-driven development workflows
+
+### Testing Infrastructure
+- **tests/**: Comprehensive testing setup with unit and integration tests
+- **test-utils/**: Reusable testing utilities and environment setup
+- **coverage/**: Test coverage reporting and analysis
+
+### MCP Integration
+- **mcps/**: Model Context Protocol server implementations
+- Supports external tool integration and extensibility
+- Docker-based deployment for MCP servers
+
+### Development Tools
+- **scripts/**: Build automation and development utilities
+- PR management and conversation tracking tools
+- SonarQube integration for code quality analysis
 
 ## Test Data Structure
 - All content beneath `tests/integration/data/` contains test data and fixtures
