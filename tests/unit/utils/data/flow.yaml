@@ -1,0 +1,25 @@
+tools:
+  - name: tool1
+  - name: tool2
+  - name: tool3
+  - name: tool4
+  - name: tool5
+  - name: tool6
+  - name: tool7
+  - name: tool8
+
+flows:
+  - name: 'test'
+    description: 'test'
+    steps:
+      - name: 'step1'
+        tools:
+          - tool1
+          - tool2
+
+        description: 'step1'
+        action: 'action1'
+        action_input: 'action1_input'
+        action_output: 'action1_output'
+        action_status: 'action1_status'
+        action_error: 'action1_error'
