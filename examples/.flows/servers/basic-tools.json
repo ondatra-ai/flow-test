@@ -1,9 +1,0 @@
-{
-  "name": "basic-tools",
-  "command": "node",
-  "args": ["basic-tools-server.js"],
-  "env": {
-    "NODE_ENV": "development"
-  },
-  "workingDirectory": "./servers"
-} 
