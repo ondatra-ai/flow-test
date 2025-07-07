@@ -36,8 +36,7 @@ export class Step implements IStep {
     return this.nextStepId;
   }
 
-  public execute(_: IContext): Promise<boolean> {
-    // Context is available for future use by step implementations
+  public execute(_context: IContext): Promise<boolean> {
     this.logger.info(this.message);
     return Promise.resolve(true);
   }
