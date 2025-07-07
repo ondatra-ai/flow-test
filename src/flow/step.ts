@@ -38,7 +38,8 @@ export class Step implements IStep {
 
   public execute(context: IContext): Promise<boolean> {
     // Context is available for future use by step implementations
-    void context;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _context = context;
     this.logger.info(this.message);
     return Promise.resolve(true);
   }

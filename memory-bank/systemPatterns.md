@@ -49,6 +49,26 @@ Every task MUST pass these checks before being marked as complete:
 - Complex test scenarios should include explanatory comments
 - Test data should be realistic and representative
 
+#### Test Coverage Requirements
+
+**90% Coverage Threshold for Standard Code:**
+
+- **Applies to**: Internal business logic, algorithms, data structures, service classes, utilities, interface implementations, flow control, state management
+- **Measurement**: Statement coverage must be ≥90% for new/modified code
+- **Verification**: Use `npm run test -- --coverage` to check coverage
+
+**Coverage Not Required for External Integration Code:**
+
+- **Exempted**: API client implementations, database operations, file system operations, network communications, third-party service integrations, external MCP server interactions
+- **Reason**: External dependencies make testing unreliable and complex
+- **Alternative**: Focus on integration tests and error handling instead
+
+**Coverage Enforcement:**
+
+- Check coverage during quality assurance phase
+- Document coverage results in task completion
+- If below 90%, add additional tests or justify exemption
+
 ### Standard Task Completion Pattern
 
 Every task completion checklist MUST include:
