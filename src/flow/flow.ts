@@ -11,9 +11,9 @@ export interface IFlow {
 
 // Flow entity - Simple data structure for directed graph of steps
 export class Flow implements IFlow {
-  private id: string;
-  private steps: IStep[];
-  private stepMap: Map<string, IStep>;
+  private readonly id: string;
+  private readonly steps: IStep[];
+  private readonly stepMap: Map<string, IStep>;
 
   constructor(id: string, steps: IStep[]) {
     this.id = id;
@@ -39,7 +39,7 @@ export class Flow implements IFlow {
     if (!currentStep) {
       return undefined;
     }
-    return currentStep.getNext() || undefined;
+    return currentStep.getNext() ?? undefined;
   }
 
   public getSteps(): IStep[] {

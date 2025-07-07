@@ -9,10 +9,10 @@ export interface IStep {
 
 // Step entity - Simple action-based execution
 export class Step implements IStep {
-  private id: string;
-  private message: string;
-  private nextStepId: string | null;
-  private logger: Logger;
+  private readonly id: string;
+  private readonly message: string;
+  private readonly nextStepId: string | null;
+  private readonly logger: Logger;
 
   constructor(
     id: string,

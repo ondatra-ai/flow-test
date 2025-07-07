@@ -5,7 +5,7 @@ export class Session {
   private currentStepId: string | null;
   private status: 'initialized' | 'running' | 'completed' | 'error';
 
-  private flow: IFlow;
+  private readonly flow: IFlow;
 
   constructor(flow: IFlow) {
     this.flow = flow;
@@ -41,7 +41,7 @@ export class Session {
       return false;
     }
 
-    this.currentStepId = this.flow.getNextStepId(this.currentStepId) || null;
+    this.currentStepId = this.flow.getNextStepId(this.currentStepId) ?? null;
     this.status = this.currentStepId ? 'running' : 'completed';
 
     return true;
