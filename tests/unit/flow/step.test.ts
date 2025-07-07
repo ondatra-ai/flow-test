@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
+import { Context } from '../../../src/flow/context.js';
 import { Step } from '../../../src/flow/step.js';
 import { Logger } from '../../../src/utils/logger.js';
 
@@ -44,7 +45,8 @@ describe('Step', () => {
         'next-step',
         mockLogger
       );
-      const result = await step.execute();
+      const context = new Context();
+      const result = await step.execute(context);
 
       expect(result).toBe(true);
       expect(mockLoggerInfo).toHaveBeenCalledWith('Test message');
@@ -52,7 +54,8 @@ describe('Step', () => {
 
     it('should always return true for logging', async () => {
       const step = new Step('test-step', 'Test message', null, mockLogger);
-      const result = await step.execute();
+      const context = new Context();
+      const result = await step.execute(context);
 
       expect(result).toBe(true);
     });

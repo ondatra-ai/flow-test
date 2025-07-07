@@ -1,10 +1,12 @@
 import { Logger } from '../utils/logger.js';
 
+import { IContext } from './context.js';
+
 // Step interface - Defines Step contract
 export interface IStep {
   getId(): string;
   getNext(): string | null;
-  execute(): Promise<boolean>;
+  execute(context: IContext): Promise<boolean>;
 }
 
 // Step entity - Simple action-based execution
@@ -34,7 +36,7 @@ export class Step implements IStep {
     return this.nextStepId;
   }
 
-  public execute(): Promise<boolean> {
+  public execute(_context: IContext): Promise<boolean> {
     this.logger.info(this.message);
     return Promise.resolve(true);
   }

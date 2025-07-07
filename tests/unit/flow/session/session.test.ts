@@ -70,7 +70,7 @@ describe('Session executeCurrentStep', (): void => {
 
     const result = await session.executeCurrentStep();
     expect(result).toBe(false);
-    expect(mockExecute).toHaveBeenCalledWith('step1');
+    expect(mockExecute).toHaveBeenCalledWith('step1', expect.any(Object));
   });
 
   it('should throw error when session is completed', async (): Promise<void> => {
@@ -140,5 +140,37 @@ describe('Session two-step flow execution', (): void => {
     // Verify all steps were logged
     expect(mockLoggerInfo).toHaveBeenCalledWith('Step 1 executed');
     expect(mockLoggerInfo).toHaveBeenCalledWith('Step 2 executed');
+  });
+});
+
+describe('Session context management', (): void => {
+  it('should provide access to context', (): void => {
+    const flow = new Flow('test-flow', mockSteps);
+    const session = new Session(flow);
+
+    const context = session.getContext();
+    expect(context).toBeDefined();
+    expect(typeof context.get).toBe('function');
+    expect(typeof context.set).toBe('function');
+  });
+
+  it('should maintain same context instance throughout session', (): void => {
+    const flow = new Flow('test-flow', mockSteps);
+    const session = new Session(flow);
+
+    const context1 = session.getContext();
+    const context2 = session.getContext();
+
+    expect(context1).toBe(context2);
+  });
+
+  it('should allow context to be used for data storage', (): void => {
+    const flow = new Flow('test-flow', mockSteps);
+    const session = new Session(flow);
+
+    const context = session.getContext();
+    context.set('testKey', 'testValue');
+
+    expect(context.get('testKey')).toBe('testValue');
   });
 });
