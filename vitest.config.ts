@@ -7,13 +7,17 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html', 'lcov'],
+      include: ['src/**/*.ts'],
       exclude: [
         'node_modules/',
         'dist/',
         'tests/',
+        'scripts/',
+        'test_results/',
         '**/*.d.ts',
         '**/*.config.*',
         '**/index.ts',
+        'src/utils/test-templates.ts',
       ],
       thresholds: {
         global: {

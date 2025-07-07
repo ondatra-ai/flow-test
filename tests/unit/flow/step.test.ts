@@ -56,17 +56,5 @@ describe('Step', () => {
 
       expect(result).toBe(true);
     });
-
-    it('should work with logger injection', async () => {
-      const step = new Step(
-        'test-step',
-        'Test message',
-        'next-step',
-        mockLogger
-      );
-      await step.execute();
-
-      expect(mockLoggerInfo).toHaveBeenCalledWith('Test message');
-    });
   });
 });

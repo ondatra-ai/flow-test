@@ -43,6 +43,14 @@ describe('Flow', () => {
       expect(flow.getSteps()).toHaveLength(2);
     });
   });
+
+  describe('getId', () => {
+    it('should return the flow id', () => {
+      const mockSteps = createMockSteps();
+      const flow = new Flow('test-flow', mockSteps);
+      expect(flow.getId()).toBe('test-flow');
+    });
+  });
 });
 
 describe('Flow getFirstStepId', () => {
@@ -81,6 +89,14 @@ describe('Flow getNextStepId', () => {
     const mockSteps = createMockSteps();
     const flow = new Flow('test-flow', mockSteps);
     const nextStepId = flow.getNextStepId('step2');
+
+    expect(nextStepId).toBeUndefined();
+  });
+
+  it('should return undefined for completely non-existent step', () => {
+    const mockSteps = createMockSteps();
+    const flow = new Flow('test-flow', mockSteps);
+    const nextStepId = flow.getNextStepId('completely-non-existent');
 
     expect(nextStepId).toBeUndefined();
   });

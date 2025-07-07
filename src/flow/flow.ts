@@ -43,7 +43,7 @@ export class Flow implements IFlow {
   }
 
   public getSteps(): IStep[] {
-    return this.steps;
+    return [...this.steps];
   }
 
   public async execute(stepId: string): Promise<boolean> {
