@@ -15,16 +15,16 @@ describe('Context interface compliance', () => {
 });
 
 describe('Context basic operations', () => {
-  test('should store and retrieve values', () => {
+  test('should store and retrieve string values', () => {
     const context: IContext = new Context();
 
     context.set('key1', 'value1');
-    context.set('key2', 42);
-    context.set('key3', { nested: 'object' });
+    context.set('key2', 'value2');
+    context.set('key3', 'another string value');
 
     expect(context.get('key1')).toBe('value1');
-    expect(context.get('key2')).toBe(42);
-    expect(context.get('key3')).toEqual({ nested: 'object' });
+    expect(context.get('key2')).toBe('value2');
+    expect(context.get('key3')).toBe('another string value');
   });
 
   test('should return undefined for non-existent keys', () => {
@@ -42,7 +42,7 @@ describe('Context key management', () => {
     context.set('key1', 'value1');
     expect(context.has('key1')).toBe(true);
 
-    context.set('key2', undefined);
+    context.set('key2', '');
     expect(context.has('key2')).toBe(true);
   });
 
@@ -83,24 +83,24 @@ describe('Context key management', () => {
   });
 });
 
-describe('Context value types', () => {
-  test('should handle different value types', () => {
+describe('Context string values', () => {
+  test('should handle different string values', () => {
     const context = new Context();
 
-    context.set('string', 'hello');
-    context.set('number', 123);
-    context.set('boolean', true);
-    context.set('null', null);
-    context.set('undefined', undefined);
-    context.set('object', { prop: 'value' });
-    context.set('array', [1, 2, 3]);
+    context.set('empty', '');
+    context.set('simple', 'hello');
+    context.set('multiword', 'hello world');
+    context.set('numeric', '123');
+    context.set('special', 'special-chars_123!@#');
+    context.set('multiline', 'line1\nline2\nline3');
+    context.set('json', '{"key":"value"}');
 
-    expect(context.get('string')).toBe('hello');
-    expect(context.get('number')).toBe(123);
-    expect(context.get('boolean')).toBe(true);
-    expect(context.get('null')).toBe(null);
-    expect(context.get('undefined')).toBe(undefined);
-    expect(context.get('object')).toEqual({ prop: 'value' });
-    expect(context.get('array')).toEqual([1, 2, 3]);
+    expect(context.get('empty')).toBe('');
+    expect(context.get('simple')).toBe('hello');
+    expect(context.get('multiword')).toBe('hello world');
+    expect(context.get('numeric')).toBe('123');
+    expect(context.get('special')).toBe('special-chars_123!@#');
+    expect(context.get('multiline')).toBe('line1\nline2\nline3');
+    expect(context.get('json')).toBe('{"key":"value"}');
   });
 });
