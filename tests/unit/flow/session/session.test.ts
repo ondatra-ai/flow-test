@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-import { Flow } from '../../../../src/flow/flow.js';
+import { Flow, IFlow } from '../../../../src/flow/flow.js';
 import { Session } from '../../../../src/flow/session/session.js';
 import { Step } from '../../../../src/flow/step.js';
 import { Logger } from '../../../../src/utils/logger.js';
@@ -55,20 +55,22 @@ describe('Session executeCurrentStep', (): void => {
 
   it('should handle step execution failure', async (): Promise<void> => {
     // Create a mock flow that will return false for execute
+    const mockExecute = vi.fn().mockResolvedValue(false);
     const mockFlow = {
       getFirstStepId: (): string => 'step1',
-      getNextStepId: (): string | undefined => undefined,
-      execute: vi.fn().mockResolvedValue(false),
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      getNextStepId: (_stepId: string): string | undefined => undefined,
+      execute: mockExecute,
       getId: (): string => 'test-flow',
       getSteps: (): Step[] => mockSteps,
-    };
+    } as IFlow;
 
     const session = new Session(mockFlow);
     session.start();
 
     const result = await session.executeCurrentStep();
     expect(result).toBe(false);
-    expect(mockFlow.execute).toHaveBeenCalledWith('step1');
+    expect(mockExecute).toHaveBeenCalledWith('step1');
   });
 
   it('should throw error when session is completed', async (): Promise<void> => {
