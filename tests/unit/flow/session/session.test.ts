@@ -23,15 +23,6 @@ const mockSteps = [
   new Step('step2', 'Step 2 executed', null, mockLogger),
 ];
 
-describe('Session', (): void => {
-  beforeEach((): void => {
-    mockLoggerInfo.mockClear();
-    mockLoggerError.mockClear();
-    mockLoggerDebug.mockClear();
-    mockLoggerWarn.mockClear();
-  });
-});
-
 describe('Session start', (): void => {
   it('should throw error when flow has no steps', (): void => {
     const emptyFlow = new Flow('empty-flow', []);
@@ -66,7 +57,7 @@ describe('Session executeCurrentStep', (): void => {
     // Create a mock flow that will return false for execute
     const mockFlow = {
       getFirstStepId: (): string => 'step1',
-      getNextStepId: (): string | null => null,
+      getNextStepId: (): string | undefined => undefined,
       execute: vi.fn().mockResolvedValue(false),
       getId: (): string => 'test-flow',
       getSteps: (): Step[] => mockSteps,
@@ -99,6 +90,13 @@ describe('Session executeCurrentStep', (): void => {
 });
 
 describe('Session two-step flow execution', (): void => {
+  beforeEach((): void => {
+    mockLoggerInfo.mockClear();
+    mockLoggerError.mockClear();
+    mockLoggerDebug.mockClear();
+    mockLoggerWarn.mockClear();
+  });
+
   it('should execute two-step flow with logging and automatic advancement', async (): Promise<void> => {
     const flow = new Flow('test-flow', mockSteps);
     const session = new Session(flow);
