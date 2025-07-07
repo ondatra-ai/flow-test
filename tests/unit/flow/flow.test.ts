@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
+import { Context } from '../../../src/flow/context.js';
 import { Flow } from '../../../src/flow/flow.js';
 import { Step } from '../../../src/flow/step.js';
 import { Logger } from '../../../src/utils/logger.js';
@@ -122,7 +123,8 @@ describe('Flow execute', () => {
   it('should execute step by id successfully', async () => {
     const mockSteps = createMockSteps();
     const flow = new Flow('test-flow', mockSteps);
-    const result = await flow.execute('step1');
+    const context = new Context();
+    const result = await flow.execute('step1', context);
 
     expect(result).toBe(true);
     expect(mockLoggerInfo).toHaveBeenCalledWith('Step 1 executed');
@@ -131,7 +133,8 @@ describe('Flow execute', () => {
   it('should return false for non-existent step', async () => {
     const mockSteps = createMockSteps();
     const flow = new Flow('test-flow', mockSteps);
-    const result = await flow.execute('non-existent');
+    const context = new Context();
+    const result = await flow.execute('non-existent', context);
 
     expect(result).toBe(false);
   });

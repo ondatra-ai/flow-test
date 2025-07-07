@@ -1,3 +1,4 @@
+import { IContext, Context } from '../context.js';
 import { IFlow } from '../flow.js';
 
 // Session entity - Primary focus for flow execution
@@ -6,9 +7,11 @@ export class Session {
   private status: 'initialized' | 'running' | 'completed' | 'error';
 
   private readonly flow: IFlow;
+  private readonly context: IContext;
 
   constructor(flow: IFlow) {
     this.flow = flow;
+    this.context = new Context();
 
     // Initialize session properties
     this.currentStepId = null;
@@ -34,7 +37,7 @@ export class Session {
       throw new Error('Session is not running or has no current step');
     }
 
-    const success = await this.flow.execute(this.currentStepId);
+    const success = await this.flow.execute(this.currentStepId, this.context);
 
     if (!success) {
       this.status = 'error';
@@ -49,5 +52,9 @@ export class Session {
 
   public isComplete(): boolean {
     return this.status === 'completed';
+  }
+
+  public getContext(): IContext {
+    return this.context;
   }
 }

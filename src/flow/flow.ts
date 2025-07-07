@@ -1,3 +1,4 @@
+import { IContext } from './context.js';
 import { IStep } from './step.js';
 
 // Flow interface - Defines Flow contract
@@ -6,7 +7,7 @@ export interface IFlow {
   getFirstStepId(): string | undefined;
   getNextStepId(stepId: string): string | undefined;
   getSteps(): IStep[];
-  execute(stepId: string): Promise<boolean>;
+  execute(stepId: string, context: IContext): Promise<boolean>;
 }
 
 // Flow entity - Simple data structure for directed graph of steps
@@ -46,11 +47,11 @@ export class Flow implements IFlow {
     return [...this.steps];
   }
 
-  public async execute(stepId: string): Promise<boolean> {
+  public async execute(stepId: string, context: IContext): Promise<boolean> {
     const step = this.stepMap.get(stepId);
     if (!step) {
       return false;
     }
-    return await step.execute();
+    return await step.execute(context);
   }
 }
