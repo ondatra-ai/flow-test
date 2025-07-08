@@ -16,11 +16,7 @@ export default defineConfig({
         'test_results/',
         '**/*.d.ts',
         '**/*.config.*',
-        '**/index.ts',
         'src/utils/test-templates.ts',
-        'src/config/**',
-        'src/providers/llm/helpers/**',
-        'src/providers/llm/utils/signal-utils.ts',
       ],
       thresholds: {
         global: {
