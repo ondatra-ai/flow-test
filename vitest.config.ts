@@ -19,7 +19,8 @@ export default defineConfig({
         '**/index.ts',
         'src/utils/test-templates.ts',
         'src/config/**',
-        'src/providers/**',
+        'src/providers/llm/helpers/**',
+        'src/providers/llm/utils/signal-utils.ts',
       ],
       thresholds: {
         global: {
