@@ -9,6 +9,11 @@ import type {
 
 export class ClaudeProvider implements ILLMProvider {
   private client: Anthropic;
+  private static readonly ALLOWED_ROLES = [
+    'system',
+    'user',
+    'assistant',
+  ] as const;
 
   constructor(
     apiKey: string,
@@ -17,23 +22,50 @@ export class ClaudeProvider implements ILLMProvider {
     this.client = new Anthropic({ apiKey });
   }
 
+  private guardValidateRoles(messages: StreamRequest['messages']): void {
+    for (const message of messages) {
+      if (
+        !ClaudeProvider.ALLOWED_ROLES.includes(
+          message.role as (typeof ClaudeProvider.ALLOWED_ROLES)[number]
+        )
+      ) {
+        throw new Error(
+          `Role '${message.role}' is not supported by Claude API. ` +
+            `Allowed roles: ${ClaudeProvider.ALLOWED_ROLES.join(', ')}`
+        );
+      }
+    }
+  }
+
   private prepareMessages(
     request: StreamRequest
   ): Array<{ role: 'user' | 'assistant'; content: string }> {
-    const messages = request.messages?.filter(m => m.role !== 'system') || [
-      { role: 'user' as const, content: request.prompt },
-    ];
+    this.guardValidateRoles(request.messages);
 
-    return messages.map(m => ({
-      role: m.role as 'user' | 'assistant',
-      content: m.content,
-    }));
+    const filteredMessages: Array<{
+      role: 'user' | 'assistant';
+      content: string;
+    }> = [];
+
+    for (const m of request.messages) {
+      if (m.role === 'system') {
+        // System messages are handled separately
+        continue;
+      } else if (['user', 'assistant'].includes(m.role)) {
+        filteredMessages.push({
+          role: m.role as 'user' | 'assistant',
+          content: m.content,
+        });
+      }
+    }
+
+    return filteredMessages;
   }
 
   private extractSystemPrompt(request: StreamRequest): string | undefined {
     return (
       request.systemPrompt ||
-      request.messages?.find(m => m.role === 'system')?.content
+      request.messages.find(m => m.role === 'system')?.content
     );
   }
 
@@ -138,12 +170,15 @@ export class ClaudeProvider implements ILLMProvider {
 
   getAvailableModels(): string[] {
     return [
+      'claude-opus-4',
+      'claude-sonnet-4',
+      'claude-3-7-sonnet-20250219',
+      'claude-3-5-sonnet-20241022',
+      'claude-3-5-haiku-20241022',
+      'claude-3-5-sonnet-20240620',
       'claude-3-opus-20240229',
       'claude-3-sonnet-20240229',
       'claude-3-haiku-20240307',
-      'claude-2.1',
-      'claude-2.0',
-      'claude-instant-1.2',
     ];
   }
 }

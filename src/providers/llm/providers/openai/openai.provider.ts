@@ -11,6 +11,11 @@ import type {
 
 export class OpenAIProvider implements ILLMProvider {
   private client: OpenAI;
+  private static readonly ALLOWED_ROLES = [
+    'system',
+    'user',
+    'assistant',
+  ] as const;
 
   constructor(
     apiKey: string,
@@ -19,28 +24,67 @@ export class OpenAIProvider implements ILLMProvider {
     this.client = new OpenAI({ apiKey });
   }
 
-  async *stream(request: StreamRequest): AsyncIterableIterator<StreamEvent> {
-    try {
-      const messages = request.messages || [
-        { role: 'user' as const, content: request.prompt },
-      ];
+  private guardValidateRoles(messages: StreamRequest['messages']): void {
+    for (const message of messages) {
+      if (
+        !OpenAIProvider.ALLOWED_ROLES.includes(
+          message.role as (typeof OpenAIProvider.ALLOWED_ROLES)[number]
+        )
+      ) {
+        throw new Error(
+          `Role '${message.role}' is not supported by OpenAI API. ` +
+            `Allowed roles: ${OpenAIProvider.ALLOWED_ROLES.join(', ')}`
+        );
+      }
+    }
+  }
 
-      // Add system message if provided
-      if (request.systemPrompt) {
-        messages.unshift({
-          role: 'system' as const,
-          content: request.systemPrompt,
+  private validateAndPrepareMessages(
+    request: StreamRequest
+  ): Array<{ role: 'system' | 'user' | 'assistant'; content: string }> {
+    this.guardValidateRoles(request.messages);
+
+    const supportedMessages: Array<{
+      role: 'system' | 'user' | 'assistant';
+      content: string;
+    }> = [];
+
+    for (const msg of request.messages) {
+      if (['system', 'user', 'assistant'].includes(msg.role)) {
+        supportedMessages.push({
+          role: msg.role as 'system' | 'user' | 'assistant',
+          content: msg.content,
         });
       }
+    }
 
-      const stream = await this.client.chat.completions.create({
-        messages,
-        model: request.model,
-        max_tokens: request.maxTokens,
-        temperature: request.temperature,
-        stream: true,
+    if (request.systemPrompt) {
+      supportedMessages.unshift({
+        role: 'system' as const,
+        content: request.systemPrompt,
       });
+    }
 
+    return supportedMessages;
+  }
+
+  private async createStream(
+    request: StreamRequest,
+    messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }>
+  ): Promise<AsyncIterable<OpenAI.Chat.Completions.ChatCompletionChunk>> {
+    return await this.client.chat.completions.create({
+      messages,
+      model: request.model,
+      max_tokens: request.maxTokens,
+      temperature: request.temperature,
+      stream: true,
+    });
+  }
+
+  async *stream(request: StreamRequest): AsyncIterableIterator<StreamEvent> {
+    try {
+      const messages = this.validateAndPrepareMessages(request);
+      const stream = await this.createStream(request, messages);
       let totalTokens = 0;
 
       for await (const chunk of stream) {
@@ -52,10 +96,7 @@ export class OpenAIProvider implements ILLMProvider {
           totalTokens++;
         }
 
-        // Check if stream is finished
         if (chunk.choices[0]?.finish_reason === 'stop') {
-          // OpenAI doesn't provide token usage in streaming mode
-          // This is a rough estimate
           const promptTokens = Math.ceil(request.prompt.length / 4);
           const completionTokens = totalTokens;
 
@@ -84,11 +125,17 @@ export class OpenAIProvider implements ILLMProvider {
 
   getAvailableModels(): string[] {
     return [
-      'gpt-4-turbo-preview',
+      'gpt-4.1',
+      'gpt-4.1-mini',
+      'gpt-4.1-nano',
+      'gpt-4o',
+      'gpt-4o-mini',
+      'o3-mini-2025-01-31',
+      'o1-preview',
+      'o1-mini',
+      'gpt-4-turbo',
       'gpt-4',
-      'gpt-4-32k',
       'gpt-3.5-turbo',
-      'gpt-3.5-turbo-16k',
     ];
   }
 }

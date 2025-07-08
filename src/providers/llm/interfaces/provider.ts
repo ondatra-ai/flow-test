@@ -26,8 +26,8 @@ export interface StreamRequest {
   maxTokens?: number;
   systemPrompt?: string;
   // Conversation support directly in StreamRequest
-  messages?: Array<{
-    role: 'system' | 'user' | 'assistant';
+  messages: Array<{
+    role: 'system' | 'user' | 'assistant' | 'tool' | 'function';
     content: string;
   }>;
 }

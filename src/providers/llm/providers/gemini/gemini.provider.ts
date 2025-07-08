@@ -9,6 +9,11 @@ import type {
 
 export class GeminiProvider implements ILLMProvider {
   private client: GoogleGenerativeAI;
+  private static readonly ALLOWED_ROLES = [
+    'system',
+    'user',
+    'assistant',
+  ] as const;
 
   constructor(
     apiKey: string,
@@ -17,11 +22,28 @@ export class GeminiProvider implements ILLMProvider {
     this.client = new GoogleGenerativeAI(apiKey);
   }
 
+  private guardValidateRoles(messages: StreamRequest['messages']): void {
+    for (const message of messages) {
+      if (
+        !GeminiProvider.ALLOWED_ROLES.includes(
+          message.role as (typeof GeminiProvider.ALLOWED_ROLES)[number]
+        )
+      ) {
+        throw new Error(
+          `Role '${message.role}' is not supported by Gemini API. ` +
+            `Allowed roles: ${GeminiProvider.ALLOWED_ROLES.join(', ')}`
+        );
+      }
+    }
+  }
+
   private buildPromptAndHistory(request: StreamRequest): {
     prompt: string;
     history: Array<{ role: 'user' | 'model'; parts: [{ text: string }] }>;
   } {
-    if (!request.messages || request.messages.length === 0) {
+    this.guardValidateRoles(request.messages);
+
+    if (request.messages.length === 0) {
       return { prompt: request.prompt, history: [] };
     }
 
@@ -38,7 +60,7 @@ export class GeminiProvider implements ILLMProvider {
           prompt = `${message.content}\n\n${prompt}`;
           hasSystemPrompt = true;
         }
-      } else {
+      } else if (['user', 'assistant'].includes(message.role)) {
         const role = message.role === 'assistant' ? 'model' : 'user';
         history.push({ role, parts: [{ text: message.content }] });
       }
@@ -86,6 +108,13 @@ export class GeminiProvider implements ILLMProvider {
   }
 
   getAvailableModels(): string[] {
-    return ['gemini-pro', 'gemini-pro-vision'];
+    return [
+      'gemini-2.5-flash',
+      'gemini-2.5-pro',
+      'gemini-2.0-flash',
+      'gemini-2.0-flash-lite',
+      'gemini-1.5-pro',
+      'gemini-1.5-flash',
+    ];
   }
 }
