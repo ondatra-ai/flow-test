@@ -56,9 +56,13 @@ export class GeminiProvider implements ILLMProvider {
 
     for (const message of request.messages) {
       if (message.role === 'system') {
+        // Accumulate all system prompts, not just the first one
         if (!hasSystemPrompt) {
           prompt = `${message.content}\n\n${prompt}`;
           hasSystemPrompt = true;
+        } else {
+          // Append additional system prompts with proper spacing
+          prompt = `${message.content}\n${prompt}`;
         }
       } else if (['user', 'assistant'].includes(message.role)) {
         const role = message.role === 'assistant' ? 'model' : 'user';

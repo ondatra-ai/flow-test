@@ -49,7 +49,10 @@ export function initializeContainer(): void {
     container.register<ILLMProvider>(SERVICES.ClaudeProvider, {
       useFactory: c => {
         const helper = c.resolve<IProviderHelper>(SERVICES.ProviderHelper);
-        const apiKey = process.env.CLAUDE_API_KEY || '';
+        const apiKey = process.env.CLAUDE_API_KEY;
+        if (!apiKey) {
+          throw new Error('CLAUDE_API_KEY environment variable is required');
+        }
         return new ClaudeProvider(apiKey, helper);
       },
     });
@@ -57,7 +60,10 @@ export function initializeContainer(): void {
     container.register<ILLMProvider>(SERVICES.OpenAIProvider, {
       useFactory: c => {
         const helper = c.resolve<IProviderHelper>(SERVICES.ProviderHelper);
-        const apiKey = process.env.OPENAI_API_KEY || '';
+        const apiKey = process.env.OPENAI_API_KEY;
+        if (!apiKey) {
+          throw new Error('OPENAI_API_KEY environment variable is required');
+        }
         return new OpenAIProvider(apiKey, helper);
       },
     });
@@ -65,7 +71,10 @@ export function initializeContainer(): void {
     container.register<ILLMProvider>(SERVICES.GeminiProvider, {
       useFactory: c => {
         const helper = c.resolve<IProviderHelper>(SERVICES.ProviderHelper);
-        const apiKey = process.env.GEMINI_API_KEY || '';
+        const apiKey = process.env.GEMINI_API_KEY;
+        if (!apiKey) {
+          throw new Error('GEMINI_API_KEY environment variable is required');
+        }
         return new GeminiProvider(apiKey, helper);
       },
     });
