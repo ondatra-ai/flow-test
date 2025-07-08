@@ -6,8 +6,11 @@ import { join } from 'path';
 
 import { program } from 'commander';
 
-import { container, configureContainer } from './config/container.js';
-import { TOKENS } from './config/tokens.js';
+import {
+  container,
+  initializeContainer,
+  SERVICES,
+} from './config/container.js';
 import type { Logger } from './utils/logger.js';
 import {
   getTestTemplate,
@@ -17,7 +20,7 @@ import {
 } from './utils/test-templates.js';
 
 // Configure dependency injection container
-configureContainer();
+initializeContainer();
 
 /**
  * Create the basic playwright configuration
@@ -149,7 +152,7 @@ async function createPageObjects(pagesDir: string): Promise<void> {
  * This creates the expected test structure with all necessary files
  */
 async function generateTests(): Promise<void> {
-  const logger = container.resolve<Logger>(TOKENS.Logger);
+  const logger = container.resolve<Logger>(SERVICES.Logger);
 
   try {
     // Create the e2e directory structure
@@ -182,7 +185,7 @@ async function generateTests(): Promise<void> {
  * basic version information and help commands.
  */
 async function main(): Promise<void> {
-  const logger = container.resolve<Logger>(TOKENS.Logger);
+  const logger = container.resolve<Logger>(SERVICES.Logger);
 
   program
     .name('ondatra-code')
@@ -223,7 +226,7 @@ async function main(): Promise<void> {
 }
 
 main().catch((error: unknown) => {
-  const logger = container.resolve<Logger>(TOKENS.Logger);
+  const logger = container.resolve<Logger>(SERVICES.Logger);
   logger.info('Ondatra Code');
   logger.error('Failed to start application:', {
     error: error instanceof Error ? error.message : String(error),
