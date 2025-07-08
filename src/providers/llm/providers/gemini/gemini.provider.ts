@@ -88,16 +88,36 @@ export class GeminiProvider implements ILLMProvider {
 
       const result = await chat.sendMessageStream(prompt);
 
+      // Token counting for Gemini in streaming mode requires estimation
+      // Gemini doesn't provide exact token counts in streaming responses
+      // We estimate using character-based calculation similar to OpenAI
+      // Each chunk from Gemini may contain multiple words/tokens
+      let completionCharacterCount = 0;
+
       for await (const chunk of result.stream) {
         this.helper.checkAbortSignal(request.signal);
 
         const text = chunk.text();
         if (text) {
+          // Count characters for token estimation
+          completionCharacterCount += text.length;
           yield { type: 'token', token: text };
         }
       }
 
-      yield { type: 'done' };
+      // Estimate token counts using character-based calculation
+      // Standard ratio: approximately 1 token = 4 characters (0.25 per char)
+      const promptTokens = Math.ceil(prompt.length / 4);
+      const completionTokens = Math.ceil(completionCharacterCount / 4);
+
+      yield {
+        type: 'done',
+        usage: {
+          promptTokens,
+          completionTokens,
+          totalTokens: promptTokens + completionTokens,
+        },
+      };
     } catch (error) {
       yield this.helper.wrapError(error as Error, request.signal);
     }
@@ -112,13 +132,6 @@ export class GeminiProvider implements ILLMProvider {
   }
 
   getAvailableModels(): string[] {
-    return [
-      'gemini-2.5-flash',
-      'gemini-2.5-pro',
-      'gemini-2.0-flash',
-      'gemini-2.0-flash-lite',
-      'gemini-1.5-pro',
-      'gemini-1.5-flash',
-    ];
+    return ['gemini-2.5-pro', 'gemini-2.5-flash', 'gemini-2.5-flash-lite'];
   }
 }
