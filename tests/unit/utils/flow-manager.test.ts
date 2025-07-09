@@ -11,7 +11,7 @@ import { Logger } from '../../../src/utils/logger.js';
 // Mock the file system
 vi.mock('fs', () => ({
   promises: {
-    readdir: vi.fn(),
+    readdir: vi.fn(() => Promise.resolve([] as string[])),
     readFile: vi.fn(),
   },
 }));
@@ -57,7 +57,7 @@ describe('FlowManager', () => {
         'not-a-flow.txt',
         'flow3.json',
       ];
-      vi.mocked(fs.readdir).mockResolvedValue(mockFiles as unknown as string[]);
+      vi.mocked(fs.readdir).mockResolvedValue(mockFiles as never);
 
       // Act
       const result = await flowManager.listFlows();
@@ -72,7 +72,7 @@ describe('FlowManager', () => {
       vi.mocked(fs.readdir).mockResolvedValue([
         'file1.txt',
         'file2.md',
-      ] as unknown as string[]);
+      ] as never);
 
       // Act
       const result = await flowManager.listFlows();
@@ -139,7 +139,7 @@ describe('FlowManager', () => {
       vi.mocked(fs.readdir).mockResolvedValue([
         'flow1.json',
         'flow2.json',
-      ] as unknown as string[]);
+      ] as never);
 
       // Act & Assert
       await expect(flowManager.loadFlow('missing-flow')).rejects.toThrow(
