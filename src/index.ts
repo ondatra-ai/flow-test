@@ -225,6 +225,16 @@ async function main(): Promise<void> {
   await program.parseAsync(process.argv);
 }
 
+// Export functions for testing
+export {
+  createPlaywrightConfig,
+  createTestDescription,
+  createTestSpec,
+  createPageObjects,
+  generateTests,
+  main,
+};
+
 main().catch((error: unknown) => {
   const logger = container.resolve<Logger>(SERVICES.Logger);
   logger.info('Ondatra Code');
