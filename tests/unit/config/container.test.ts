@@ -141,7 +141,7 @@ describe('Container Configuration', () => {
 
   describe('Environment variable handling', () => {
     it('should throw error when CLAUDE_API_KEY is missing', () => {
-      delete process.env.CLAUDE_API_KEY;
+      process.env.CLAUDE_API_KEY = undefined;
       initializeContainer();
 
       expect(() => {
@@ -150,7 +150,7 @@ describe('Container Configuration', () => {
     });
 
     it('should throw error when OPENAI_API_KEY is missing', () => {
-      delete process.env.OPENAI_API_KEY;
+      process.env.OPENAI_API_KEY = undefined;
       initializeContainer();
 
       expect(() => {
@@ -159,7 +159,7 @@ describe('Container Configuration', () => {
     });
 
     it('should throw error when GEMINI_API_KEY is missing', () => {
-      delete process.env.GEMINI_API_KEY;
+      process.env.GEMINI_API_KEY = undefined;
       initializeContainer();
 
       expect(() => {

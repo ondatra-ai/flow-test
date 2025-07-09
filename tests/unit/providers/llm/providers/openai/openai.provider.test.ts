@@ -109,7 +109,7 @@ describe('OpenAIProvider', () => {
           }>;
         }> {
           yield { choices: [{ delta: { content: 'Response' } }] }; // 8 chars
-          yield { choices: [{ finish_reason: 'stop' }] };
+          yield { choices: [{ delta: {}, finish_reason: 'stop' }] };
         },
       };
 
