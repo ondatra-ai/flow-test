@@ -1,0 +1,17 @@
+{
+  "id": "test-flow",
+  "name": "Test Flow",
+  "description": "A simple test flow for CLI verification",
+  "steps": [
+    {
+      "id": "step1",
+      "message": "Executing step 1 of test flow",
+      "nextStepId": "step2"
+    },
+    {
+      "id": "step2",
+      "message": "Executing step 2 of test flow",
+      "nextStepId": null
+    }
+  ]
+} 

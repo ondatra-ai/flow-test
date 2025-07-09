@@ -10,6 +10,7 @@ describe('CLI Setup', () => {
       description: vi.fn().mockReturnThis(),
       version: vi.fn().mockReturnThis(),
       command: vi.fn().mockReturnThis(),
+      argument: vi.fn().mockReturnThis(),
       action: vi.fn().mockReturnThis(),
     } as unknown as Command;
     vi.clearAllMocks();
@@ -37,6 +38,7 @@ describe('CLI Setup', () => {
 
       expect(mockProgram.command).toHaveBeenCalledWith('chat');
       expect(mockProgram.command).toHaveBeenCalledWith('tests:generate');
+      expect(mockProgram.command).toHaveBeenCalledWith('flow:run');
       expect(mockProgram.action).toHaveBeenCalled();
     });
   });

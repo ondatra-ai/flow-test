@@ -4,11 +4,8 @@ import 'reflect-metadata';
 import { program } from 'commander';
 
 import { setupCliProgram, registerCommands } from './cli/setup.js';
-import {
-  initializeContainer,
-  container,
-  SERVICES,
-} from './config/container.js';
+import { initializeContainer, container } from './config/container.js';
+import { SERVICES } from './config/tokens.js';
 import type { Logger } from './utils/logger.js';
 
 // Configure dependency injection container

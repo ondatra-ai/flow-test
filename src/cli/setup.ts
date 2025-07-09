@@ -33,6 +33,16 @@ export function registerCommands(program: Command): void {
       await handleTestsGenerateCommand();
     });
 
+  program
+    .command('flow:run')
+    .description('Execute a flow by name')
+    .argument('<flowName>', 'Name of the flow to execute')
+    .argument('[parameters...]', 'Additional parameters to pass to the flow')
+    .action(async (flowName: string, parameters: string[]) => {
+      const { handleFlowRunCommand } = await import('./handlers.js');
+      await handleFlowRunCommand(flowName, parameters);
+    });
+
   program.action(async () => {
     const { handleDefaultAction } = await import('./handlers.js');
     handleDefaultAction();
