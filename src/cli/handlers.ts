@@ -1,7 +1,7 @@
 import { container } from '../config/container.js';
 import { SERVICES } from '../config/tokens.js';
 import { Session } from '../flow/session/session.js';
-import type { FlowManager } from '../utils/flow-manager.js';
+import { FlowManager } from '../utils/flow-manager.js';
 import type { Logger } from '../utils/logger.js';
 import { generateTests } from '../utils/test-generator.js';
 

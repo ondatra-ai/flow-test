@@ -4,27 +4,29 @@ import path from 'path';
 import { injectable, inject } from 'tsyringe';
 
 import { SERVICES } from '../config/tokens.js';
-import { Flow } from '../flow/flow.js';
+import { Flow, type IFlow } from '../flow/flow.js';
 import { Step } from '../flow/step.js';
 
 import { Logger } from './logger.js';
 
 /**
- * Interface for flow data structure from JSON
+ * Type for flow data structure from JSON
  */
-interface FlowData {
+type FlowData = {
   id: string;
+  name?: string;
+  description?: string;
   steps: StepData[];
-}
+};
 
 /**
- * Interface for step data structure from JSON
+ * Type for step data structure from JSON
  */
-interface StepData {
+type StepData = {
   id: string;
   message: string;
   nextStepId: string | null;
-}
+};
 
 /**
  * Service for managing flow discovery and loading
@@ -57,15 +59,15 @@ export class FlowManager {
   /**
    * Load a specific flow by name
    */
-  public async loadFlow(name: string): Promise<Flow> {
+  public async loadFlow(name: string): Promise<IFlow> {
     const filePath = path.join(this.flowsDir, `${name}.json`);
 
     try {
       const jsonData = await fs.readFile(filePath, 'utf-8');
-      const flowData = JSON.parse(jsonData) as unknown;
+      const flowData = this.parseFlowData(jsonData);
 
-      // Validate and convert to Flow object
-      return this.convertJsonToFlow(flowData);
+      // Convert to Flow object
+      return this.convertToFlow(flowData);
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
         const availableFlows = await this.listFlows();
@@ -78,13 +80,18 @@ export class FlowManager {
   }
 
   /**
-   * Convert JSON flow data to Flow object
+   * Parse JSON data and validate it as FlowData
    */
-  private convertJsonToFlow(flowData: unknown): Flow {
-    // Validate flow structure
-    const validatedFlowData = this.validateFlowStructure(flowData);
+  private parseFlowData(jsonData: string): FlowData {
+    const data = JSON.parse(jsonData) as unknown;
+    return this.validateFlowStructure(data);
+  }
 
-    const steps = validatedFlowData.steps.map(
+  /**
+   * Convert validated FlowData to Flow object
+   */
+  private convertToFlow(flowData: FlowData): Flow {
+    const steps = flowData.steps.map(
       (stepData: StepData) =>
         new Step(
           stepData.id,
@@ -94,27 +101,26 @@ export class FlowManager {
         )
     );
 
-    return new Flow(validatedFlowData.id, steps);
+    return new Flow(flowData.id, steps);
   }
 
   /**
-   * Validate flow structure
+   * Validate flow structure and return typed FlowData
    */
-  private validateFlowStructure(flowData: unknown): FlowData {
-    const data = this.validateFlowDataObject(flowData);
-    this.validateBasicFlowStructure(data);
+  private validateFlowStructure(data: unknown): FlowData {
+    const validatedData = this.validateFlowDataType(data);
+    this.validateBasicFlowStructure(validatedData);
 
-    const steps = data.steps as unknown[];
-    const stepIds = this.extractStepIds(steps);
-    this.validateStepReferences(steps, stepIds);
+    const stepIds = this.extractStepIds(validatedData.steps as unknown[]);
+    this.validateStepReferences(validatedData.steps as unknown[], stepIds);
 
-    return this.convertToFlowData(data);
+    return this.convertToFlowData(validatedData);
   }
 
   /**
    * Validate that flow data is an object
    */
-  private validateFlowDataObject(flowData: unknown): Record<string, unknown> {
+  private validateFlowDataType(flowData: unknown): Record<string, unknown> {
     if (typeof flowData !== 'object' || flowData === null) {
       throw new Error('Invalid flow structure: data must be an object');
     }
