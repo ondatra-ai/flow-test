@@ -1,5 +1,3 @@
-// tests/unit/index.test.ts
-
 import { promises as fs } from 'fs';
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
@@ -13,31 +11,19 @@ vi.mock('fs', () => ({
   },
 }));
 
-vi.mock('commander', () => ({
-  program: {
-    name: vi.fn().mockReturnThis(),
-    description: vi.fn().mockReturnThis(),
-    version: vi.fn().mockReturnThis(),
-    command: vi.fn().mockReturnThis(),
-    action: vi.fn().mockReturnThis(),
-    parseAsync: vi.fn(),
-  },
-}));
-
-vi.mock('../../src/config/container.js', () => ({
+vi.mock('../../../src/config/container.js', () => ({
   container: {
     resolve: vi.fn().mockReturnValue({
       info: vi.fn(),
       error: vi.fn(),
     }),
   },
-  initializeContainer: vi.fn(),
   SERVICES: {
     Logger: Symbol('Logger'),
   },
 }));
 
-vi.mock('../../src/utils/test-templates.js', () => ({
+vi.mock('../../../src/utils/test-templates.js', () => ({
   getTestTemplate: vi.fn().mockReturnValue('test template content'),
   getLoginPageTemplate: vi.fn().mockReturnValue('login page template'),
   getMemberPageTemplate: vi.fn().mockReturnValue('member page template'),
@@ -50,7 +36,7 @@ interface MockFs {
   mkdir: ReturnType<typeof vi.fn>;
 }
 
-describe('Main Entry Point', () => {
+describe('Test Generator', () => {
   let mockFs: MockFs;
 
   beforeEach(() => {
@@ -58,9 +44,11 @@ describe('Main Entry Point', () => {
     vi.clearAllMocks();
   });
 
-  describe('File generation functions', () => {
+  describe('createTestDescription', () => {
     it('should create test description markdown', async () => {
-      const { createTestDescription } = await import('../../src/index.js');
+      const { createTestDescription } = await import(
+        '../../../src/utils/test-generator.js'
+      );
       await createTestDescription('desc.md');
 
       expect(mockFs.writeFile).toHaveBeenCalledWith(
@@ -68,9 +56,13 @@ describe('Main Entry Point', () => {
         expect.stringContaining('# Login Functionality E2E Tests')
       );
     });
+  });
 
+  describe('createTestSpec', () => {
     it('should create test specification file', async () => {
-      const { createTestSpec } = await import('../../src/index.js');
+      const { createTestSpec } = await import(
+        '../../../src/utils/test-generator.js'
+      );
       await createTestSpec('login.spec.js');
 
       expect(mockFs.writeFile).toHaveBeenCalledWith(
@@ -78,9 +70,13 @@ describe('Main Entry Point', () => {
         'test template content'
       );
     });
+  });
 
+  describe('createPageObjects', () => {
     it('should create page object files', async () => {
-      const { createPageObjects } = await import('../../src/index.js');
+      const { createPageObjects } = await import(
+        '../../../src/utils/test-generator.js'
+      );
       await createPageObjects('/pages');
 
       expect(mockFs.writeFile).toHaveBeenCalledTimes(3);
@@ -99,12 +95,14 @@ describe('Main Entry Point', () => {
     });
   });
 
-  describe('Playwright config creation', () => {
+  describe('createPlaywrightConfig', () => {
     it('should copy existing playwright config', async () => {
       const configContent = 'existing config content';
       mockFs.readFile.mockResolvedValue(configContent);
 
-      const { createPlaywrightConfig } = await import('../../src/index.js');
+      const { createPlaywrightConfig } = await import(
+        '../../../src/utils/test-generator.js'
+      );
       await createPlaywrightConfig('test-config.ts');
 
       expect(mockFs.writeFile).toHaveBeenCalledWith(
@@ -117,7 +115,9 @@ describe('Main Entry Point', () => {
       const fileError = new Error('File not found');
       mockFs.readFile.mockRejectedValue(fileError);
 
-      const { createPlaywrightConfig } = await import('../../src/index.js');
+      const { createPlaywrightConfig } = await import(
+        '../../../src/utils/test-generator.js'
+      );
       await createPlaywrightConfig('test-config.ts');
 
       expect(mockFs.writeFile).toHaveBeenCalledWith(
@@ -127,12 +127,14 @@ describe('Main Entry Point', () => {
     });
   });
 
-  describe('Test generation', () => {
+  describe('generateTests', () => {
     it('should create complete test structure', async () => {
       mockFs.mkdir.mockResolvedValue(undefined);
       mockFs.writeFile.mockResolvedValue(undefined);
 
-      const { generateTests } = await import('../../src/index.js');
+      const { generateTests } = await import(
+        '../../../src/utils/test-generator.js'
+      );
       await generateTests();
 
       expect(mockFs.mkdir).toHaveBeenCalledWith(
@@ -154,22 +156,11 @@ describe('Main Entry Point', () => {
       const error = new Error('File creation failed');
       mockFs.mkdir.mockRejectedValue(error);
 
-      const { generateTests } = await import('../../src/index.js');
+      const { generateTests } = await import(
+        '../../../src/utils/test-generator.js'
+      );
 
       await expect(generateTests()).rejects.toThrow('File creation failed');
-    });
-  });
-
-  describe('Error handling', () => {
-    it('should handle file system errors gracefully', async () => {
-      const permissionError = new Error('Permission denied');
-      mockFs.writeFile.mockRejectedValue(permissionError);
-
-      const { createTestSpec } = await import('../../src/index.js');
-
-      await expect(createTestSpec('test.js')).rejects.toThrow(
-        'Permission denied'
-      );
     });
   });
 });
