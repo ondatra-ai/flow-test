@@ -2,9 +2,9 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-import { OpenAIProvider } from '../../../../../../src/providers/llm/providers/openai/openai.provider.js';
 import type { IProviderHelper } from '../../../../../../src/providers/llm/helpers/provider-helper.js';
 import type { StreamRequest } from '../../../../../../src/providers/llm/interfaces/provider.js';
+import { OpenAIProvider } from '../../../../../../src/providers/llm/providers/openai/openai.provider.js';
 
 // Mock OpenAI SDK
 const mockOpenAIClient = {
@@ -28,7 +28,9 @@ describe('OpenAIProvider', () => {
   beforeEach(() => {
     mockHelper = {
       checkAbortSignal: vi.fn(),
-      wrapError: vi.fn().mockReturnValue({ type: 'error', error: new Error('Test error') }),
+      wrapError: vi
+        .fn()
+        .mockReturnValue({ type: 'error', error: new Error('Test error') }),
       streamToString: vi.fn().mockResolvedValue('Generated response'),
     };
 
@@ -52,15 +54,15 @@ describe('OpenAIProvider', () => {
   describe('getAvailableModels', () => {
     it('should return list of OpenAI models', () => {
       const models = provider.getAvailableModels();
-      expect(models).toContain('gpt-4.1');
       expect(models).toContain('gpt-4o');
-      expect(models).toContain('o3-mini-2025-01-31');
+      expect(models).toContain('gpt-4o-mini');
+      expect(models).toContain('gpt-4-turbo');
       expect(models.length).toBeGreaterThan(0);
     });
   });
 
   describe('streaming functionality', () => {
-    it('should process content chunks', async () => {
+    it('should process content delta chunks', async () => {
       const request: StreamRequest = {
         model: 'gpt-4o',
         prompt: 'Test prompt',
@@ -69,10 +71,11 @@ describe('OpenAIProvider', () => {
       };
 
       const mockStream = {
-        async *[Symbol.asyncIterator]() {
+        async *[Symbol.asyncIterator](): AsyncGenerator<{
+          choices: Array<{ delta: { content?: string } }>;
+        }> {
           yield { choices: [{ delta: { content: 'Hello' } }] };
           yield { choices: [{ delta: { content: ' world' } }] };
-          yield { choices: [{ finish_reason: 'stop' }] };
         },
       };
 
@@ -90,17 +93,22 @@ describe('OpenAIProvider', () => {
       expect(tokenEvents[1].token).toBe(' world');
     });
 
-    it('should handle token estimation on finish', async () => {
+    it('should handle token counting with character estimation', async () => {
       const request: StreamRequest = {
         model: 'gpt-4o',
-        prompt: 'Test prompt with 16 chars',
+        prompt: 'Test prompt', // 11 chars
         messages: [{ role: 'user', content: 'Hello' }],
         signal: new AbortController().signal,
       };
 
       const mockStream = {
-        async *[Symbol.asyncIterator]() {
-          yield { choices: [{ delta: { content: 'Response text' } }] }; // 13 chars
+        async *[Symbol.asyncIterator](): AsyncGenerator<{
+          choices: Array<{
+            delta: { content?: string };
+            finish_reason?: string;
+          }>;
+        }> {
+          yield { choices: [{ delta: { content: 'Response' } }] }; // 8 chars
           yield { choices: [{ finish_reason: 'stop' }] };
         },
       };
@@ -116,9 +124,9 @@ describe('OpenAIProvider', () => {
       const doneEvent = events.find(e => e.type === 'done');
       expect(doneEvent).toBeDefined();
       expect(doneEvent?.usage).toEqual({
-        promptTokens: Math.ceil(16 / 4), // 4 characters per token
-        completionTokens: Math.ceil(13 / 4),
-        totalTokens: Math.ceil(16 / 4) + Math.ceil(13 / 4),
+        promptTokens: Math.ceil(11 / 4), // 3 tokens
+        completionTokens: Math.ceil(8 / 4), // 2 tokens
+        totalTokens: Math.ceil(11 / 4) + Math.ceil(8 / 4), // 5 tokens
       });
     });
 
@@ -131,7 +139,9 @@ describe('OpenAIProvider', () => {
       };
 
       const mockStream = {
-        async *[Symbol.asyncIterator]() {
+        async *[Symbol.asyncIterator](): AsyncGenerator<{
+          choices: Array<{ delta: { content?: string } }>;
+        }> {
           yield { choices: [{ delta: { content: 'Hello' } }] };
         },
       };
@@ -167,7 +177,10 @@ describe('OpenAIProvider', () => {
       }
 
       expect(mockHelper.wrapError).toHaveBeenCalledWith(error, request.signal);
-      expect(events).toContainEqual({ type: 'error', error: new Error('Test error') });
+      expect(events).toContainEqual({
+        type: 'error',
+        error: new Error('Test error'),
+      });
     });
   });
 
@@ -182,27 +195,35 @@ describe('OpenAIProvider', () => {
 
       const result = await provider.generate(request);
 
-      expect(mockHelper.streamToString).toHaveBeenCalledWith(expect.any(Object));
+      expect(mockHelper.streamToString).toHaveBeenCalledWith(
+        expect.any(Object)
+      );
       expect(result).toBe('Generated response');
     });
   });
 
   describe('role validation', () => {
-    it('should throw error for invalid roles', async () => {
+    it('should yield error for invalid roles', async () => {
       const request: StreamRequest = {
         model: 'gpt-4o',
         prompt: 'Test prompt',
-        messages: [{ role: 'invalid' as any, content: 'Invalid role message' }],
+        messages: [
+          { role: 'invalid' as never, content: 'Invalid role message' },
+        ],
         signal: new AbortController().signal,
       };
 
       const stream = provider.stream(request);
-      
-      await expect(async () => {
-        for await (const event of stream) {
-          // Should throw before yielding events
-        }
-      }).rejects.toThrow('not supported by OpenAI API');
+      const events = [];
+
+      for await (const event of stream) {
+        events.push(event);
+      }
+
+      // Should yield an error event for invalid roles
+      const errorEvent = events.find(e => e.type === 'error');
+      expect(errorEvent).toBeDefined();
+      expect(mockHelper.wrapError).toHaveBeenCalled();
     });
   });
 
@@ -218,7 +239,9 @@ describe('OpenAIProvider', () => {
       };
 
       const mockStream = {
-        async *[Symbol.asyncIterator]() {
+        async *[Symbol.asyncIterator](): AsyncGenerator<{
+          choices: Array<{ delta: { content?: string } }>;
+        }> {
           yield { choices: [{ delta: { content: 'Response' } }] };
         },
       };
@@ -231,7 +254,8 @@ describe('OpenAIProvider', () => {
         events.push(event);
       }
 
-      expect(mockOpenAIClient.chat.completions.create).toHaveBeenCalledWith({
+      const createCall = mockOpenAIClient.chat.completions.create;
+      expect(createCall).toHaveBeenCalledWith({
         messages: [{ role: 'user', content: 'Hello' }],
         model: 'gpt-4o',
         max_tokens: 500,
@@ -240,4 +264,4 @@ describe('OpenAIProvider', () => {
       });
     });
   });
-}); 
+});

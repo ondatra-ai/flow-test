@@ -1,16 +1,16 @@
 // tests/unit/config/container.test.ts
 
 import 'reflect-metadata';
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { container } from 'tsyringe';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 import {
   initializeContainer,
   SERVICES,
 } from '../../../src/config/container.js';
-import type { Logger } from '../../../src/utils/logger.js';
-import type { ILLMProvider } from '../../../src/providers/llm/interfaces/provider.js';
 import type { IProviderHelper } from '../../../src/providers/llm/helpers/provider-helper.js';
+import type { ILLMProvider } from '../../../src/providers/llm/interfaces/provider.js';
+import type { Logger } from '../../../src/utils/logger.js';
 
 // Mock the SDK dependencies
 vi.mock('@anthropic-ai/sdk', () => ({
@@ -38,8 +38,6 @@ describe('Container Configuration', () => {
   beforeEach(() => {
     originalEnv = process.env;
     process.env = { ...originalEnv, ...mockEnv };
-    
-    // Clear container before each test
     container.clearInstances();
   });
 
@@ -75,9 +73,9 @@ describe('Container Configuration', () => {
   describe('initializeContainer', () => {
     it('should register Logger service', () => {
       initializeContainer();
-      
+
       expect(container.isRegistered(SERVICES.Logger)).toBe(true);
-      
+
       const logger = container.resolve<Logger>(SERVICES.Logger);
       expect(logger).toBeDefined();
       expect(typeof logger.info).toBe('function');
@@ -86,20 +84,24 @@ describe('Container Configuration', () => {
 
     it('should register ProviderHelper as singleton', () => {
       initializeContainer();
-      
+
       expect(container.isRegistered(SERVICES.ProviderHelper)).toBe(true);
-      
-      const helper1 = container.resolve<IProviderHelper>(SERVICES.ProviderHelper);
-      const helper2 = container.resolve<IProviderHelper>(SERVICES.ProviderHelper);
-      
-      expect(helper1).toBe(helper2); // Should be the same instance
+
+      const helper1 = container.resolve<IProviderHelper>(
+        SERVICES.ProviderHelper
+      );
+      const helper2 = container.resolve<IProviderHelper>(
+        SERVICES.ProviderHelper
+      );
+
+      expect(helper1).toBe(helper2);
     });
 
     it('should register Claude provider with factory', () => {
       initializeContainer();
-      
+
       expect(container.isRegistered(SERVICES.ClaudeProvider)).toBe(true);
-      
+
       const provider = container.resolve<ILLMProvider>(SERVICES.ClaudeProvider);
       expect(provider).toBeDefined();
       expect(provider.getProviderName()).toBe('claude');
@@ -107,9 +109,9 @@ describe('Container Configuration', () => {
 
     it('should register OpenAI provider with factory', () => {
       initializeContainer();
-      
+
       expect(container.isRegistered(SERVICES.OpenAIProvider)).toBe(true);
-      
+
       const provider = container.resolve<ILLMProvider>(SERVICES.OpenAIProvider);
       expect(provider).toBeDefined();
       expect(provider.getProviderName()).toBe('openai');
@@ -117,9 +119,9 @@ describe('Container Configuration', () => {
 
     it('should register Gemini provider with factory', () => {
       initializeContainer();
-      
+
       expect(container.isRegistered(SERVICES.GeminiProvider)).toBe(true);
-      
+
       const provider = container.resolve<ILLMProvider>(SERVICES.GeminiProvider);
       expect(provider).toBeDefined();
       expect(provider.getProviderName()).toBe('gemini');
@@ -127,8 +129,8 @@ describe('Container Configuration', () => {
 
     it('should not register services multiple times', () => {
       initializeContainer();
-      initializeContainer(); // Call again
-      
+      initializeContainer();
+
       expect(container.isRegistered(SERVICES.Logger)).toBe(true);
       expect(container.isRegistered(SERVICES.ProviderHelper)).toBe(true);
       expect(container.isRegistered(SERVICES.ClaudeProvider)).toBe(true);
@@ -140,9 +142,8 @@ describe('Container Configuration', () => {
   describe('Environment variable handling', () => {
     it('should throw error when CLAUDE_API_KEY is missing', () => {
       delete process.env.CLAUDE_API_KEY;
-      
       initializeContainer();
-      
+
       expect(() => {
         container.resolve<ILLMProvider>(SERVICES.ClaudeProvider);
       }).toThrow('CLAUDE_API_KEY environment variable is required');
@@ -150,9 +151,8 @@ describe('Container Configuration', () => {
 
     it('should throw error when OPENAI_API_KEY is missing', () => {
       delete process.env.OPENAI_API_KEY;
-      
       initializeContainer();
-      
+
       expect(() => {
         container.resolve<ILLMProvider>(SERVICES.OpenAIProvider);
       }).toThrow('OPENAI_API_KEY environment variable is required');
@@ -160,9 +160,8 @@ describe('Container Configuration', () => {
 
     it('should throw error when GEMINI_API_KEY is missing', () => {
       delete process.env.GEMINI_API_KEY;
-      
       initializeContainer();
-      
+
       expect(() => {
         container.resolve<ILLMProvider>(SERVICES.GeminiProvider);
       }).toThrow('GEMINI_API_KEY environment variable is required');
@@ -170,11 +169,17 @@ describe('Container Configuration', () => {
 
     it('should use environment variables for API keys', () => {
       initializeContainer();
-      
-      const claudeProvider = container.resolve<ILLMProvider>(SERVICES.ClaudeProvider);
-      const openaiProvider = container.resolve<ILLMProvider>(SERVICES.OpenAIProvider);
-      const geminiProvider = container.resolve<ILLMProvider>(SERVICES.GeminiProvider);
-      
+
+      const claudeProvider = container.resolve<ILLMProvider>(
+        SERVICES.ClaudeProvider
+      );
+      const openaiProvider = container.resolve<ILLMProvider>(
+        SERVICES.OpenAIProvider
+      );
+      const geminiProvider = container.resolve<ILLMProvider>(
+        SERVICES.GeminiProvider
+      );
+
       expect(claudeProvider).toBeDefined();
       expect(openaiProvider).toBeDefined();
       expect(geminiProvider).toBeDefined();
@@ -184,25 +189,33 @@ describe('Container Configuration', () => {
   describe('Provider factory functions', () => {
     it('should inject ProviderHelper into providers', () => {
       initializeContainer();
-      
-      const helper = container.resolve<IProviderHelper>(SERVICES.ProviderHelper);
+
+      const helper = container.resolve<IProviderHelper>(
+        SERVICES.ProviderHelper
+      );
       const provider = container.resolve<ILLMProvider>(SERVICES.ClaudeProvider);
-      
+
       expect(helper).toBeDefined();
       expect(provider).toBeDefined();
     });
 
     it('should create different provider instances', () => {
       initializeContainer();
-      
-      const claudeProvider = container.resolve<ILLMProvider>(SERVICES.ClaudeProvider);
-      const openaiProvider = container.resolve<ILLMProvider>(SERVICES.OpenAIProvider);
-      const geminiProvider = container.resolve<ILLMProvider>(SERVICES.GeminiProvider);
-      
+
+      const claudeProvider = container.resolve<ILLMProvider>(
+        SERVICES.ClaudeProvider
+      );
+      const openaiProvider = container.resolve<ILLMProvider>(
+        SERVICES.OpenAIProvider
+      );
+      const geminiProvider = container.resolve<ILLMProvider>(
+        SERVICES.GeminiProvider
+      );
+
       expect(claudeProvider).not.toBe(openaiProvider);
       expect(openaiProvider).not.toBe(geminiProvider);
       expect(claudeProvider).not.toBe(geminiProvider);
-      
+
       expect(claudeProvider.getProviderName()).toBe('claude');
       expect(openaiProvider.getProviderName()).toBe('openai');
       expect(geminiProvider.getProviderName()).toBe('gemini');
@@ -217,4 +230,4 @@ describe('Container Configuration', () => {
       expect(typeof container.isRegistered).toBe('function');
     });
   });
-}); 
+});

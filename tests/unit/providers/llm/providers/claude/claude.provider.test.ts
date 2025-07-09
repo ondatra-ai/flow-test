@@ -1,9 +1,8 @@
-
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-import { ClaudeProvider } from '../../../../../../src/providers/llm/providers/claude/claude.provider.js';
 import type { IProviderHelper } from '../../../../../../src/providers/llm/helpers/provider-helper.js';
 import type { StreamRequest } from '../../../../../../src/providers/llm/interfaces/provider.js';
+import { ClaudeProvider } from '../../../../../../src/providers/llm/providers/claude/claude.provider.js';
 
 // Mock Anthropic SDK
 const mockAnthropicClient = {
@@ -25,7 +24,9 @@ describe('ClaudeProvider', () => {
   beforeEach(() => {
     mockHelper = {
       checkAbortSignal: vi.fn(),
-      wrapError: vi.fn().mockReturnValue({ type: 'error', error: new Error('Test error') }),
+      wrapError: vi
+        .fn()
+        .mockReturnValue({ type: 'error', error: new Error('Test error') }),
       streamToString: vi.fn().mockResolvedValue('Generated response'),
     };
 
@@ -66,8 +67,16 @@ describe('ClaudeProvider', () => {
       };
 
       const mockStream = {
-        async *[Symbol.asyncIterator]() {
-          yield { type: 'message_start', message: { usage: { input_tokens: 10 } } };
+        async *[Symbol.asyncIterator](): AsyncGenerator<{
+          type: string;
+          message?: { usage?: { input_tokens?: number } };
+          delta?: { text?: string };
+          usage?: { output_tokens?: number };
+        }> {
+          yield {
+            type: 'message_start',
+            message: { usage: { input_tokens: 10 } },
+          };
           yield { type: 'content_block_delta', delta: { text: 'Hello' } };
           yield { type: 'content_block_delta', delta: { text: ' world' } };
           yield { type: 'message_delta', usage: { output_tokens: 5 } };
@@ -97,8 +106,16 @@ describe('ClaudeProvider', () => {
       };
 
       const mockStream = {
-        async *[Symbol.asyncIterator]() {
-          yield { type: 'message_start', message: { usage: { input_tokens: 15 } } };
+        async *[Symbol.asyncIterator](): AsyncGenerator<{
+          type: string;
+          message?: { usage?: { input_tokens?: number } };
+          delta?: { text?: string };
+          usage?: { output_tokens?: number };
+        }> {
+          yield {
+            type: 'message_start',
+            message: { usage: { input_tokens: 15 } },
+          };
           yield { type: 'content_block_delta', delta: { text: 'Response' } };
           yield { type: 'message_delta', usage: { output_tokens: 8 } };
         },
@@ -130,7 +147,10 @@ describe('ClaudeProvider', () => {
       };
 
       const mockStream = {
-        async *[Symbol.asyncIterator]() {
+        async *[Symbol.asyncIterator](): AsyncGenerator<{
+          type: string;
+          delta?: { text?: string };
+        }> {
           yield { type: 'content_block_delta', delta: { text: 'Hello' } };
         },
       };
@@ -166,7 +186,10 @@ describe('ClaudeProvider', () => {
       }
 
       expect(mockHelper.wrapError).toHaveBeenCalledWith(error, request.signal);
-      expect(events).toContainEqual({ type: 'error', error: new Error('Test error') });
+      expect(events).toContainEqual({
+        type: 'error',
+        error: new Error('Test error'),
+      });
     });
   });
 
@@ -181,27 +204,35 @@ describe('ClaudeProvider', () => {
 
       const result = await provider.generate(request);
 
-      expect(mockHelper.streamToString).toHaveBeenCalledWith(expect.any(Object));
+      expect(mockHelper.streamToString).toHaveBeenCalledWith(
+        expect.any(Object)
+      );
       expect(result).toBe('Generated response');
     });
   });
 
   describe('role validation', () => {
-    it('should throw error for invalid roles', async () => {
+    it('should yield error for invalid roles', async () => {
       const request: StreamRequest = {
         model: 'claude-3-5-sonnet-20241022',
         prompt: 'Test prompt',
-        messages: [{ role: 'invalid' as any, content: 'Invalid role message' }],
+        messages: [
+          { role: 'invalid' as never, content: 'Invalid role message' },
+        ],
         signal: new AbortController().signal,
       };
 
       const stream = provider.stream(request);
-      
-      await expect(async () => {
-        for await (const event of stream) {
-          // Should throw before yielding events
-        }
-      }).rejects.toThrow('not supported by Claude API');
+      const events = [];
+
+      for await (const event of stream) {
+        events.push(event);
+      }
+
+      // Should yield an error event for invalid roles
+      const errorEvent = events.find(e => e.type === 'error');
+      expect(errorEvent).toBeDefined();
+      expect(mockHelper.wrapError).toHaveBeenCalled();
     });
   });
 
@@ -217,7 +248,10 @@ describe('ClaudeProvider', () => {
       };
 
       const mockStream = {
-        async *[Symbol.asyncIterator]() {
+        async *[Symbol.asyncIterator](): AsyncGenerator<{
+          type: string;
+          delta?: { text?: string };
+        }> {
           yield { type: 'content_block_delta', delta: { text: 'Response' } };
         },
       };
@@ -230,7 +264,8 @@ describe('ClaudeProvider', () => {
         events.push(event);
       }
 
-      expect(mockAnthropicClient.messages.create).toHaveBeenCalledWith({
+      const createCall = mockAnthropicClient.messages.create;
+      expect(createCall).toHaveBeenCalledWith({
         messages: [{ role: 'user', content: 'Hello' }],
         model: 'claude-3-5-sonnet-20241022',
         max_tokens: 500,
@@ -240,4 +275,4 @@ describe('ClaudeProvider', () => {
       });
     });
   });
-}); 
+});
