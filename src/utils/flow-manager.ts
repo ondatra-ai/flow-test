@@ -17,19 +17,7 @@ export type FlowData = {
   id: string;
   name?: string;
   description?: string;
-  steps: StepData[];
-};
-
-/**
- * Type for step data structure from JSON
- */
-export type StepData = {
-  id: string;
-  type?: string;
-  message?: string;
-  nextStepId: Record<string, string>;
-  // Additional fields that vary by step type
-  [key: string]: unknown;
+  steps: unknown[];
 };
 
 /**
@@ -102,36 +90,63 @@ export class FlowManager {
   public convertToFlow(flowData: unknown): Flow {
     // Validate and convert the raw data to FlowData
     const validatedFlowData = this.validateFlowStructure(flowData);
-    const steps = validatedFlowData.steps.map((stepData: StepData) => {
-      try {
-        // If step has a type, use the factory to create typed step
-        if (stepData.type && this.stepFactory) {
-          return this.stepFactory.createStep(stepData);
-        }
-
-        // Fall back to basic Step for backward compatibility
-        if (!stepData.message) {
-          throw new Error(
-            `Untyped step ${stepData.id} requires a message field`
-          );
-        }
-
-        return new Step(
-          stepData.id,
-          stepData.message,
-          stepData.nextStepId,
-          this.logger
-        );
-      } catch (error) {
-        this.logger.error(`Failed to create step: ${stepData.id}`, {
-          stepData,
-          error: error instanceof Error ? error.message : String(error),
-        });
-        throw error;
-      }
-    });
+    const steps = validatedFlowData.steps.map((stepData: unknown) =>
+      this.createStepFromData(stepData)
+    );
 
     return new Flow(validatedFlowData.id, steps);
+  }
+
+  /**
+   * Create a step from raw step data
+   */
+  private createStepFromData(stepData: unknown): Step {
+    try {
+      // Ensure stepData is an object
+      if (typeof stepData !== 'object' || stepData === null) {
+        throw new Error('Step data must be an object');
+      }
+
+      const step = stepData as Record<string, unknown>;
+
+      // If step has a type, use the factory to create typed step
+      if (step.type && this.stepFactory) {
+        return this.stepFactory.createStep(stepData);
+      }
+
+      // Fall back to basic Step for backward compatibility
+      return this.createBasicStep(step);
+    } catch (error) {
+      this.logger.error(`Failed to create step`, {
+        stepData,
+        error: error instanceof Error ? error.message : String(error),
+      });
+      throw error;
+    }
+  }
+
+  /**
+   * Create a basic step for backward compatibility
+   */
+  private createBasicStep(step: Record<string, unknown>): Step {
+    if (!step.id || typeof step.id !== 'string') {
+      throw new Error('Step must have an id');
+    }
+
+    if (!step.message || typeof step.message !== 'string') {
+      throw new Error(`Untyped step ${step.id} requires a message field`);
+    }
+
+    if (!step.nextStepId || typeof step.nextStepId !== 'object') {
+      throw new Error(`Step ${step.id} requires a nextStepId object`);
+    }
+
+    return new Step(
+      step.id,
+      step.message,
+      step.nextStepId as Record<string, string>,
+      this.logger
+    );
   }
 
   /**
@@ -227,16 +242,9 @@ export class FlowManager {
   private convertToFlowData(data: Record<string, unknown>): FlowData {
     return {
       id: data.id as string,
-      steps: (data.steps as unknown[]).map((step: unknown) => {
-        const stepData = step as Record<string, unknown>;
-        return {
-          id: stepData.id as string,
-          type: stepData.type as string | undefined,
-          message: stepData.message as string | undefined,
-          nextStepId: stepData.nextStepId as Record<string, string>,
-          ...stepData, // Include all additional fields for typed steps
-        };
-      }),
+      name: data.name as string | undefined,
+      description: data.description as string | undefined,
+      steps: data.steps as unknown[],
     };
   }
 }

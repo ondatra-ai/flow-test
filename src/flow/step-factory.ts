@@ -1,7 +1,6 @@
 import { injectable, inject } from 'tsyringe';
 
 import { SERVICES } from '../config/tokens.js';
-import type { StepData } from '../utils/flow-manager.js';
 import { Logger } from '../utils/logger.js';
 
 import { Step } from './step.js';
@@ -25,116 +24,169 @@ export class StepFactory {
   /**
    * Create a step instance based on step data
    */
-  createStep(stepData: StepData): Step {
-    const stepType = stepData.type?.toUpperCase();
+  createStep(stepData: unknown): Step {
+    // Validate basic structure
+    if (!this.isValidStepStructure(stepData)) {
+      throw new Error('Invalid step data structure');
+    }
+
+    const validatedData = stepData;
+    const stepType = (validatedData.type as string)?.toUpperCase();
 
     switch (stepType) {
-      case StepType.ACTION:
-        this.validateActionStep(stepData);
-        return new ActionStep(this.logger, stepData as ActionStepConfig);
+      case StepType.ACTION.toUpperCase(): {
+        const actionConfig = this.validateActionStep(validatedData);
+        return new ActionStep(this.logger, actionConfig);
+      }
 
-      case StepType.DECISION:
-        this.validateDecisionStep(stepData);
-        return new DecisionStep(this.logger, stepData as DecisionStepConfig);
+      case StepType.DECISION.toUpperCase(): {
+        const decisionConfig = this.validateDecisionStep(validatedData);
+        return new DecisionStep(this.logger, decisionConfig);
+      }
 
-      case StepType.LOG:
-        this.validateLogStep(stepData);
-        return new LogStep(this.logger, stepData as LogStepConfig);
+      case StepType.LOG.toUpperCase(): {
+        const logConfig = this.validateLogStep(validatedData);
+        return new LogStep(this.logger, logConfig);
+      }
 
-      default:
+      default: {
         // Return basic Step for backward compatibility
+        if (!validatedData.id || typeof validatedData.id !== 'string') {
+          throw new Error('Step must have an id');
+        }
         return new Step(
-          stepData.id,
-          stepData.message || `Step ${stepData.id}`,
-          stepData.nextStepId || {},
+          validatedData.id,
+          (validatedData.message as string) || `Step ${validatedData.id}`,
+          (validatedData.nextStepId as Record<string, string>) || {},
           this.logger
         );
+      }
     }
   }
 
   /**
-   * Validate action step configuration
+   * Type guard to check if data has basic step structure
    */
-  private validateActionStep(stepData: StepData): void {
-    if (!stepData.operation) {
+  private isValidStepStructure(data: unknown): data is Record<string, unknown> {
+    return (
+      typeof data === 'object' &&
+      data !== null &&
+      'id' in data &&
+      typeof (data as Record<string, unknown>).id === 'string' &&
+      'nextStepId' in data &&
+      typeof (data as Record<string, unknown>).nextStepId === 'object'
+    );
+  }
+
+  /**
+   * Validate and type action step configuration
+   */
+  private validateActionStep(data: Record<string, unknown>): ActionStepConfig {
+    const { id, nextStepId, operation, key, value } = data;
+
+    if (!operation || typeof operation !== 'string') {
       throw new Error(
-        `ActionStep ${stepData.id} missing required field: operation`
+        `ActionStep ${String(id)} missing required field: operation`
       );
     }
 
-    if (!stepData.key) {
-      throw new Error(`ActionStep ${stepData.id} missing required field: key`);
+    if (!key || typeof key !== 'string') {
+      throw new Error(`ActionStep ${String(id)} missing required field: key`);
     }
 
     const validOperations = ['setContext', 'updateContext', 'removeContext'];
-    if (!validOperations.includes(stepData.operation as string)) {
+    if (!validOperations.includes(operation)) {
       throw new Error(
-        `ActionStep ${stepData.id} has invalid operation: ${
-          stepData.operation as string
-        }`
+        `ActionStep ${String(id)} has invalid operation: ${operation}`
       );
     }
 
-    if (
-      stepData.operation !== 'removeContext' &&
-      stepData.value === undefined
-    ) {
+    if (operation !== 'removeContext' && value === undefined) {
       throw new Error(
-        `ActionStep ${stepData.id} with operation ${
-          stepData.operation as string
-        } missing required field: value`
+        `ActionStep ${String(id)} with operation ${operation} ` +
+          `missing required field: value`
       );
     }
+
+    return {
+      id: id as string,
+      type: StepType.ACTION,
+      nextStepId: nextStepId as Record<string, string>,
+      operation: operation as 'setContext' | 'updateContext' | 'removeContext',
+      key: key,
+      value: value as string | undefined,
+    };
   }
 
   /**
-   * Validate decision step configuration
+   * Validate and type decision step configuration
    */
-  private validateDecisionStep(stepData: StepData): void {
-    if (!stepData.condition) {
+  private validateDecisionStep(
+    data: Record<string, unknown>
+  ): DecisionStepConfig {
+    const { id, nextStepId, condition, contextKey, trueValue, falseValue } =
+      data;
+
+    if (!condition || typeof condition !== 'string') {
       throw new Error(
-        `DecisionStep ${stepData.id} missing required field: condition`
+        `DecisionStep ${String(id)} missing required field: condition`
       );
     }
 
-    if (!stepData.contextKey) {
+    if (!contextKey || typeof contextKey !== 'string') {
       throw new Error(
-        `DecisionStep ${stepData.id} missing required field: contextKey`
+        `DecisionStep ${String(id)} missing required field: contextKey`
       );
     }
 
-    if (stepData.trueValue === undefined) {
+    if (trueValue === undefined || typeof trueValue !== 'string') {
       throw new Error(
-        `DecisionStep ${stepData.id} missing required field: trueValue`
+        `DecisionStep ${String(id)} missing required field: trueValue`
       );
     }
 
-    if (stepData.falseValue === undefined) {
+    if (falseValue === undefined || typeof falseValue !== 'string') {
       throw new Error(
-        `DecisionStep ${stepData.id} missing required field: falseValue`
+        `DecisionStep ${String(id)} missing required field: falseValue`
       );
     }
+
+    return {
+      id: id as string,
+      type: StepType.DECISION,
+      nextStepId: nextStepId as Record<string, string>,
+      condition,
+      contextKey,
+      trueValue,
+      falseValue,
+    };
   }
 
   /**
-   * Validate log step configuration
+   * Validate and type log step configuration
    */
-  private validateLogStep(stepData: StepData): void {
-    if (!stepData.message) {
-      throw new Error(`LogStep ${stepData.id} missing required field: message`);
+  private validateLogStep(data: Record<string, unknown>): LogStepConfig {
+    const { id, nextStepId, message, level } = data;
+
+    if (!message || typeof message !== 'string') {
+      throw new Error(`LogStep ${String(id)} missing required field: message`);
     }
 
-    if (!stepData.level) {
-      throw new Error(`LogStep ${stepData.id} missing required field: level`);
+    if (!level || typeof level !== 'string') {
+      throw new Error(`LogStep ${String(id)} missing required field: level`);
     }
 
     const validLevels = ['info', 'warn', 'error', 'debug'];
-    if (!validLevels.includes(stepData.level as string)) {
-      throw new Error(
-        `LogStep ${stepData.id} has invalid log level: ${
-          stepData.level as string
-        }`
-      );
+    if (!validLevels.includes(level)) {
+      throw new Error(`LogStep ${String(id)} has invalid log level: ${level}`);
     }
+
+    return {
+      id: id as string,
+      type: StepType.LOG,
+      nextStepId: nextStepId as Record<string, string>,
+      message,
+      level: level as 'error' | 'warn' | 'info' | 'debug',
+    };
   }
 }
