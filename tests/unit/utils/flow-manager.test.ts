@@ -61,26 +61,27 @@ const DYNAMIC_FLOW_DATA = {
   ],
 };
 
+// Helper functions moved to module level for better reusability
+function setupMocks(): void {
+  vi.clearAllMocks();
+  vi.mocked(path.join).mockImplementation((...args) => args.join('/'));
+  vi.mocked(path.basename).mockImplementation((filePath, ext) =>
+    ext ? filePath.replace(ext, '') : filePath
+  );
+}
+
+function createMockLogger(): Logger {
+  return {
+    info: vi.fn(),
+    error: vi.fn(),
+    warn: vi.fn(),
+    debug: vi.fn(),
+  } as unknown as Logger;
+}
+
 describe('FlowManager', () => {
   let flowManager: FlowManager;
   let mockLogger: Logger;
-
-  function setupMocks(): void {
-    vi.clearAllMocks();
-    vi.mocked(path.join).mockImplementation((...args) => args.join('/'));
-    vi.mocked(path.basename).mockImplementation((filePath, ext) =>
-      ext ? filePath.replace(ext, '') : filePath
-    );
-  }
-
-  function createMockLogger(): Logger {
-    return {
-      info: vi.fn(),
-      error: vi.fn(),
-      warn: vi.fn(),
-      debug: vi.fn(),
-    } as unknown as Logger;
-  }
 
   beforeEach(() => {
     setupMocks();
