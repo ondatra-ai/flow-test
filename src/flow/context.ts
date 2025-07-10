@@ -8,7 +8,7 @@ export interface IContext {
 }
 
 // Context implementation - Simple Map-based storage
-export class Context implements IContext {
+export class Context implements IContext, Iterable<[string, string]> {
   private readonly storage: Map<string, string>;
 
   constructor() {
@@ -33,5 +33,10 @@ export class Context implements IContext {
 
   public clear(): void {
     this.storage.clear();
+  }
+
+  // Make Context iterable
+  public [Symbol.iterator](): Iterator<[string, string]> {
+    return this.storage[Symbol.iterator]();
   }
 }

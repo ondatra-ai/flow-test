@@ -5,6 +5,7 @@ import path from 'path';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { Flow } from '../../../src/flow/flow.js';
+import { StepFactory } from '../../../src/flow/step-factory.js';
 import { FlowManager } from '../../../src/utils/flow-manager.js';
 import { Logger } from '../../../src/utils/logger.js';
 
@@ -79,14 +80,23 @@ function createMockLogger(): Logger {
   } as unknown as Logger;
 }
 
+function createMockStepFactory(): StepFactory {
+  return {
+    validateStepConfig: vi.fn(),
+    createStep: vi.fn(),
+  } as unknown as StepFactory;
+}
+
 describe('FlowManager', () => {
   let flowManager: FlowManager;
   let mockLogger: Logger;
+  let mockStepFactory: StepFactory;
 
   beforeEach(() => {
     setupMocks();
     mockLogger = createMockLogger();
-    flowManager = new FlowManager(mockLogger);
+    mockStepFactory = createMockStepFactory();
+    flowManager = new FlowManager(mockLogger, mockStepFactory);
   });
 
   describe('listFlows', () => {

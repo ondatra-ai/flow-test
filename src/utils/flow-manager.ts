@@ -5,6 +5,7 @@ import { injectable, inject } from 'tsyringe';
 
 import { SERVICES } from '../config/tokens.js';
 import { Flow, type IFlow } from '../flow/flow.js';
+import { StepFactory } from '../flow/step-factory.js';
 import { Step } from '../flow/step.js';
 
 import { Logger } from './logger.js';
@@ -12,7 +13,7 @@ import { Logger } from './logger.js';
 /**
  * Type for flow data structure from JSON
  */
-type FlowData = {
+export type FlowData = {
   id: string;
   name?: string;
   description?: string;
@@ -22,10 +23,13 @@ type FlowData = {
 /**
  * Type for step data structure from JSON
  */
-type StepData = {
+export type StepData = {
   id: string;
-  message: string;
+  type?: string;
+  message?: string;
   nextStepId: Record<string, string>;
+  // Additional fields that vary by step type
+  [key: string]: unknown;
 };
 
 /**
@@ -35,10 +39,15 @@ type StepData = {
 export class FlowManager {
   private readonly flowsDir: string;
   private readonly logger: Logger;
+  private readonly stepFactory?: StepFactory;
 
-  constructor(@inject(SERVICES.Logger) logger: Logger) {
+  constructor(
+    @inject(SERVICES.Logger) logger: Logger,
+    @inject(SERVICES.StepFactory) stepFactory?: StepFactory
+  ) {
     this.flowsDir = path.join('.flows');
     this.logger = logger;
+    this.stepFactory = stepFactory;
   }
 
   /**
@@ -90,18 +99,39 @@ export class FlowManager {
   /**
    * Convert validated FlowData to Flow object
    */
-  private convertToFlow(flowData: FlowData): Flow {
-    const steps = flowData.steps.map(
-      (stepData: StepData) =>
-        new Step(
+  public convertToFlow(flowData: unknown): Flow {
+    // Validate and convert the raw data to FlowData
+    const validatedFlowData = this.validateFlowStructure(flowData);
+    const steps = validatedFlowData.steps.map((stepData: StepData) => {
+      try {
+        // If step has a type, use the factory to create typed step
+        if (stepData.type && this.stepFactory) {
+          return this.stepFactory.createStep(stepData);
+        }
+
+        // Fall back to basic Step for backward compatibility
+        if (!stepData.message) {
+          throw new Error(
+            `Untyped step ${stepData.id} requires a message field`
+          );
+        }
+
+        return new Step(
           stepData.id,
           stepData.message,
           stepData.nextStepId,
           this.logger
-        )
-    );
+        );
+      } catch (error) {
+        this.logger.error(`Failed to create step: ${stepData.id}`, {
+          stepData,
+          error: error instanceof Error ? error.message : String(error),
+        });
+        throw error;
+      }
+    });
 
-    return new Flow(flowData.id, steps);
+    return new Flow(validatedFlowData.id, steps);
   }
 
   /**
@@ -201,8 +231,10 @@ export class FlowManager {
         const stepData = step as Record<string, unknown>;
         return {
           id: stepData.id as string,
-          message: stepData.message as string,
+          type: stepData.type as string | undefined,
+          message: stepData.message as string | undefined,
           nextStepId: stepData.nextStepId as Record<string, string>,
+          ...stepData, // Include all additional fields for typed steps
         };
       }),
     };

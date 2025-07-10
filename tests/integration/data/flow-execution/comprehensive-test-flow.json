@@ -1,0 +1,203 @@
+{
+  "id": "comprehensive-test-flow",
+  "name": "Comprehensive Test Flow",
+  "description": "Tests all step types and various scenarios",
+  "steps": [
+    {
+      "id": "start",
+      "type": "log",
+      "message": "Starting comprehensive test flow",
+      "level": "info",
+      "nextStepId": {
+        "default": "action-set-user"
+      }
+    },
+    
+    {
+      "id": "action-set-user",
+      "type": "action",
+      "operation": "setContext",
+      "key": "username",
+      "value": "john_doe",
+      "nextStepId": {
+        "default": "action-set-role"
+      }
+    },
+    {
+      "id": "action-set-role",
+      "type": "action",
+      "operation": "setContext",
+      "key": "role",
+      "value": "admin",
+      "nextStepId": {
+        "default": "action-update-role"
+      }
+    },
+    {
+      "id": "action-update-role",
+      "type": "action",
+      "operation": "updateContext",
+      "key": "role",
+      "value": "superadmin",
+      "nextStepId": {
+        "default": "action-set-temp"
+      }
+    },
+    {
+      "id": "action-set-temp",
+      "type": "action",
+      "operation": "setContext",
+      "key": "temp",
+      "value": "temporary",
+      "nextStepId": {
+        "default": "action-remove-temp"
+      }
+    },
+    {
+      "id": "action-remove-temp",
+      "type": "action",
+      "operation": "removeContext",
+      "key": "temp",
+      "nextStepId": {
+        "default": "log-with-context"
+      }
+    },
+    
+    {
+      "id": "log-with-context",
+      "type": "action",
+      "operation": "setContext",
+      "key": "appName",
+      "value": "TestApp",
+      "nextStepId": {
+        "default": "log-set-version"
+      }
+    },
+    {
+      "id": "log-set-version",
+      "type": "action",
+      "operation": "setContext",
+      "key": "version",
+      "value": "1.2.3",
+      "nextStepId": {
+        "default": "log-info"
+      }
+    },
+    {
+      "id": "log-info",
+      "type": "log",
+      "message": "Starting {{context.appName}} version {{context.version}}",
+      "level": "info",
+      "nextStepId": {
+        "default": "log-set-error"
+      }
+    },
+    {
+      "id": "log-set-error",
+      "type": "action",
+      "operation": "setContext",
+      "key": "errorCode",
+      "value": "E001",
+      "nextStepId": {
+        "default": "log-error"
+      }
+    },
+    {
+      "id": "log-error",
+      "type": "log",
+      "message": "Error {{context.errorCode}} in {{context.appName}}",
+      "level": "error",
+      "nextStepId": {
+        "default": "log-undefined"
+      }
+    },
+    {
+      "id": "log-undefined",
+      "type": "log",
+      "message": "User {{context.user}} logged in to {{context.appName}}",
+      "level": "warn",
+      "nextStepId": {
+        "default": "log-debug"
+      }
+    },
+    {
+      "id": "log-debug",
+      "type": "log",
+      "message": "Debug: appName={{context.appName}}, version={{context.version}}, errorCode={{context.errorCode}}",
+      "level": "debug",
+      "nextStepId": {
+        "default": "decision-set-priority"
+      }
+    },
+    
+    {
+      "id": "decision-set-priority",
+      "type": "action",
+      "operation": "setContext",
+      "key": "priority",
+      "value": "high",
+      "nextStepId": {
+        "default": "decision-check-priority"
+      }
+    },
+    {
+      "id": "decision-check-priority",
+      "type": "decision",
+      "condition": "context.priority === 'high'",
+      "contextKey": "nextStep",
+      "trueValue": "urgent",
+      "falseValue": "normal",
+      "nextStepId": {
+        "urgent": "decision-urgent-path",
+        "normal": "decision-normal-path",
+        "default": "decision-fallback-path"
+      }
+    },
+    {
+      "id": "decision-urgent-path",
+      "type": "log",
+      "message": "Taking urgent path",
+      "level": "warn",
+      "nextStepId": {
+        "default": "decision-check-exists"
+      }
+    },
+    {
+      "id": "decision-normal-path",
+      "type": "log",
+      "message": "Taking normal path",
+      "level": "info",
+      "nextStepId": {
+        "default": "decision-check-exists"
+      }
+    },
+    {
+      "id": "decision-fallback-path",
+      "type": "log",
+      "message": "Taking fallback path",
+      "level": "debug",
+      "nextStepId": {
+        "default": "decision-check-exists"
+      }
+    },
+    {
+      "id": "decision-check-exists",
+      "type": "decision",
+      "condition": "context.priority exists",
+      "contextKey": "priorityExists",
+      "trueValue": "yes",
+      "falseValue": "no",
+      "nextStepId": {
+        "default": "complete"
+      }
+    },
+    
+    {
+      "id": "complete",
+      "type": "log",
+      "message": "Comprehensive test flow completed successfully",
+      "level": "info",
+      "nextStepId": {}
+    }
+  ]
+} 

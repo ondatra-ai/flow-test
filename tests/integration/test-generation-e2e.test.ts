@@ -1,5 +1,5 @@
 import { promises as fs } from 'fs';
-import { join, resolve } from 'path';
+import { resolve } from 'path';
 
 import {
   describe,
@@ -11,29 +11,10 @@ import {
   afterEach,
 } from 'vitest';
 
-import { getFileStructure } from '../test-utils/file-utils.js';
+import { runTestsGenerateCommand } from '../test-utils/cli-utils.js';
+import { copyDirectory, getFileStructure } from '../test-utils/file-utils.js';
 import { createTestDirPath } from '../test-utils/test-directory.js';
 import { TestEnvironment } from '../test-utils/test-environment.js';
-
-/**
- * Copy a directory recursively
- */
-async function copyDirectory(src: string, dest: string): Promise<void> {
-  await fs.mkdir(dest, { recursive: true });
-
-  const entries = await fs.readdir(src, { withFileTypes: true });
-
-  for (const entry of entries) {
-    const srcPath = join(src, entry.name);
-    const destPath = join(dest, entry.name);
-
-    if (entry.isDirectory()) {
-      await copyDirectory(srcPath, destPath);
-    } else {
-      await fs.copyFile(srcPath, destPath);
-    }
-  }
-}
 
 /**
  * Helper function to set up initial test state
@@ -45,23 +26,6 @@ async function setupInitialState(
   const initialStatePath = resolve(__dirname, testDataPath, 'initial-state');
 
   await copyDirectory(initialStatePath, tempTestDir);
-}
-
-/**
- * Helper function to run the CLI command and verify success
- */
-async function runCliCommand(
-  testEnv: TestEnvironment,
-  tempTestDir: string
-): Promise<void> {
-  const result = await testEnv.runCommand(['tests:generate'], {
-    workingDirectory: tempTestDir,
-    timeout: 10000,
-  });
-
-  // Verify command executed successfully
-  expect(result.exitCode).toBe(0);
-  expect(result.stdout).toContain('E2E test structure generated successfully');
 }
 
 /**
@@ -120,7 +84,13 @@ describe('CLI E2E Tests - tests:generate command', () => {
       await setupInitialState(tempTestDir, testDataPath);
 
       // Step 2: Run the tests:generate CLI command
-      await runCliCommand(testEnv, tempTestDir);
+      const result = await runTestsGenerateCommand(testEnv, tempTestDir);
+
+      // Verify command executed successfully
+      expect(result.exitCode).toBe(0);
+      expect(result.stdout).toContain(
+        'E2E test structure generated successfully'
+      );
 
       // Step 3: Verify the generated structure
       await verifyGeneratedStructure(tempTestDir, testDataPath);
