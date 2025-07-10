@@ -65,9 +65,8 @@ export class TestEnvironment {
     const requiredPaths = [
       this.testDataDir,
       resolve(this.testDataDir, '.flows'),
-      resolve(this.testDataDir, '.flows/flows'),
       resolve(this.testDataDir, '.flows/servers'),
-      resolve(this.testDataDir, '.flows/flows/test-flow.json'),
+      resolve(this.testDataDir, '.flows/test-flow.json'),
       resolve(this.testDataDir, '.flows/servers/test-server.json'),
     ];
 
@@ -209,57 +208,42 @@ export class TestEnvironment {
       throw new Error('Test data directory not initialized');
     }
 
-    // Create directory structure
-    mkdirSync(this.testDataDir, { recursive: true });
+    // Create directories
     mkdirSync(resolve(this.testDataDir, '.flows'), { recursive: true });
-    mkdirSync(resolve(this.testDataDir, '.flows/flows'), { recursive: true });
     mkdirSync(resolve(this.testDataDir, '.flows/servers'), { recursive: true });
 
-    // Create test server configuration
-    const testServerConfig = {
-      name: 'test-server',
-      command: 'echo',
-      args: ['test-response'],
-      transportType: 'stdio',
-      capabilities: {
-        tools: true,
-        resources: true,
-        prompts: false,
-      },
-    };
-
+    // Create server config
     writeFileSync(
       resolve(this.testDataDir, '.flows/servers/test-server.json'),
-      JSON.stringify(testServerConfig, null, 2)
+      JSON.stringify({
+        name: 'test-server',
+        command: 'node',
+        args: ['test-server.js'],
+        env: {},
+        transportType: 'stdio',
+        capabilities: {
+          tools: true,
+          resources: false,
+          prompts: false,
+        },
+      })
     );
 
     // Create test flow
-    const testFlow = {
-      id: 'test-flow',
-      name: 'Test Flow',
-      description: 'A simple test flow for e2e testing',
-      initialStep: 'start',
-      steps: {
-        start: {
-          type: 'prompt',
-          prompt: 'This is a test prompt',
-          tools: ['echo'],
-          mcpServer: 'test-server',
-          nextStep: 'end',
-        },
-        end: {
-          type: 'prompt',
-          prompt: 'Flow completed',
-          tools: [],
-          mcpServer: 'test-server',
-          nextStep: null,
-        },
-      },
-    };
-
     writeFileSync(
-      resolve(this.testDataDir, '.flows/flows/test-flow.json'),
-      JSON.stringify(testFlow, null, 2)
+      resolve(this.testDataDir, '.flows/test-flow.json'),
+      JSON.stringify({
+        id: 'test-flow',
+        name: 'Test Flow',
+        description: 'A test flow for testing',
+        steps: [
+          {
+            id: 'step1',
+            message: 'This is a test step',
+            nextStepId: null,
+          },
+        ],
+      })
     );
   }
 

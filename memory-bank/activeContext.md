@@ -89,7 +89,7 @@ $ flow:run missing-flow
 - [x] Command validates that flow name is provided
 - [x] Command accepts additional parameters
 - [x] Additional parameters are passed to flow context
-- [x] Command loads and executes flows from `.flows/flows/` directory
+- [x] Command loads and executes flows from `.flows/` directory
 - [x] Error handling for missing/invalid flows
 - [x] Integration with existing logging system
 - [x] Unit tests for new command handler
