@@ -90,7 +90,8 @@ export class DecisionStep extends Step implements IStep {
    * Extract context key from condition
    */
   private extractContextKey(condition: string): string {
-    const contextKeyMatch = condition.match(/context\.(\w+)/);
+    const contextKeyRegex = /context\.(\w+)/;
+    const contextKeyMatch = contextKeyRegex.exec(condition);
     if (!contextKeyMatch) {
       throw new Error(
         'Condition must reference a context key using context.keyName format'
@@ -103,8 +104,10 @@ export class DecisionStep extends Step implements IStep {
    * Evaluate equality comparison
    */
   private evaluateEquality(condition: string, contextValue: string): boolean {
+    const quotedValueRegex = /===\s*['"](.*?)['"]/;
+    const unquotedValueRegex = /===\s*(\w+)/;
     const valueMatch =
-      condition.match(/===\s*['"](.*?)['"]/) || condition.match(/===\s*(\w+)/);
+      quotedValueRegex.exec(condition) || unquotedValueRegex.exec(condition);
     if (!valueMatch) {
       throw new Error('Invalid condition format for === comparison');
     }
@@ -121,8 +124,10 @@ export class DecisionStep extends Step implements IStep {
    * Evaluate inequality comparison
    */
   private evaluateInequality(condition: string, contextValue: string): boolean {
+    const quotedValueRegex = /!==\s*['"](.*?)['"]/;
+    const unquotedValueRegex = /!==\s*(\w+)/;
     const valueMatch =
-      condition.match(/!==\s*['"](.*?)['"]/) || condition.match(/!==\s*(\w+)/);
+      quotedValueRegex.exec(condition) || unquotedValueRegex.exec(condition);
     if (!valueMatch) {
       throw new Error('Invalid condition format for !== comparison');
     }
