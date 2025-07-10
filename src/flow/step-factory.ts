@@ -2,7 +2,13 @@ import { injectable, inject } from 'tsyringe';
 
 import { SERVICES } from '../config/tokens.js';
 import { Logger } from '../utils/logger.js';
-import { ValidationUtils } from '../utils/validation.js';
+import {
+  isRecord,
+  validateStringField,
+  validateObjectField,
+  validateEnumField,
+  toString,
+} from '../utils/validation.js';
 
 import { Step } from './step.js';
 import { ActionStep } from './types/action-step.js';
@@ -106,12 +112,18 @@ export class StepFactory {
    * Validate basic step structure and return typed data
    */
   private validateStepStructure(data: unknown): Record<string, unknown> {
-    if (!ValidationUtils.isRecord(data)) {
+    if (!isRecord(data)) {
       throw new Error('Invalid step data structure');
     }
 
-    ValidationUtils.validateStringField(data.id, 'id', 'Step');
-    ValidationUtils.validateObjectField(data.nextStepId, 'nextStepId', 'Step');
+    validateStringField(data.id, 'id', 'Step');
+    validateObjectField(data.nextStepId, 'nextStepId', 'Step');
+
+    // Validate nextStepId contains string mappings
+    const nextStepId = data.nextStepId as Record<string, unknown>;
+    for (const [key, value] of Object.entries(nextStepId)) {
+      validateStringField(value, `nextStepId.${key}`, 'Step');
+    }
 
     return data;
   }
@@ -120,7 +132,7 @@ export class StepFactory {
    * Parse and validate step type
    */
   private parseStepType(type: string): StepType {
-    ValidationUtils.validateStringField(type, 'type', 'Step');
+    validateStringField(type, 'type', 'Step');
 
     const normalizedType = type.toLowerCase();
     const stepType = Object.values(StepType).find(
@@ -144,7 +156,7 @@ export class StepFactory {
     stepType: StepType
   ): StepConfig {
     const { rules } = this.registry[stepType];
-    const stepId = ValidationUtils.toString(data.id);
+    const stepId = toString(data.id);
 
     // Validate all rules
     for (const rule of rules) {
@@ -187,9 +199,9 @@ export class StepFactory {
 
     // Validate based on type
     if (type === 'string') {
-      ValidationUtils.validateStringField(value, field, stepId);
+      validateStringField(value, field, stepId);
     } else if (type === 'enum' && enumValues) {
-      ValidationUtils.validateEnumField(value, enumValues, field, stepId);
+      validateEnumField(value, enumValues, field, stepId);
     }
   }
 

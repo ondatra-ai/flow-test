@@ -9,12 +9,7 @@ import { StepFactory } from '../../../src/flow/step-factory.js';
 import { FlowManager } from '../../../src/utils/flow-manager.js';
 import { Logger } from '../../../src/utils/logger.js';
 
-import {
-  VALID_FLOW_DATA,
-  DYNAMIC_FLOW_DATA,
-  createMockLogger,
-  createMockStepFactory,
-} from './flow-manager.test.helpers.js';
+import testData from './test-data.json';
 
 // Mock the file system
 vi.mock('fs', () => ({
@@ -31,6 +26,29 @@ vi.mock('path', () => ({
     basename: vi.fn(),
   },
 }));
+
+// Mock factory functions
+function createMockLogger(): Logger {
+  return {
+    info: vi.fn(),
+    error: vi.fn(),
+    warn: vi.fn(),
+    debug: vi.fn(),
+  } as unknown as Logger;
+}
+
+function createMockStepFactory(): StepFactory {
+  return {
+    createStep: vi.fn().mockImplementation((stepData: unknown) => {
+      const data = stepData as { id: string };
+      // Create a simple mock step
+      return {
+        getId: (): string => data.id,
+        execute: vi.fn().mockResolvedValue(null),
+      };
+    }),
+  } as unknown as StepFactory;
+}
 
 // Helper functions moved to module level for better reusability
 function setupMocks(): void {
@@ -95,7 +113,9 @@ describe('FlowManager', () => {
 
   describe('loadFlow - valid flows', () => {
     it('should load and parse a valid flow', async () => {
-      vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify(VALID_FLOW_DATA));
+      vi.mocked(fs.readFile).mockResolvedValue(
+        JSON.stringify(testData.validFlowData)
+      );
 
       const result = await flowManager.loadFlow('test-flow');
 
@@ -109,7 +129,7 @@ describe('FlowManager', () => {
 
     it('should support dynamic routing with multiple keys', async () => {
       vi.mocked(fs.readFile).mockResolvedValue(
-        JSON.stringify(DYNAMIC_FLOW_DATA)
+        JSON.stringify(testData.dynamicFlowData)
       );
 
       const result = await flowManager.loadFlow('dynamic-flow');

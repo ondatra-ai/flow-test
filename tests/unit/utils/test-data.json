@@ -1,0 +1,64 @@
+{
+  "validFlowData": {
+    "id": "test-flow",
+    "name": "Test Flow",
+    "description": "A test flow",
+    "steps": [
+      {
+        "id": "step1",
+        "type": "log",
+        "message": "First step",
+        "level": "info",
+        "nextStepId": {
+          "default": "step2"
+        }
+      },
+      {
+        "id": "step2",
+        "type": "log",
+        "message": "Second step",
+        "level": "info",
+        "nextStepId": {}
+      }
+    ]
+  },
+  "dynamicFlowData": {
+    "id": "dynamic-flow",
+    "steps": [
+      {
+        "id": "router",
+        "type": "decision",
+        "condition": "context.workflow === \"bug\"",
+        "contextKey": "route",
+        "trueValue": "true",
+        "falseValue": "false",
+        "nextStepId": {
+          "bug": "bug-step",
+          "feature": "feature-step",
+          "default": "end-step"
+        }
+      },
+      {
+        "id": "bug-step",
+        "type": "log",
+        "message": "Bug step",
+        "level": "info",
+        "nextStepId": {}
+      },
+      {
+        "id": "feature-step",
+        "type": "log",
+        "message": "Feature step",
+        "level": "info",
+        "nextStepId": {}
+      },
+      {
+        "id": "end-step",
+        "type": "log",
+        "message": "End step",
+        "level": "info",
+        "nextStepId": {}
+      }
+    ]
+  }
+} 

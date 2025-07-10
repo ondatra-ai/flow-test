@@ -9,7 +9,12 @@ import { StepFactory } from '../flow/step-factory.js';
 import { Step } from '../flow/step.js';
 
 import { Logger } from './logger.js';
-import { ValidationUtils } from './validation.js';
+import {
+  isRecord,
+  validateStringField,
+  validateObjectField,
+  toString,
+} from './validation.js';
 
 /**
  * Type for flow data structure from JSON
@@ -22,92 +27,80 @@ export type FlowData = {
 };
 
 /**
- * Validation utility class for flow data
+ * Validate and convert flow data structure
  */
-class FlowValidator {
-  /**
-   * Validate and convert flow data structure
-   */
-  static validateFlow(data: unknown): FlowData {
-    // Step 1: Validate basic structure
-    const flowData = this.validateBasicStructure(data);
+function validateFlow(data: unknown): FlowData {
+  // Step 1: Validate basic structure
+  const flowData = validateBasicStructure(data);
 
-    // Step 2: Validate steps and references
-    const stepIds = this.validateSteps(flowData.steps);
-    this.validateStepReferences(flowData.steps, stepIds);
+  // Step 2: Validate steps and references
+  const stepIds = validateSteps(flowData.steps);
+  validateStepReferences(flowData.steps, stepIds);
 
-    return flowData;
+  return flowData;
+}
+
+/**
+ * Validate basic flow structure
+ */
+function validateBasicStructure(data: unknown): FlowData {
+  if (!isRecord(data)) {
+    throw new Error('Invalid flow structure: data must be an object');
   }
 
-  /**
-   * Validate basic flow structure
-   */
-  private static validateBasicStructure(data: unknown): FlowData {
-    if (!ValidationUtils.isRecord(data)) {
-      throw new Error('Invalid flow structure: data must be an object');
-    }
+  const { id, name, description, steps } = data;
 
-    const { id, name, description, steps } = data;
+  const validId = validateStringField(id, 'id', 'Flow');
 
-    const validId = ValidationUtils.validateStringField(id, 'id', 'Flow');
-
-    if (!Array.isArray(steps)) {
-      throw new Error('Invalid flow structure: steps must be an array');
-    }
-
-    return {
-      id: validId,
-      name: name as string | undefined,
-      description: description as string | undefined,
-      steps,
-    };
+  if (!Array.isArray(steps)) {
+    throw new Error('Invalid flow structure: steps must be an array');
   }
 
-  /**
-   * Validate steps array and return set of step IDs
-   */
-  private static validateSteps(steps: unknown[]): Set<string> {
-    const stepIds = new Set<string>();
+  return {
+    id: validId,
+    name: name as string | undefined,
+    description: description as string | undefined,
+    steps,
+  };
+}
 
-    for (const step of steps) {
-      if (!ValidationUtils.isRecord(step)) {
-        throw new Error('Invalid step structure: step must be an object');
-      }
+/**
+ * Validate steps array and return set of step IDs
+ */
+function validateSteps(steps: unknown[]): Set<string> {
+  const stepIds = new Set<string>();
 
-      const stepId = ValidationUtils.validateStringField(step.id, 'id', 'Step');
-      stepIds.add(stepId);
+  for (const step of steps) {
+    if (!isRecord(step)) {
+      throw new Error('Invalid step structure: step must be an object');
     }
 
-    return stepIds;
+    const stepId = validateStringField(step.id, 'id', 'Step');
+    stepIds.add(stepId);
   }
 
-  /**
-   * Validate step references
-   */
-  private static validateStepReferences(
-    steps: unknown[],
-    stepIds: Set<string>
-  ): void {
-    for (const step of steps) {
-      const stepData = step as Record<string, unknown>;
+  return stepIds;
+}
 
-      // Validate nextStepId structure
-      const nextStepId = ValidationUtils.validateObjectField(
-        stepData.nextStepId,
-        'nextStepId',
-        'Step'
-      );
+/**
+ * Validate step references
+ */
+function validateStepReferences(steps: unknown[], stepIds: Set<string>): void {
+  for (const step of steps) {
+    const stepData = step as Record<string, unknown>;
 
-      // Validate all references
-      for (const [key, value] of Object.entries(nextStepId)) {
-        const refStepId = ValidationUtils.validateStringField(
-          value,
-          key,
-          'NextStepId'
-        );
-        if (!stepIds.has(refStepId)) {
-          throw new Error(`Invalid nextStepId reference: ${refStepId}`);
-        }
+    // Validate nextStepId structure
+    const nextStepId = validateObjectField(
+      stepData.nextStepId,
+      'nextStepId',
+      'Step'
+    );
+
+    // Validate all references
+    for (const [key, value] of Object.entries(nextStepId)) {
+      const refStepId = validateStringField(value, key, 'NextStepId');
+      if (!stepIds.has(refStepId)) {
+        throw new Error(`Invalid nextStepId reference: ${refStepId}`);
       }
     }
   }
@@ -168,14 +161,14 @@ export class FlowManager {
    */
   private parseFlowData(jsonData: string): FlowData {
     const data = JSON.parse(jsonData) as unknown;
-    return FlowValidator.validateFlow(data);
+    return validateFlow(data);
   }
 
   /**
    * Convert validated FlowData to Flow object
    */
   public convertToFlow(flowData: unknown): Flow {
-    const validatedFlowData = FlowValidator.validateFlow(flowData);
+    const validatedFlowData = validateFlow(flowData);
     const steps = validatedFlowData.steps.map(stepData =>
       this.createStep(stepData)
     );
@@ -187,13 +180,13 @@ export class FlowManager {
    */
   private createStep(stepData: unknown): Step {
     try {
-      if (!ValidationUtils.isRecord(stepData)) {
+      if (!isRecord(stepData)) {
         throw new Error('Step data must be an object');
       }
 
       const step = stepData;
       if (!step.type) {
-        const stepIdStr = ValidationUtils.toString(step.id);
+        const stepIdStr = toString(step.id);
         throw new Error(
           `Step ${stepIdStr} must have a type field. ` +
             `Valid types: action, decision, log`
@@ -204,10 +197,7 @@ export class FlowManager {
     } catch (error) {
       this.logger.error('Failed to create step', {
         stepData,
-        error:
-          error instanceof Error
-            ? error.message
-            : ValidationUtils.toString(error),
+        error: error instanceof Error ? error.message : toString(error),
       });
       throw error;
     }

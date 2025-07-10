@@ -54,7 +54,7 @@ export class LogStep extends Step implements IStep {
     const contextVariableRegex = /\{\{context\.(\w+)\}\}/g;
     let match;
 
-    while ((match = contextVariableRegex.exec(this.config.message)) !== null) {
+    while ((match = contextVariableRegex.exec(message)) !== null) {
       const fullMatch = match[0]; // {{context.key}}
       const contextKey = match[1]; // key
 

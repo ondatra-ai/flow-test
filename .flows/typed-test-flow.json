@@ -2,6 +2,7 @@
   "id": "typed-test-flow",
   "name": "Comprehensive Typed Step Test Flow",
   "description": "A test flow demonstrating all step types: ActionStep, DecisionStep, and LogStep",
+  "initialStep": "set-task-type",
   "steps": [
     {
       "id": "set-task-type",
