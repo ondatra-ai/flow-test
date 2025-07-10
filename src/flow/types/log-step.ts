@@ -48,29 +48,23 @@ export class LogStep extends Step implements IStep {
    * Supports {{context.key}} syntax
    */
   private interpolateMessage(context: IContext): string {
-    let message = this.config.message;
-
-    // Find all context variable references
     const contextVariableRegex = /\{\{context\.(\w+)\}\}/g;
-    let match;
 
-    while ((match = contextVariableRegex.exec(message)) !== null) {
-      const fullMatch = match[0]; // {{context.key}}
-      const contextKey = match[1]; // key
-
-      const contextValue = context.get(contextKey);
-      if (contextValue !== undefined) {
-        message = message.replace(fullMatch, contextValue);
-        this.logger.debug(
-          `Interpolated context variable: ${contextKey} = ${contextValue}`
-        );
-      } else {
-        this.logger.warn(`Context variable not found: ${contextKey}`);
-        message = message.replace(fullMatch, `{{UNDEFINED:${contextKey}}}`);
+    return this.config.message.replace(
+      contextVariableRegex,
+      (_fullMatch, contextKey: string) => {
+        const contextValue = context.get(contextKey);
+        if (contextValue !== undefined) {
+          this.logger.debug(
+            `Interpolated context variable: ${contextKey} = ${contextValue}`
+          );
+          return contextValue;
+        } else {
+          this.logger.warn(`Context variable not found: ${contextKey}`);
+          return `{{UNDEFINED:${contextKey}}}`;
+        }
       }
-    }
-
-    return message;
+    );
   }
 
   /**
