@@ -168,7 +168,7 @@ describe('FlowManager', () => {
       vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify(invalidFlow));
 
       await expect(flowManager.loadFlow('test-flow')).rejects.toThrow(
-        'Invalid flow structure: missing id or steps'
+        "Flow field 'id' must be a non-empty string"
       );
     });
 
@@ -177,7 +177,7 @@ describe('FlowManager', () => {
       vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify(invalidFlow));
 
       await expect(flowManager.loadFlow('test-flow')).rejects.toThrow(
-        'Invalid flow structure: missing id or steps'
+        'Invalid flow structure: steps must be an array'
       );
     });
 
@@ -215,7 +215,7 @@ describe('FlowManager', () => {
       {
         name: 'non-array steps',
         data: { id: 'test', steps: 'not an array' },
-        error: 'Invalid flow structure: missing id or steps',
+        error: 'Invalid flow structure: steps must be an array',
       },
       {
         name: 'non-object step',
@@ -230,7 +230,7 @@ describe('FlowManager', () => {
       {
         name: 'non-string step id',
         data: { id: 'test', steps: [{ id: 123, message: 'step' }] },
-        error: 'Invalid step structure: step id must be a string',
+        error: "Step field 'id' must be a non-empty string",
       },
     ];
 
@@ -250,7 +250,7 @@ describe('FlowManager', () => {
       vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify(flowWithoutNext));
 
       await expect(flowManager.loadFlow('test-flow')).rejects.toThrow(
-        'Invalid step structure: nextStepId must be an object'
+        "Step field 'nextStepId' must be an object"
       );
     });
 
@@ -262,7 +262,7 @@ describe('FlowManager', () => {
       vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify(oldFormatFlow));
 
       await expect(flowManager.loadFlow('test-flow')).rejects.toThrow(
-        'Invalid step structure: nextStepId must be an object'
+        "Step field 'nextStepId' must be an object"
       );
     });
 
@@ -274,7 +274,7 @@ describe('FlowManager', () => {
       vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify(invalidFlow));
 
       await expect(flowManager.loadFlow('test-flow')).rejects.toThrow(
-        'Invalid step structure: nextStepId must be an object'
+        "Step field 'nextStepId' must be an object"
       );
     });
 
@@ -292,7 +292,7 @@ describe('FlowManager', () => {
       vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify(invalidFlow));
 
       await expect(flowManager.loadFlow('test-flow')).rejects.toThrow(
-        'Invalid nextStepId value: default must be a string'
+        "NextStepId field 'default' must be a non-empty string"
       );
     });
   });

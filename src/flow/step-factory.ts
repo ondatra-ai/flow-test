@@ -2,6 +2,7 @@ import { injectable, inject } from 'tsyringe';
 
 import { SERVICES } from '../config/tokens.js';
 import { Logger } from '../utils/logger.js';
+import { ValidationUtils } from '../utils/validation.js';
 
 import { Step } from './step.js';
 import { ActionStep } from './types/action-step.js';
@@ -12,177 +13,217 @@ import {
   type ActionStepConfig,
   type DecisionStepConfig,
   type LogStepConfig,
+  type StepConfig,
 } from './types/step-type.js';
+
+/**
+ * Validation rule for step fields
+ */
+type ValidationRule = {
+  field: string;
+  required: boolean;
+  type: 'string' | 'enum';
+  enumValues?: readonly string[];
+  dependsOn?: { field: string; excludeValues: string[] };
+};
+
+/**
+ * Step type registry for validation and creation
+ */
+type StepTypeRegistry = {
+  [K in StepType]: {
+    rules: ValidationRule[];
+    factory: (logger: Logger, config: StepConfig) => Step;
+  };
+};
 
 /**
  * Factory for creating typed step instances
  */
 @injectable()
 export class StepFactory {
-  constructor(@inject(SERVICES.Logger) private readonly logger: Logger) {}
+  private readonly registry: StepTypeRegistry;
+
+  constructor(@inject(SERVICES.Logger) private readonly logger: Logger) {
+    this.registry = {
+      [StepType.ACTION]: {
+        rules: [
+          {
+            field: 'operation',
+            required: true,
+            type: 'enum',
+            enumValues: ['setContext', 'updateContext', 'removeContext'],
+          },
+          { field: 'key', required: true, type: 'string' },
+          {
+            field: 'value',
+            required: false,
+            type: 'string',
+            dependsOn: { field: 'operation', excludeValues: ['removeContext'] },
+          },
+        ],
+        factory: (logger, config): Step =>
+          new ActionStep(logger, config as ActionStepConfig),
+      },
+      [StepType.DECISION]: {
+        rules: [
+          { field: 'condition', required: true, type: 'string' },
+          { field: 'contextKey', required: true, type: 'string' },
+          { field: 'trueValue', required: true, type: 'string' },
+          { field: 'falseValue', required: true, type: 'string' },
+        ],
+        factory: (logger, config): Step =>
+          new DecisionStep(logger, config as DecisionStepConfig),
+      },
+      [StepType.LOG]: {
+        rules: [
+          { field: 'message', required: true, type: 'string' },
+          {
+            field: 'level',
+            required: true,
+            type: 'enum',
+            enumValues: ['info', 'warn', 'error', 'debug'],
+          },
+        ],
+        factory: (logger, config): Step =>
+          new LogStep(logger, config as LogStepConfig),
+      },
+    };
+  }
 
   /**
    * Create a step instance based on step data
    */
   createStep(stepData: unknown): Step {
-    // Validate basic structure
-    if (!this.isValidStepStructure(stepData)) {
+    const validatedData = this.validateStepStructure(stepData);
+    const stepType = this.parseStepType(validatedData.type as string);
+    const stepConfig = this.validateStepConfig(validatedData, stepType);
+
+    return this.registry[stepType].factory(this.logger, stepConfig);
+  }
+
+  /**
+   * Validate basic step structure and return typed data
+   */
+  private validateStepStructure(data: unknown): Record<string, unknown> {
+    if (!ValidationUtils.isRecord(data)) {
       throw new Error('Invalid step data structure');
     }
 
-    const validatedData = stepData;
-    const stepType = (validatedData.type as string)?.toUpperCase();
+    ValidationUtils.validateStringField(data.id, 'id', 'Step');
+    ValidationUtils.validateObjectField(data.nextStepId, 'nextStepId', 'Step');
 
-    switch (stepType) {
-      case StepType.ACTION.toUpperCase(): {
-        const actionConfig = this.validateActionStep(validatedData);
-        return new ActionStep(this.logger, actionConfig);
-      }
-
-      case StepType.DECISION.toUpperCase(): {
-        const decisionConfig = this.validateDecisionStep(validatedData);
-        return new DecisionStep(this.logger, decisionConfig);
-      }
-
-      case StepType.LOG.toUpperCase(): {
-        const logConfig = this.validateLogStep(validatedData);
-        return new LogStep(this.logger, logConfig);
-      }
-
-      default: {
-        // No backward compatibility - all steps must have a type
-        throw new Error(
-          `Invalid or missing step type: ${String(
-            validatedData.type
-          )}. Steps must have a type of: ${Object.values(StepType).join(', ')}`
-        );
-      }
-    }
+    return data;
   }
 
   /**
-   * Type guard to check if data has basic step structure
+   * Parse and validate step type
    */
-  private isValidStepStructure(data: unknown): data is Record<string, unknown> {
-    return (
-      typeof data === 'object' &&
-      data !== null &&
-      'id' in data &&
-      typeof (data as Record<string, unknown>).id === 'string' &&
-      'nextStepId' in data &&
-      typeof (data as Record<string, unknown>).nextStepId === 'object'
+  private parseStepType(type: string): StepType {
+    ValidationUtils.validateStringField(type, 'type', 'Step');
+
+    const normalizedType = type.toLowerCase();
+    const stepType = Object.values(StepType).find(
+      t => t.toLowerCase() === normalizedType
     );
+
+    if (!stepType) {
+      throw new Error(
+        `Invalid step type: ${type}. Valid types: ${Object.values(StepType).join(', ')}`
+      );
+    }
+
+    return stepType;
   }
 
   /**
-   * Validate and type action step configuration
+   * Validate step configuration using registry rules
    */
-  private validateActionStep(data: Record<string, unknown>): ActionStepConfig {
-    const { id, nextStepId, operation, key, value } = data;
+  private validateStepConfig(
+    data: Record<string, unknown>,
+    stepType: StepType
+  ): StepConfig {
+    const { rules } = this.registry[stepType];
+    const stepId = ValidationUtils.toString(data.id);
 
-    if (!operation || typeof operation !== 'string') {
-      throw new Error(
-        `ActionStep ${String(id)} missing required field: operation`
-      );
+    // Validate all rules
+    for (const rule of rules) {
+      this.validateRule(data, rule, stepId);
     }
 
-    if (!key || typeof key !== 'string') {
-      throw new Error(`ActionStep ${String(id)} missing required field: key`);
-    }
-
-    const validOperations = ['setContext', 'updateContext', 'removeContext'];
-    if (!validOperations.includes(operation)) {
-      throw new Error(
-        `ActionStep ${String(id)} has invalid operation: ${operation}`
-      );
-    }
-
-    if (operation !== 'removeContext' && value === undefined) {
-      throw new Error(
-        `ActionStep ${String(id)} with operation ${operation} ` +
-          `missing required field: value`
-      );
-    }
-
+    // Build and return typed config
     return {
-      id: id as string,
-      type: StepType.ACTION,
-      nextStepId: nextStepId as Record<string, string>,
-      operation: operation as 'setContext' | 'updateContext' | 'removeContext',
-      key: key,
-      value: value as string | undefined,
-    };
+      id: stepId,
+      type: stepType,
+      nextStepId: data.nextStepId as Record<string, string>,
+      ...this.extractRuleFields(data, rules),
+    } as StepConfig;
   }
 
   /**
-   * Validate and type decision step configuration
+   * Validate a single rule against step data
    */
-  private validateDecisionStep(
-    data: Record<string, unknown>
-  ): DecisionStepConfig {
-    const { id, nextStepId, condition, contextKey, trueValue, falseValue } =
-      data;
+  private validateRule(
+    data: Record<string, unknown>,
+    rule: ValidationRule,
+    stepId: string
+  ): void {
+    const { field, required, type, enumValues, dependsOn } = rule;
+    const value = data[field];
 
-    if (!condition || typeof condition !== 'string') {
-      throw new Error(
-        `DecisionStep ${String(id)} missing required field: condition`
-      );
+    // Check if field is conditionally required
+    const isRequired =
+      required || this.isConditionallyRequired(data, dependsOn);
+
+    // Validate required fields
+    if (isRequired && (value === undefined || value === null)) {
+      throw new Error(`${stepId} missing required field: ${field}`);
     }
 
-    if (!contextKey || typeof contextKey !== 'string') {
-      throw new Error(
-        `DecisionStep ${String(id)} missing required field: contextKey`
-      );
+    // Skip validation for optional undefined fields
+    if (!isRequired && value === undefined) {
+      return;
     }
 
-    if (trueValue === undefined || typeof trueValue !== 'string') {
-      throw new Error(
-        `DecisionStep ${String(id)} missing required field: trueValue`
-      );
+    // Validate based on type
+    if (type === 'string') {
+      ValidationUtils.validateStringField(value, field, stepId);
+    } else if (type === 'enum' && enumValues) {
+      ValidationUtils.validateEnumField(value, enumValues, field, stepId);
     }
-
-    if (falseValue === undefined || typeof falseValue !== 'string') {
-      throw new Error(
-        `DecisionStep ${String(id)} missing required field: falseValue`
-      );
-    }
-
-    return {
-      id: id as string,
-      type: StepType.DECISION,
-      nextStepId: nextStepId as Record<string, string>,
-      condition,
-      contextKey,
-      trueValue,
-      falseValue,
-    };
   }
 
   /**
-   * Validate and type log step configuration
+   * Check if field is conditionally required based on dependencies
    */
-  private validateLogStep(data: Record<string, unknown>): LogStepConfig {
-    const { id, nextStepId, message, level } = data;
+  private isConditionallyRequired(
+    data: Record<string, unknown>,
+    dependsOn?: ValidationRule['dependsOn']
+  ): boolean {
+    if (!dependsOn) return false;
 
-    if (!message || typeof message !== 'string') {
-      throw new Error(`LogStep ${String(id)} missing required field: message`);
+    const { field, excludeValues } = dependsOn;
+    const fieldValue = data[field];
+
+    return !excludeValues.includes(fieldValue as string);
+  }
+
+  /**
+   * Extract rule fields from data
+   */
+  private extractRuleFields(
+    data: Record<string, unknown>,
+    rules: ValidationRule[]
+  ): Record<string, unknown> {
+    const fields: Record<string, unknown> = {};
+
+    for (const rule of rules) {
+      const value = data[rule.field];
+      if (value !== undefined) {
+        fields[rule.field] = value;
+      }
     }
 
-    if (!level || typeof level !== 'string') {
-      throw new Error(`LogStep ${String(id)} missing required field: level`);
-    }
-
-    const validLevels = ['info', 'warn', 'error', 'debug'];
-    if (!validLevels.includes(level)) {
-      throw new Error(`LogStep ${String(id)} has invalid log level: ${level}`);
-    }
-
-    return {
-      id: id as string,
-      type: StepType.LOG,
-      nextStepId: nextStepId as Record<string, string>,
-      message,
-      level: level as 'error' | 'warn' | 'info' | 'debug',
-    };
+    return fields;
   }
 }
