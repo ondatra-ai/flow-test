@@ -25,7 +25,7 @@ type FlowData = {
 type StepData = {
   id: string;
   message: string;
-  nextStepId: string | null;
+  nextStepId: Record<string, string>;
 };
 
 /**
@@ -167,12 +167,26 @@ export class FlowManager {
         throw new Error('Invalid step structure: step must be an object');
       }
       const stepData = step as Record<string, unknown>;
+
+      // Validate nextStepId is an object
       if (
-        stepData.nextStepId &&
-        typeof stepData.nextStepId === 'string' &&
-        !stepIds.has(stepData.nextStepId)
+        !stepData.nextStepId ||
+        typeof stepData.nextStepId !== 'object' ||
+        Array.isArray(stepData.nextStepId)
       ) {
-        throw new Error(`Invalid nextStepId reference: ${stepData.nextStepId}`);
+        throw new Error('Invalid step structure: nextStepId must be an object');
+      }
+
+      const nextStepIdObj = stepData.nextStepId as Record<string, unknown>;
+
+      // Validate all values in nextStepId object are valid step IDs
+      for (const [key, value] of Object.entries(nextStepIdObj)) {
+        if (typeof value !== 'string') {
+          throw new Error(`Invalid nextStepId value: ${key} must be a string`);
+        }
+        if (!stepIds.has(value)) {
+          throw new Error(`Invalid nextStepId reference: ${value}`);
+        }
       }
     }
   }
@@ -188,10 +202,7 @@ export class FlowManager {
         return {
           id: stepData.id as string,
           message: stepData.message as string,
-          nextStepId:
-            stepData.nextStepId && typeof stepData.nextStepId === 'string'
-              ? stepData.nextStepId
-              : null,
+          nextStepId: stepData.nextStepId as Record<string, string>,
         };
       }),
     };

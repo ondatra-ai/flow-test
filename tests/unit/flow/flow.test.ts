@@ -21,8 +21,8 @@ const mockLogger = {
 // Helper function to create mock steps
 function createMockSteps(): Step[] {
   return [
-    new Step('step1', 'Step 1 executed', 'step2', mockLogger),
-    new Step('step2', 'Step 2 executed', null, mockLogger),
+    new Step('step1', 'Step 1 executed', { default: 'step2' }, mockLogger),
+    new Step('step2', 'Step 2 executed', {}, mockLogger),
   ];
 }
 
@@ -74,35 +74,6 @@ describe('Flow getFirstStepId', () => {
   });
 });
 
-describe('Flow getNextStepId', () => {
-  beforeEach(clearMocks);
-
-  it('should return the next step id when it exists', () => {
-    const mockSteps = createMockSteps();
-    const flow = new Flow('test-flow', mockSteps);
-    const nextStepId = flow.getNextStepId('step1');
-
-    expect(nextStepId).toBeDefined();
-    expect(nextStepId).toBe('step2');
-  });
-
-  it('should return undefined when next step does not exist', () => {
-    const mockSteps = createMockSteps();
-    const flow = new Flow('test-flow', mockSteps);
-    const nextStepId = flow.getNextStepId('step2');
-
-    expect(nextStepId).toBeUndefined();
-  });
-
-  it('should return undefined for completely non-existent step', () => {
-    const mockSteps = createMockSteps();
-    const flow = new Flow('test-flow', mockSteps);
-    const nextStepId = flow.getNextStepId('completely-non-existent');
-
-    expect(nextStepId).toBeUndefined();
-  });
-});
-
 describe('Flow getSteps', () => {
   beforeEach(clearMocks);
 
@@ -120,22 +91,53 @@ describe('Flow getSteps', () => {
 describe('Flow execute', () => {
   beforeEach(clearMocks);
 
-  it('should execute step by id successfully', async () => {
+  it('should execute step by id and return next step id', async () => {
     const mockSteps = createMockSteps();
     const flow = new Flow('test-flow', mockSteps);
     const context = new Context();
     const result = await flow.execute('step1', context);
 
-    expect(result).toBe(true);
+    expect(result).toBe('step2');
     expect(mockLoggerInfo).toHaveBeenCalledWith('Step 1 executed');
   });
 
-  it('should return false for non-existent step', async () => {
+  it('should execute end step and return null', async () => {
+    const mockSteps = createMockSteps();
+    const flow = new Flow('test-flow', mockSteps);
+    const context = new Context();
+    const result = await flow.execute('step2', context);
+
+    expect(result).toBe(null);
+    expect(mockLoggerInfo).toHaveBeenCalledWith('Step 2 executed');
+  });
+
+  it('should return null for non-existent step', async () => {
     const mockSteps = createMockSteps();
     const flow = new Flow('test-flow', mockSteps);
     const context = new Context();
     const result = await flow.execute('non-existent', context);
 
-    expect(result).toBe(false);
+    expect(result).toBe(null);
+  });
+
+  it('should support dynamic routing with context', async () => {
+    const dynamicStep = new Step(
+      'dynamic-step',
+      'Dynamic routing step',
+      {
+        bug: 'bug-step',
+        feature: 'feature-step',
+        default: 'default-step',
+      },
+      mockLogger
+    );
+    const flow = new Flow('test-flow', [dynamicStep]);
+    const context = new Context();
+    context.set('nextStep', 'bug');
+
+    const result = await flow.execute('dynamic-step', context);
+
+    expect(result).toBe('bug-step');
+    expect(mockLoggerInfo).toHaveBeenCalledWith('Dynamic routing step');
   });
 });
