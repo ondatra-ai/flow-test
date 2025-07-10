@@ -10,24 +10,10 @@ import type { ILLMProvider } from '../providers/llm/interfaces/provider.js';
 import { ClaudeProvider } from '../providers/llm/providers/claude/claude.provider.js';
 import { GeminiProvider } from '../providers/llm/providers/gemini/gemini.provider.js';
 import { OpenAIProvider } from '../providers/llm/providers/openai/openai.provider.js';
+import { FlowManager } from '../utils/flow-manager.js';
 import { ConsoleLogger, LogLevel, Logger } from '../utils/logger.js';
 
-/**
- * Dependency injection service tokens using symbols for type safety
- *
- * Using symbols prevents typos and provides better type safety
- * compared to hard-coded string tokens.
- */
-export const SERVICES = {
-  Logger: Symbol('Logger'),
-  // LLM Provider tokens
-  ProviderHelper: Symbol('ProviderHelper'),
-  ClaudeProvider: Symbol('ClaudeProvider'),
-  OpenAIProvider: Symbol('OpenAIProvider'),
-  GeminiProvider: Symbol('GeminiProvider'),
-} as const;
-
-export type TokenType = (typeof SERVICES)[keyof typeof SERVICES];
+import { SERVICES, type TokenType } from './tokens.js';
 
 /**
  * Initialize the dependency injection container
@@ -38,6 +24,9 @@ export function initializeContainer(): void {
     container.register<Logger>(SERVICES.Logger, {
       useFactory: () => new ConsoleLogger(LogLevel.INFO),
     });
+
+    // Register FlowManager
+    container.registerSingleton<FlowManager>(SERVICES.FlowManager, FlowManager);
 
     // Register LLM components
     container.registerSingleton<IProviderHelper>(
@@ -85,3 +74,4 @@ export function initializeContainer(): void {
  * Export pre-configured container
  */
 export { container };
+export { SERVICES, type TokenType };

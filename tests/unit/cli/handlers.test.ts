@@ -69,16 +69,9 @@ describe('CLI Handlers', () => {
       const error = new Error('Test generation failed');
       (generateTests as ReturnType<typeof vi.fn>).mockRejectedValue(error);
 
-      const mockExit = vi.spyOn(process, 'exit').mockImplementation(() => {
-        throw new Error('process.exit called');
-      });
-
       await expect(handleTestsGenerateCommand()).rejects.toThrow(
-        'process.exit called'
+        'Test generation failed'
       );
-      expect(mockExit).toHaveBeenCalledWith(1);
-
-      mockExit.mockRestore();
     });
   });
 

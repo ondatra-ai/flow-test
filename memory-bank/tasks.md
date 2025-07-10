@@ -1,127 +1,360 @@
 # MEMORY BANK TASKS
 
-## Current Task: Remove Unnecessary Barrel Export File
+## Current Task: Implement Flow Execution CLI Command
 
-**Task ID**: remove-barrel-export-20250108  
-**Date**: 2025-01-08  
-**Complexity Level**: Level 1 (Quick Bug Fix/Improvement)  
-**Status**: COMPLETED & ARCHIVED ✅
+**Task ID**: flow-execution-cli-20250109  
+**Date**: 2025-01-09  
+**Complexity Level**: Level 2 (Simple Enhancement)  
+**Status**: FULLY COMPLETE ✅
 
 ### Task Overview
 
-Remove the unnecessary barrel export file `src/providers/llm/index.ts` and verify that all imports are already using direct file references.
+Implement a new CLI command `flow:run <flowName>` that allows users to execute flows by name from the command line, with support for additional parameters that get passed to the flow context.
 
 ### GitHub Issue Reference
 
-- **Issue #23**: https://github.com/ondatra-ai/flow-test/issues/23
-- **Title**: Remove unnecessary barrel export file src/providers/llm/index.ts
+- **Issue #25**: https://github.com/ondatra-ai/flow-test/issues/25
+- **Title**: Implement flow execution from CLI command
 - **Labels**: enhancement
-- **Status**: COMPLETED & ARCHIVED ✅
+- **Status**: OPEN
 
-### Acceptance Criteria
+## BUILD PHASE RESULTS
 
-- [x] Remove the barrel export file `src/providers/llm/index.ts`
-- [x] Verify all imports are using direct file references (already confirmed)
-- [x] Ensure all tests still pass
-- [x] Update any documentation references if needed
-- [x] Verify no functionality is broken
+### Phase 1: DI Container Integration ✅ COMPLETED
 
-### Implementation Results
+**Files Created:**
 
-#### Phase 1: Analysis & Design ✅ COMPLETED
+- ✅ `src/config/tokens.ts` - Service tokens to avoid circular dependencies
+- ✅ `src/utils/flow-manager.ts` - FlowManager class with DI integration
 
-**Import Analysis Completed**:
+**Files Modified:**
 
-- Verified all imports in `src/config/container.ts` use direct file references
-- Verified all test files use direct file references
-- Confirmed no files import from the barrel export
-- Safe to remove with no breaking changes
+- ✅ `src/config/container.ts` - Added FlowManager registration
+- ✅ `src/index.ts` - Updated imports to use tokens.ts
+- ✅ `src/cli/handlers.ts` - Updated imports to use tokens.ts
 
-#### Phase 2: Implementation ✅ COMPLETED
+**Features Implemented:**
 
-- [x] Removed `src/providers/llm/index.ts`
-- [x] Verified TypeScript compilation successful
-- [x] All tests passing (121/121)
-- [x] CLI functionality verified and working
+- ✅ FlowManager class with `@injectable` decorator
+- ✅ `listFlows(): Promise<string[]>` method for flow discovery
+- ✅ `loadFlow(name: string): Promise<Flow>` method for flow loading
+- ✅ JSON validation and error handling
+- ✅ Proper dependency injection with Logger
 
-#### Phase 3: Verification & Testing ✅ COMPLETED
+### Phase 2: CLI Command Implementation ✅ COMPLETED
 
-- [x] Full test suite passing: 121/121 tests
-- [x] TypeScript compilation successful with no errors
-- [x] CLI functionality verified:
-  - Basic help command works
-  - tests:generate command works
-  - All provider functionality intact
-- [x] No functionality broken
+**Files Modified:**
 
-#### Phase 4: Reflection ✅ COMPLETED
+- ✅ `src/cli/setup.ts` - Added flow:run command registration
+- ✅ `src/cli/handlers.ts` - Added handleFlowRunCommand function
 
-- [x] Implementation thoroughly reviewed against plan
-- [x] Successes documented (perfect safety analysis, zero breaking changes)
-- [x] Challenges documented (minimal obstacles, CLI path discovery)
-- [x] Lessons learned captured (import analysis patterns, verification protocols)
-- [x] Process improvements identified (reusable patterns for code cleanup)
-- [x] Technical improvements documented (codebase simplification, build optimization)
-- [x] Reflection document created: `memory-bank/reflection/remove-barrel-export-reflection.md`
+**Features Implemented:**
 
-#### Phase 5: Archiving ✅ COMPLETED
+- ✅ CLI command `flow:run <flowName> [parameters...]`
+- ✅ Required flow name argument
+- ✅ Optional parameters support
+- ✅ Help text and usage examples
+- ✅ Integration with existing CLI patterns
 
-- [x] Archive document created with comprehensive details
-- [x] All task documentation preserved
-- [x] Memory Bank updated with references
-- [x] Task marked as COMPLETED
+### Phase 3: Parameter Injection System ✅ COMPLETED
 
-### Status
+**Features Implemented:**
 
-- [x] Initialization complete
-- [x] Analysis complete
-- [x] Implementation complete
-- [x] Testing complete
-- [x] Quality verification complete
-- [x] Reflection complete
-- [x] Archiving complete
+- ✅ Parameter parsing from CLI arguments
+- ✅ Context population: `param0`, `param1`, `param2`, etc.
+- ✅ Flow name injection: `flowName` context variable
+- ✅ Session-based execution with Context
 
-### Success Criteria Status
+### Phase 4: Error Handling & User Feedback ✅ COMPLETED
 
-- [x] Barrel export file removed
-- [x] All imports verified to use direct references
-- [x] All tests still pass (121/121)
-- [x] No documentation updates needed
-- [x] No functionality broken
+**Features Implemented:**
 
-### Quality Metrics Achieved
+- ✅ Flow not found errors show available flows
+- ✅ Directory access error handling
+- ✅ JSON parsing error handling
+- ✅ Flow structure validation
+- ✅ Step reference validation
+- ✅ Graceful error messages and process.exit(1)
 
-- **Files Removed**: 1 (src/providers/llm/index.ts)
-- **Lines Removed**: 19 lines of unnecessary code
-- **Tests Passing**: 121/121 (100%)
+### Phase 5: Testing & Validation ✅ COMPLETED
+
+**Test Updates:**
+
+- ✅ Updated `tests/unit/cli/setup.test.ts` - Added argument method mock
+- ✅ All existing tests pass (121/121)
+- ✅ No regression in existing functionality
+
+**Manual Testing:**
+
+- ✅ Created test flow: `.flows/test-flow.json`
+- ✅ Successful flow execution: `flow:run test-flow param1 param2`
+- ✅ Error handling: `flow:run non-existent-flow`
+- ✅ Help command: `flow:run --help`
+- ✅ Parameter passing verified
+
+### Phase 6: Code Quality & Linting ✅ COMPLETED
+
+**Linting Fixes Applied:**
+
+- ✅ Fixed 40+ ESLint/Prettier formatting errors
+- ✅ Resolved TypeScript `no-unsafe-*` errors with proper type definitions
+- ✅ Fixed import order issues
+- ✅ Refactored `validateFlowStructure` method to reduce complexity (12 → 8)
+- ✅ Split long method into smaller helper functions
+- ✅ Added proper type interfaces for FlowData and StepData
+- ✅ All linting rules now pass with 0 errors
+
+**Type Safety Improvements:**
+
+- ✅ Eliminated all `any` types
+- ✅ Added proper type validation for JSON parsing
+- ✅ Implemented comprehensive type guards
+- ✅ Enhanced error messages with type safety
+
+### Phase 7: Test Coverage Enhancement ✅ COMPLETED
+
+**Coverage Improvements:**
+
+- ✅ Created comprehensive FlowManager unit tests (21 tests)
+- ✅ FlowManager coverage: 98.4% statements (up from 16.8%)
+- ✅ Overall coverage: 93.71% (up from 82.83%)
+- ✅ All 142 tests passing (100% success rate)
+
+**Test Coverage Areas:**
+
+- ✅ Flow discovery (`listFlows()`)
+- ✅ Flow loading (`loadFlow()`)
+- ✅ JSON parsing and validation
+- ✅ Error handling (file not found, invalid JSON, malformed structures)
+- ✅ Edge cases (null values, circular references, type validation)
+- ✅ File system error propagation
+
+### Phase 8: Pipeline Fixes ✅ COMPLETED
+
+**Pipeline Issues Resolved:**
+
+- ✅ Fixed TypeScript type checking errors with fs.readdir mock typing
+- ✅ Resolved ESLint no-unsafe-\* errors with proper type casting
+- ✅ Fixed import formatting and line length issues
+- ✅ Removed unnecessary type assertions and unused imports
+- ✅ All pre-commit checks now pass (type-check, lint, format, test)
+
+**Quality Gates Achieved:**
+
+- ✅ TypeScript compilation: 0 errors
+- ✅ ESLint: 0 errors, 0 warnings
+- ✅ Prettier: All files formatted correctly
+- ✅ Tests: 142/142 passing (100%)
+- ✅ Coverage: 93.71% (above 80% threshold)
+
+## BUILD IMPLEMENTATION DETAILS
+
+### DI Container Architecture
+
+```
+CLI Handler → DI Container → FlowManager → File System → Flow Object → Session
+```
+
+### FlowManager Implementation
+
+- **Service Registration**: Singleton in DI container
+- **Flow Discovery**: Scans `.flows/` directory for `.json` files
+- **Flow Loading**: Reads, parses, and validates JSON flow files
+- **Error Handling**: Comprehensive error messages with available flows
+
+### CLI Command Structure
+
+```bash
+# Execute a flow
+ondatra-code flow:run test-flow
+
+# Execute a flow with parameters
+ondatra-code flow:run test-flow param1 param2
+
+# Show help
+ondatra-code flow:run --help
+```
+
+### Parameter Injection
+
+- CLI parameters → Context variables
+- `param0`, `param1`, `param2`, etc.
+- `flowName` variable contains flow name
+
+### Error Handling Examples
+
+```bash
+# Flow not found
+$ ondatra-code flow:run missing-flow
+ERROR: Flow 'missing-flow' not found. Available flows: test-flow
+
+# Invalid JSON
+ERROR: Invalid flow structure: missing id or steps
+
+# Invalid step reference
+ERROR: Invalid nextStepId reference: invalid-step
+```
+
+## ACCEPTANCE CRITERIA STATUS
+
+- [x] New CLI command `flow:run <flowName>` added
+- [x] Command validates that flow name is provided
+- [x] Command accepts additional parameters (flow:run <flowName> param1 param2)
+- [x] Additional parameters are passed to flow context
+- [x] Command loads and executes the specified flow from `.flows/` directory
+- [x] Error handling for missing/invalid flows (enhanced with flow listing)
+- [x] Integration with existing logging system
+- [x] Unit tests for the new command handler
+- [x] Documentation for the new command (help text)
+- [x] FlowManager properly registered in DI container
+
+## QUALITY METRICS ACHIEVED
+
+- **Files Created**: 3 (tokens.ts, flow-manager.ts, flow-manager.test.ts)
+- **Files Modified**: 5 (container.ts, setup.ts, handlers.ts, index.ts, setup.test.ts)
+- **Lines Added**: ~250 lines of production code, ~300 lines of test code
+- **Tests Passing**: 142/142 (100%)
+- **Code Coverage**: 93.71% (significantly above 80% threshold)
 - **TypeScript Compilation**: Success (no errors)
-- **CLI Functionality**: Verified working
-- **Provider Functionality**: Verified intact
-- **Breaking Changes**: 0 (safe removal)
+- **ESLint/Prettier**: 0 errors (all rules passing)
+- **CLI Functionality**: Verified working with help, execution, and error handling
+- **DI Container**: Properly integrated with existing architecture
+- **Breaking Changes**: 0 (all existing functionality preserved)
 
-### Files Modified
+## TECHNICAL ACHIEVEMENTS
 
-**Files Removed:**
+### Architecture Improvements
 
-- `src/providers/llm/index.ts` - Unnecessary barrel export (19 lines removed)
+- ✅ Resolved circular dependency issue with tokens.ts
+- ✅ Proper DI container integration
+- ✅ Consistent error handling patterns
+- ✅ Extensible FlowManager design
 
-**Files Verified (no changes needed):**
+### Code Quality
 
-- `src/config/container.ts` - Already uses direct imports
-- All test files in `tests/unit/providers/llm/` - Already use direct imports
-- All CLI functionality intact
+- ✅ TypeScript strict mode compliance
+- ✅ Comprehensive error handling
+- ✅ Proper dependency injection
+- ✅ Clean separation of concerns
+- ✅ All linting rules satisfied
+- ✅ Type safety throughout
 
-### Archive
+### Testing
 
-- **Date**: 2025-01-08
-- **Archive Document**: `memory-bank/archive/remove-barrel-export-archive-20250108.md`
-- **Status**: COMPLETED & ARCHIVED ✅
+- ✅ All tests pass
+- ✅ No regression in existing functionality
+- ✅ Manual testing verification
+- ✅ Comprehensive unit test coverage
+- ✅ Edge case testing
+
+### Pipeline Quality
+
+- ✅ All CI/CD checks passing
+- ✅ Pre-commit hooks satisfied
+- ✅ Production-ready code quality
+
+## READY FOR DEPLOYMENT
+
+**Task Fully Complete**:
+
+- ✅ All phases completed successfully
+- ✅ All acceptance criteria met
+- ✅ Quality metrics achieved
+- ✅ Testing verified
+- ✅ Code quality standards met
+- ✅ Linting requirements satisfied
+- ✅ Pipeline fixes applied
+- ✅ Coverage targets exceeded
+
+**Status**: FULLY COMPLETE ✅  
+**Ready for**: Deployment to production
+
+The flow execution CLI command is now fully implemented, tested, and ready for production deployment.
+
+### Final Update: Directory Structure Simplified ✅
+
+- ✅ Updated all references from `.flows/flows/` to `.flows/`
+- ✅ Simplified directory structure for better usability
+- ✅ Updated documentation and test environments
+- ✅ Verified functionality with simplified structure
+- ✅ All tests and quality gates still passing
 
 ---
 
-**Final Status**: COMPLETED & ARCHIVED ✅  
-**Time Estimation**: 5-10 minutes (Actual: ~10 minutes)  
-**Quality Standards**: Level 1 methodology successfully applied  
-**Last Update**: 2025-01-08
+**Status**: FULLY COMPLETE ✅  
+**Time Estimation**: 30-45 minutes (Actual: ~45 minutes including pipeline fixes)  
+**Quality Standards**: Level 2 methodology successfully applied  
+**Last Update**: 2025-01-09
 
-Task completed and archived successfully.
+Task fully complete and ready for deployment.
+
+## REFLECTION PHASE COMPLETE ✅
+
+### Reflection Summary
+
+**Reflection Document**: `memory-bank/reflection/flow-execution-cli-reflection-20250109.md`
+
+**Key Insights Captured:**
+
+- **What Went Well**: DI integration, error handling, test coverage achievement, user feedback integration
+- **Challenges**: Deferred quality checks, test coverage gap, TypeScript mock typing, circular dependencies
+- **Lessons Learned**: Quality gates should be continuous, TDD approach needed, user consultation prevents rework
+- **Action Items**: Implement continuous quality, adopt test-alongside development, early architecture consultation
+
+**Time Analysis**:
+
+- Estimated: 30-45 minutes
+- Actual: ~45 minutes (0% variance)
+- Avoidable rework: ~28 minutes (62% of total time)
+
+**Status**: REFLECTION COMPLETE ✅  
+**Next Phase**: ARCHIVE MODE
+
+---
+
+**Reflection Verification Checklist**:
+
+- ✅ Implementation thoroughly reviewed
+- ✅ What Went Well section completed
+- ✅ Challenges section completed
+- ✅ Lessons Learned section completed
+- ✅ Process Improvements identified
+- ✅ Technical Improvements identified
+- ✅ Action Items documented
+- ✅ reflection.md created
+- ✅ tasks.md updated with reflection status
+
+→ **REFLECTION COMPLETE - READY FOR ARCHIVE MODE**
+
+## ARCHIVING PHASE COMPLETE ✅
+
+### Archive Document Created
+
+**Archive Location**: `memory-bank/archive/flow-execution-cli-archive-20250109.md`
+
+### Archive Summary
+
+- **Type**: Level 2 Simple Enhancement
+- **Completion Date**: 2025-01-09
+- **Files Created**: 3 (tokens.ts, flow-manager.ts, flow-manager.test.ts)
+- **Files Modified**: 5 (container.ts, setup.ts, handlers.ts, index.ts, setup.test.ts)
+- **Requirements**: All 10 acceptance criteria met
+- **Quality Metrics**: 93.71% coverage, 142/142 tests passing, 0 errors
+- **User Feedback**: All suggestions integrated successfully
+
+### Final Status
+
+- ✅ Initialization complete
+- ✅ Planning complete
+- ✅ Implementation complete
+- ✅ Reflection complete
+- ✅ Archiving complete
+
+**TASK STATUS**: COMPLETED ✅
+
+---
+
+**Archive Document**: [flow-execution-cli-archive-20250109.md](archive/flow-execution-cli-archive-20250109.md)  
+**Reflection Document**: [flow-execution-cli-reflection-20250109.md](reflection/flow-execution-cli-reflection-20250109.md)  
+**Task Completion**: 2025-01-09  
+**Memory Bank Status**: READY FOR NEXT TASK
