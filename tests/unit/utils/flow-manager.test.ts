@@ -9,6 +9,13 @@ import { StepFactory } from '../../../src/flow/step-factory.js';
 import { FlowManager } from '../../../src/utils/flow-manager.js';
 import { Logger } from '../../../src/utils/logger.js';
 
+import {
+  VALID_FLOW_DATA,
+  DYNAMIC_FLOW_DATA,
+  createMockLogger,
+  createMockStepFactory,
+} from './flow-manager.test.helpers.js';
+
 // Mock the file system
 vi.mock('fs', () => ({
   promises: {
@@ -25,43 +32,6 @@ vi.mock('path', () => ({
   },
 }));
 
-// Test data
-const VALID_FLOW_DATA = {
-  id: 'test-flow',
-  name: 'Test Flow',
-  description: 'A test flow',
-  steps: [
-    {
-      id: 'step1',
-      message: 'First step',
-      nextStepId: { default: 'step2' },
-    },
-    {
-      id: 'step2',
-      message: 'Second step',
-      nextStepId: {},
-    },
-  ],
-};
-
-const DYNAMIC_FLOW_DATA = {
-  id: 'dynamic-flow',
-  steps: [
-    {
-      id: 'router',
-      message: 'Router step',
-      nextStepId: {
-        bug: 'bug-step',
-        feature: 'feature-step',
-        default: 'end-step',
-      },
-    },
-    { id: 'bug-step', message: 'Bug step', nextStepId: {} },
-    { id: 'feature-step', message: 'Feature step', nextStepId: {} },
-    { id: 'end-step', message: 'End step', nextStepId: {} },
-  ],
-};
-
 // Helper functions moved to module level for better reusability
 function setupMocks(): void {
   vi.clearAllMocks();
@@ -69,22 +39,6 @@ function setupMocks(): void {
   vi.mocked(path.basename).mockImplementation((filePath, ext) =>
     ext ? filePath.replace(ext, '') : filePath
   );
-}
-
-function createMockLogger(): Logger {
-  return {
-    info: vi.fn(),
-    error: vi.fn(),
-    warn: vi.fn(),
-    debug: vi.fn(),
-  } as unknown as Logger;
-}
-
-function createMockStepFactory(): StepFactory {
-  return {
-    validateStepConfig: vi.fn(),
-    createStep: vi.fn(),
-  } as unknown as StepFactory;
 }
 
 describe('FlowManager', () => {
@@ -167,7 +121,15 @@ describe('FlowManager', () => {
     it('should handle empty object nextStepId correctly (end step)', async () => {
       const flowWithEmptyNext = {
         id: 'test',
-        steps: [{ id: 'step1', message: 'Only step', nextStepId: {} }],
+        steps: [
+          {
+            id: 'step1',
+            type: 'log',
+            message: 'Only step',
+            level: 'info',
+            nextStepId: {},
+          },
+        ],
       };
       vi.mocked(fs.readFile).mockResolvedValue(
         JSON.stringify(flowWithEmptyNext)

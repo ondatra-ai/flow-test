@@ -50,15 +50,11 @@ export class StepFactory {
       }
 
       default: {
-        // Return basic Step for backward compatibility
-        if (!validatedData.id || typeof validatedData.id !== 'string') {
-          throw new Error('Step must have an id');
-        }
-        return new Step(
-          validatedData.id,
-          (validatedData.message as string) || `Step ${validatedData.id}`,
-          (validatedData.nextStepId as Record<string, string>) || {},
-          this.logger
+        // No backward compatibility - all steps must have a type
+        throw new Error(
+          `Invalid or missing step type: ${String(
+            validatedData.type
+          )}. Steps must have a type of: ${Object.values(StepType).join(', ')}`
         );
       }
     }

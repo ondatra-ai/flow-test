@@ -27,11 +27,11 @@ export type FlowData = {
 export class FlowManager {
   private readonly flowsDir: string;
   private readonly logger: Logger;
-  private readonly stepFactory?: StepFactory;
+  private readonly stepFactory: StepFactory;
 
   constructor(
     @inject(SERVICES.Logger) logger: Logger,
-    @inject(SERVICES.StepFactory) stepFactory?: StepFactory
+    @inject(SERVICES.StepFactory) stepFactory: StepFactory
   ) {
     this.flowsDir = path.join('.flows');
     this.logger = logger;
@@ -109,13 +109,15 @@ export class FlowManager {
 
       const step = stepData as Record<string, unknown>;
 
-      // If step has a type, use the factory to create typed step
-      if (step.type && this.stepFactory) {
-        return this.stepFactory.createStep(stepData);
+      // All steps must have a type - use the factory to create typed step
+      if (!step.type) {
+        throw new Error(
+          `Step ${String(step.id)} must have a type field. ` +
+            `Valid types: action, decision, log`
+        );
       }
 
-      // Fall back to basic Step for backward compatibility
-      return this.createBasicStep(step);
+      return this.stepFactory.createStep(stepData);
     } catch (error) {
       this.logger.error(`Failed to create step`, {
         stepData,
@@ -123,30 +125,6 @@ export class FlowManager {
       });
       throw error;
     }
-  }
-
-  /**
-   * Create a basic step for backward compatibility
-   */
-  private createBasicStep(step: Record<string, unknown>): Step {
-    if (!step.id || typeof step.id !== 'string') {
-      throw new Error('Step must have an id');
-    }
-
-    if (!step.message || typeof step.message !== 'string') {
-      throw new Error(`Untyped step ${step.id} requires a message field`);
-    }
-
-    if (!step.nextStepId || typeof step.nextStepId !== 'object') {
-      throw new Error(`Step ${step.id} requires a nextStepId object`);
-    }
-
-    return new Step(
-      step.id,
-      step.message,
-      step.nextStepId as Record<string, string>,
-      this.logger
-    );
   }
 
   /**
