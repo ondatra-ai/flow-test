@@ -1,7 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 import { Flow, IFlow } from '../../../../src/flow/flow.js';
-import { Session } from '../../../../src/flow/session/session.js';
+import {
+  Session,
+  SessionStatus,
+} from '../../../../src/flow/session/session.js';
 import { Step } from '../../../../src/flow/step.js';
 import { Logger } from '../../../../src/utils/logger.js';
 
@@ -19,8 +22,8 @@ const mockLogger = {
 } as unknown as Logger;
 
 const mockSteps = [
-  new Step('step1', 'Step 1 executed', 'step2', mockLogger),
-  new Step('step2', 'Step 2 executed', null, mockLogger),
+  new Step('step1', 'Step 1 executed', { default: 'step2' }, mockLogger),
+  new Step('step2', 'Step 2 executed', {}, mockLogger),
 ];
 
 describe('Session start', (): void => {
@@ -31,6 +34,17 @@ describe('Session start', (): void => {
     expect(() => session.start()).toThrow('Flow has no steps');
   });
 
+  it('should set status to error when flow has no steps', (): void => {
+    const emptyFlow = new Flow('empty-flow', []);
+    const session = new Session(emptyFlow);
+
+    try {
+      session.start();
+    } catch (_error) {
+      expect(session.status).toBe('error');
+    }
+  });
+
   it('should throw error when session is already started', (): void => {
     const flow = new Flow('test-flow', mockSteps);
     const session = new Session(flow);
@@ -39,6 +53,27 @@ describe('Session start', (): void => {
     expect(() => session.start()).toThrow(
       'Session is already started or completed'
     );
+  });
+
+  it('should set status to error when session is already started', (): void => {
+    const flow = new Flow('test-flow', mockSteps);
+    const session = new Session(flow);
+
+    session.start();
+    try {
+      session.start();
+    } catch (_error) {
+      expect(session.status).toBe('error');
+    }
+  });
+
+  it('should return running status when started', (): void => {
+    const flow = new Flow('test-flow', mockSteps);
+    const session = new Session(flow);
+
+    const status: SessionStatus = session.start();
+    expect(status).toBe('running');
+    expect(session.status).toBe('running');
   });
 });
 
@@ -53,13 +88,32 @@ describe('Session executeCurrentStep', (): void => {
     );
   });
 
-  it('should handle step execution failure', async (): Promise<void> => {
-    // Create a mock flow that will return false for execute
-    const mockExecute = vi.fn().mockResolvedValue(false);
+  it('should handle flow execution returning null as completion', async (): Promise<void> => {
+    // Create a mock flow that returns null (end step)
+    const mockExecute = vi.fn().mockResolvedValue(null);
     const mockFlow = {
       getFirstStepId: (): string => 'step1',
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      getNextStepId: (_stepId: string): string | undefined => undefined,
+      execute: mockExecute,
+      getId: (): string => 'test-flow',
+      getSteps: (): Step[] => mockSteps,
+    } as IFlow;
+
+    const session = new Session(mockFlow);
+    session.start();
+
+    const result = await session.executeCurrentStep();
+    expect(result).toBe(true);
+    expect(session.status).toBe('completed');
+    expect(mockExecute).toHaveBeenCalledWith('step1', expect.any(Object));
+  });
+
+  it('should handle actual errors during execution', async (): Promise<void> => {
+    // Create a mock flow that throws an error
+    const mockExecute = vi
+      .fn()
+      .mockRejectedValue(new Error('Execution failed'));
+    const mockFlow = {
+      getFirstStepId: (): string => 'step1',
       execute: mockExecute,
       getId: (): string => 'test-flow',
       getSteps: (): Step[] => mockSteps,
@@ -70,6 +124,7 @@ describe('Session executeCurrentStep', (): void => {
 
     const result = await session.executeCurrentStep();
     expect(result).toBe(false);
+    expect(session.status).toBe('error');
     expect(mockExecute).toHaveBeenCalledWith('step1', expect.any(Object));
   });
 
@@ -80,7 +135,7 @@ describe('Session executeCurrentStep', (): void => {
     session.start();
 
     // Execute all steps until completion
-    while (!session.isComplete()) {
+    while (session.status === 'running') {
       await session.executeCurrentStep();
     }
 
@@ -115,7 +170,7 @@ describe('Session two-step flow execution', (): void => {
     const result2 = await session.executeCurrentStep();
     expect(result2).toBe(true);
     expect(mockLoggerInfo).toHaveBeenCalledWith('Step 2 executed');
-    expect(session.isComplete()).toBe(true);
+    expect(session.status).toBe('completed');
 
     // Verify all logging calls
     expect(mockLoggerInfo).toHaveBeenCalledWith('Step 1 executed');
@@ -130,16 +185,54 @@ describe('Session two-step flow execution', (): void => {
     session.start();
 
     // Execute flow until completion
-    while (!session.isComplete()) {
+    while (session.status === 'running') {
       await session.executeCurrentStep();
     }
 
     // Verify final state
-    expect(session.isComplete()).toBe(true);
+    expect(session.status).toBe('completed');
 
     // Verify all steps were logged
     expect(mockLoggerInfo).toHaveBeenCalledWith('Step 1 executed');
     expect(mockLoggerInfo).toHaveBeenCalledWith('Step 2 executed');
+  });
+
+  it('should support dynamic routing with context', async (): Promise<void> => {
+    const dynamicSteps = [
+      new Step(
+        'router',
+        'Routing step',
+        {
+          bug: 'bug-step',
+          feature: 'feature-step',
+          default: 'end-step',
+        },
+        mockLogger
+      ),
+      new Step('bug-step', 'Bug fix step', {}, mockLogger),
+      new Step('feature-step', 'Feature step', {}, mockLogger),
+      new Step('end-step', 'End step', {}, mockLogger),
+    ];
+
+    const flow = new Flow('dynamic-flow', dynamicSteps);
+    const session = new Session(flow);
+
+    // Set routing context
+    session.getContext().set('nextStep', 'bug');
+
+    // Start and execute
+    session.start();
+
+    // Execute router step - should go to bug-step
+    const result1 = await session.executeCurrentStep();
+    expect(result1).toBe(true);
+    expect(mockLoggerInfo).toHaveBeenCalledWith('Routing step');
+
+    // Execute bug-step - should complete
+    const result2 = await session.executeCurrentStep();
+    expect(result2).toBe(true);
+    expect(mockLoggerInfo).toHaveBeenCalledWith('Bug fix step');
+    expect(session.status).toBe('completed');
   });
 });
 

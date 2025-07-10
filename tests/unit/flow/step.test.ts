@@ -30,7 +30,7 @@ describe('Step', () => {
       const step = new Step(
         'test-step',
         'Test message',
-        'next-step',
+        { default: 'next-step' },
         mockLogger
       );
       expect(step).toBeDefined();
@@ -38,26 +38,82 @@ describe('Step', () => {
   });
 
   describe('execute', () => {
-    it('should execute log action successfully', async () => {
+    it('should execute log action and return next step ID', async () => {
       const step = new Step(
         'test-step',
         'Test message',
-        'next-step',
+        { default: 'next-step' },
         mockLogger
       );
       const context = new Context();
       const result = await step.execute(context);
 
-      expect(result).toBe(true);
+      expect(result).toBe('next-step');
       expect(mockLoggerInfo).toHaveBeenCalledWith('Test message');
     });
 
-    it('should always return true for logging', async () => {
-      const step = new Step('test-step', 'Test message', null, mockLogger);
+    it('should return null for end step (empty object)', async () => {
+      const step = new Step('test-step', 'Test message', {}, mockLogger);
       const context = new Context();
       const result = await step.execute(context);
 
-      expect(result).toBe(true);
+      expect(result).toBe(null);
+    });
+
+    it('should use context routing key when available', async () => {
+      const step = new Step(
+        'test-step',
+        'Test message',
+        {
+          bug: 'bug-fix-step',
+          feature: 'feature-step',
+          default: 'general-step',
+        },
+        mockLogger
+      );
+      const context = new Context();
+      context.set('nextStep', 'bug');
+
+      const result = await step.execute(context);
+
+      expect(result).toBe('bug-fix-step');
+    });
+
+    it('should fallback to default when context key not found', async () => {
+      const step = new Step(
+        'test-step',
+        'Test message',
+        {
+          bug: 'bug-fix-step',
+          feature: 'feature-step',
+          default: 'general-step',
+        },
+        mockLogger
+      );
+      const context = new Context();
+      context.set('nextStep', 'nonexistent');
+
+      const result = await step.execute(context);
+
+      expect(result).toBe('general-step');
+    });
+
+    it('should return null when no default and context key not found', async () => {
+      const step = new Step(
+        'test-step',
+        'Test message',
+        {
+          bug: 'bug-fix-step',
+          feature: 'feature-step',
+        },
+        mockLogger
+      );
+      const context = new Context();
+      context.set('nextStep', 'nonexistent');
+
+      const result = await step.execute(context);
+
+      expect(result).toBe(null);
     });
   });
 });

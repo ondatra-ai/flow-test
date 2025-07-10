@@ -5,21 +5,20 @@ import { IContext } from './context.js';
 // Step interface - Defines Step contract
 export interface IStep {
   getId(): string;
-  getNext(): string | null;
-  execute(context: IContext): Promise<boolean>;
+  execute(context: IContext): Promise<string | null>;
 }
 
-// Step entity - Simple action-based execution
+// Step entity - Simple action-based execution with dynamic routing
 export class Step implements IStep {
   private readonly id: string;
   private readonly message: string;
-  private readonly nextStepId: string | null;
+  private readonly nextStepId: Record<string, string>;
   private readonly logger: Logger;
 
   constructor(
     id: string,
     message: string,
-    nextStepId: string | null,
+    nextStepId: Record<string, string>,
     logger: Logger
   ) {
     this.id = id;
@@ -32,12 +31,23 @@ export class Step implements IStep {
     return this.id;
   }
 
-  public getNext(): string | null {
-    return this.nextStepId;
-  }
-
-  public execute(_context: IContext): Promise<boolean> {
+  public execute(context: IContext): Promise<string | null> {
     this.logger.info(this.message);
-    return Promise.resolve(true);
+
+    // Check if this is an end step (empty object)
+    if (Object.keys(this.nextStepId).length === 0) {
+      return Promise.resolve(null);
+    }
+
+    // Get routing key from context
+    const routingKey = context.get('nextStep');
+
+    // If routing key exists and matches a key in nextStepId, use it
+    if (routingKey && this.nextStepId[routingKey]) {
+      return Promise.resolve(this.nextStepId[routingKey]);
+    }
+
+    // Use default if available, otherwise return null
+    return Promise.resolve(this.nextStepId['default'] || null);
   }
 }

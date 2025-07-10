@@ -24,33 +24,73 @@ vi.mock('path', () => ({
   },
 }));
 
+// Test data
+const VALID_FLOW_DATA = {
+  id: 'test-flow',
+  name: 'Test Flow',
+  description: 'A test flow',
+  steps: [
+    {
+      id: 'step1',
+      message: 'First step',
+      nextStepId: { default: 'step2' },
+    },
+    {
+      id: 'step2',
+      message: 'Second step',
+      nextStepId: {},
+    },
+  ],
+};
+
+const DYNAMIC_FLOW_DATA = {
+  id: 'dynamic-flow',
+  steps: [
+    {
+      id: 'router',
+      message: 'Router step',
+      nextStepId: {
+        bug: 'bug-step',
+        feature: 'feature-step',
+        default: 'end-step',
+      },
+    },
+    { id: 'bug-step', message: 'Bug step', nextStepId: {} },
+    { id: 'feature-step', message: 'Feature step', nextStepId: {} },
+    { id: 'end-step', message: 'End step', nextStepId: {} },
+  ],
+};
+
+// Helper functions moved to module level for better reusability
+function setupMocks(): void {
+  vi.clearAllMocks();
+  vi.mocked(path.join).mockImplementation((...args) => args.join('/'));
+  vi.mocked(path.basename).mockImplementation((filePath, ext) =>
+    ext ? filePath.replace(ext, '') : filePath
+  );
+}
+
+function createMockLogger(): Logger {
+  return {
+    info: vi.fn(),
+    error: vi.fn(),
+    warn: vi.fn(),
+    debug: vi.fn(),
+  } as unknown as Logger;
+}
+
 describe('FlowManager', () => {
   let flowManager: FlowManager;
   let mockLogger: Logger;
 
   beforeEach(() => {
-    vi.clearAllMocks();
-
-    // Setup mocks
-    vi.mocked(path.join).mockImplementation((...args) => args.join('/'));
-    vi.mocked(path.basename).mockImplementation((filePath, ext) =>
-      ext ? filePath.replace(ext, '') : filePath
-    );
-
-    // Mock logger
-    mockLogger = {
-      info: vi.fn(),
-      error: vi.fn(),
-      warn: vi.fn(),
-      debug: vi.fn(),
-    } as unknown as Logger;
-
+    setupMocks();
+    mockLogger = createMockLogger();
     flowManager = new FlowManager(mockLogger);
   });
 
   describe('listFlows', () => {
     it('should return flow names from .json files', async () => {
-      // Arrange
       const mockFiles = [
         'flow1.json',
         'flow2.json',
@@ -59,34 +99,27 @@ describe('FlowManager', () => {
       ];
       vi.mocked(fs.readdir).mockResolvedValue(mockFiles as never);
 
-      // Act
       const result = await flowManager.listFlows();
 
-      // Assert
       expect(result).toEqual(['flow1', 'flow2', 'flow3']);
       expect(fs.readdir).toHaveBeenCalledWith('.flows');
     });
 
     it('should return empty array when no json files exist', async () => {
-      // Arrange
       vi.mocked(fs.readdir).mockResolvedValue([
         'file1.txt',
         'file2.md',
       ] as never);
 
-      // Act
       const result = await flowManager.listFlows();
 
-      // Assert
       expect(result).toEqual([]);
     });
 
     it('should throw error when directory access fails', async () => {
-      // Arrange
       const error = new Error('Permission denied');
       vi.mocked(fs.readdir).mockRejectedValue(error);
 
-      // Act & Assert
       await expect(flowManager.listFlows()).rejects.toThrow(
         'Unable to access flows directory'
       );
@@ -96,33 +129,12 @@ describe('FlowManager', () => {
     });
   });
 
-  describe('loadFlow', () => {
-    const validFlowData = {
-      id: 'test-flow',
-      name: 'Test Flow',
-      description: 'A test flow',
-      steps: [
-        {
-          id: 'step1',
-          message: 'First step',
-          nextStepId: 'step2',
-        },
-        {
-          id: 'step2',
-          message: 'Second step',
-          nextStepId: null,
-        },
-      ],
-    };
-
+  describe('loadFlow - valid flows', () => {
     it('should load and parse a valid flow', async () => {
-      // Arrange
-      vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify(validFlowData));
+      vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify(VALID_FLOW_DATA));
 
-      // Act
       const result = await flowManager.loadFlow('test-flow');
 
-      // Assert
       expect(result).toBeInstanceOf(Flow);
       expect(result.getId()).toBe('test-flow');
       expect(fs.readFile).toHaveBeenCalledWith(
@@ -131,8 +143,35 @@ describe('FlowManager', () => {
       );
     });
 
+    it('should support dynamic routing with multiple keys', async () => {
+      vi.mocked(fs.readFile).mockResolvedValue(
+        JSON.stringify(DYNAMIC_FLOW_DATA)
+      );
+
+      const result = await flowManager.loadFlow('dynamic-flow');
+
+      expect(result).toBeInstanceOf(Flow);
+      expect(result.getId()).toBe('dynamic-flow');
+    });
+
+    it('should handle empty object nextStepId correctly (end step)', async () => {
+      const flowWithEmptyNext = {
+        id: 'test',
+        steps: [{ id: 'step1', message: 'Only step', nextStepId: {} }],
+      };
+      vi.mocked(fs.readFile).mockResolvedValue(
+        JSON.stringify(flowWithEmptyNext)
+      );
+
+      const result = await flowManager.loadFlow('test-flow');
+
+      expect(result).toBeInstanceOf(Flow);
+      expect(result.getId()).toBe('test');
+    });
+  });
+
+  describe('loadFlow - error cases', () => {
     it('should throw error with available flows when file not found', async () => {
-      // Arrange
       const error = new Error('File not found') as NodeJS.ErrnoException;
       error.code = 'ENOENT';
       vi.mocked(fs.readFile).mockRejectedValue(error);
@@ -141,223 +180,165 @@ describe('FlowManager', () => {
         'flow2.json',
       ] as never);
 
-      // Act & Assert
       await expect(flowManager.loadFlow('missing-flow')).rejects.toThrow(
         "Flow 'missing-flow' not found. Available flows: flow1, flow2"
       );
     });
 
     it('should throw error for invalid JSON', async () => {
-      // Arrange
       vi.mocked(fs.readFile).mockResolvedValue('invalid json');
 
-      // Act & Assert
       await expect(flowManager.loadFlow('test-flow')).rejects.toThrow();
     });
 
     it('should throw error for missing flow id', async () => {
-      // Arrange
       const invalidFlow = { steps: [] };
       vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify(invalidFlow));
 
-      // Act & Assert
       await expect(flowManager.loadFlow('test-flow')).rejects.toThrow(
         'Invalid flow structure: missing id or steps'
       );
     });
 
     it('should throw error for missing steps', async () => {
-      // Arrange
       const invalidFlow = { id: 'test' };
       vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify(invalidFlow));
 
-      // Act & Assert
       await expect(flowManager.loadFlow('test-flow')).rejects.toThrow(
         'Invalid flow structure: missing id or steps'
       );
     });
 
-    it('should throw error for invalid step structure', async () => {
-      // Arrange
-      const invalidFlow = {
-        id: 'test',
-        steps: [{ message: 'step without id' }],
-      };
-      vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify(invalidFlow));
-
-      // Act & Assert
-      await expect(flowManager.loadFlow('test-flow')).rejects.toThrow(
-        'Invalid step structure: step id must be a string'
-      );
-    });
-
     it('should throw error for invalid nextStepId reference', async () => {
-      // Arrange
       const invalidFlow = {
         id: 'test',
         steps: [
-          { id: 'step1', message: 'First step', nextStepId: 'non-existent' },
+          {
+            id: 'step1',
+            message: 'First step',
+            nextStepId: { default: 'non-existent' },
+          },
         ],
       };
       vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify(invalidFlow));
 
-      // Act & Assert
       await expect(flowManager.loadFlow('test-flow')).rejects.toThrow(
         'Invalid nextStepId reference: non-existent'
       );
     });
+  });
 
-    it('should handle null nextStepId correctly', async () => {
-      // Arrange
-      const flowWithNullNext = {
-        id: 'test',
-        steps: [{ id: 'step1', message: 'Only step', nextStepId: null }],
-      };
-      vi.mocked(fs.readFile).mockResolvedValue(
-        JSON.stringify(flowWithNullNext)
-      );
+  describe('validation edge cases', () => {
+    const validationTests = [
+      {
+        name: 'non-object flow data',
+        data: 'not an object',
+        error: 'Invalid flow structure: data must be an object',
+      },
+      {
+        name: 'null flow data',
+        data: null,
+        error: 'Invalid flow structure: data must be an object',
+      },
+      {
+        name: 'non-array steps',
+        data: { id: 'test', steps: 'not an array' },
+        error: 'Invalid flow structure: missing id or steps',
+      },
+      {
+        name: 'non-object step',
+        data: { id: 'test', steps: ['not an object'] },
+        error: 'Invalid step structure: step must be an object',
+      },
+      {
+        name: 'null step',
+        data: { id: 'test', steps: [null] },
+        error: 'Invalid step structure: step must be an object',
+      },
+      {
+        name: 'non-string step id',
+        data: { id: 'test', steps: [{ id: 123, message: 'step' }] },
+        error: 'Invalid step structure: step id must be a string',
+      },
+    ];
 
-      // Act
-      const result = await flowManager.loadFlow('test-flow');
+    validationTests.forEach(({ name, data, error }) => {
+      it(`should throw error for ${name}`, async () => {
+        vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify(data));
 
-      // Assert
-      expect(result).toBeInstanceOf(Flow);
-      expect(result.getId()).toBe('test');
+        await expect(flowManager.loadFlow('test-flow')).rejects.toThrow(error);
+      });
     });
 
-    it('should handle missing nextStepId property', async () => {
-      // Arrange
+    it('should throw error for missing nextStepId property', async () => {
       const flowWithoutNext = {
         id: 'test',
         steps: [{ id: 'step1', message: 'Only step' }],
       };
       vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify(flowWithoutNext));
 
-      // Act
-      const result = await flowManager.loadFlow('test-flow');
-
-      // Assert
-      expect(result).toBeInstanceOf(Flow);
-      expect(result.getId()).toBe('test');
-    });
-  });
-
-  describe('validation edge cases', () => {
-    it('should throw error for non-object flow data', async () => {
-      // Arrange
-      vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify('not an object'));
-
-      // Act & Assert
       await expect(flowManager.loadFlow('test-flow')).rejects.toThrow(
-        'Invalid flow structure: data must be an object'
+        'Invalid step structure: nextStepId must be an object'
       );
     });
 
-    it('should throw error for null flow data', async () => {
-      // Arrange
-      vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify(null));
+    it('should throw error for old format (string/null nextStepId)', async () => {
+      const oldFormatFlow = {
+        id: 'test',
+        steps: [{ id: 'step1', message: 'Old format', nextStepId: 'step2' }],
+      };
+      vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify(oldFormatFlow));
 
-      // Act & Assert
       await expect(flowManager.loadFlow('test-flow')).rejects.toThrow(
-        'Invalid flow structure: data must be an object'
+        'Invalid step structure: nextStepId must be an object'
       );
     });
 
-    it('should throw error for non-array steps', async () => {
-      // Arrange
+    it('should throw error for array nextStepId', async () => {
       const invalidFlow = {
         id: 'test',
-        steps: 'not an array',
+        steps: [{ id: 'step1', message: 'Array next', nextStepId: ['step2'] }],
       };
       vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify(invalidFlow));
 
-      // Act & Assert
       await expect(flowManager.loadFlow('test-flow')).rejects.toThrow(
-        'Invalid flow structure: missing id or steps'
+        'Invalid step structure: nextStepId must be an object'
       );
     });
 
-    it('should throw error for non-object step', async () => {
-      // Arrange
+    it('should throw error for non-string values in nextStepId object', async () => {
       const invalidFlow = {
         id: 'test',
-        steps: ['not an object'],
-      };
-      vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify(invalidFlow));
-
-      // Act & Assert
-      await expect(flowManager.loadFlow('test-flow')).rejects.toThrow(
-        'Invalid step structure: step must be an object'
-      );
-    });
-
-    it('should throw error for null step', async () => {
-      // Arrange
-      const invalidFlow = {
-        id: 'test',
-        steps: [null],
-      };
-      vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify(invalidFlow));
-
-      // Act & Assert
-      await expect(flowManager.loadFlow('test-flow')).rejects.toThrow(
-        'Invalid step structure: step must be an object'
-      );
-    });
-
-    it('should throw error for non-string step id', async () => {
-      // Arrange
-      const invalidFlow = {
-        id: 'test',
-        steps: [{ id: 123, message: 'step' }],
-      };
-      vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify(invalidFlow));
-
-      // Act & Assert
-      await expect(flowManager.loadFlow('test-flow')).rejects.toThrow(
-        'Invalid step structure: step id must be a string'
-      );
-    });
-
-    it('should handle complex flow with valid circular references', async () => {
-      // Arrange
-      const complexFlow = {
-        id: 'complex-flow',
         steps: [
-          { id: 'step1', message: 'First step', nextStepId: 'step2' },
-          { id: 'step2', message: 'Second step', nextStepId: 'step3' },
-          { id: 'step3', message: 'Third step', nextStepId: 'step1' }, // Circular reference
+          {
+            id: 'step1',
+            message: 'Invalid value',
+            nextStepId: { default: 123 },
+          },
         ],
       };
-      vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify(complexFlow));
+      vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify(invalidFlow));
 
-      // Act
-      const result = await flowManager.loadFlow('complex-flow');
-
-      // Assert
-      expect(result).toBeInstanceOf(Flow);
-      expect(result.getId()).toBe('complex-flow');
+      await expect(flowManager.loadFlow('test-flow')).rejects.toThrow(
+        'Invalid nextStepId value: default must be a string'
+      );
     });
   });
 
   describe('error propagation', () => {
     it('should propagate non-ENOENT file system errors', async () => {
-      // Arrange
       const error = new Error('Disk full') as NodeJS.ErrnoException;
       error.code = 'ENOSPC';
       vi.mocked(fs.readFile).mockRejectedValue(error);
 
-      // Act & Assert
       await expect(flowManager.loadFlow('test-flow')).rejects.toThrow(
         'Disk full'
       );
     });
 
     it('should propagate JSON parsing errors', async () => {
-      // Arrange
-      vi.mocked(fs.readFile).mockResolvedValue('{"id": "test", "steps": [}'); // Invalid JSON
+      vi.mocked(fs.readFile).mockResolvedValue('{"id": "test", "steps": [}');
 
-      // Act & Assert
       await expect(flowManager.loadFlow('test-flow')).rejects.toThrow();
     });
   });

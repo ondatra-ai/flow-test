@@ -5,9 +5,8 @@ import { IStep } from './step.js';
 export interface IFlow {
   getId(): string;
   getFirstStepId(): string | undefined;
-  getNextStepId(stepId: string): string | undefined;
   getSteps(): IStep[];
-  execute(stepId: string, context: IContext): Promise<boolean>;
+  execute(stepId: string, context: IContext): Promise<string | null>;
 }
 
 // Flow entity - Simple data structure for directed graph of steps
@@ -35,22 +34,17 @@ export class Flow implements IFlow {
     return this.steps.length > 0 ? this.steps[0].getId() : undefined;
   }
 
-  public getNextStepId(currentStepId: string): string | undefined {
-    const currentStep = this.stepMap.get(currentStepId);
-    if (!currentStep) {
-      return undefined;
-    }
-    return currentStep.getNext() ?? undefined;
-  }
-
   public getSteps(): IStep[] {
     return [...this.steps];
   }
 
-  public async execute(stepId: string, context: IContext): Promise<boolean> {
+  public async execute(
+    stepId: string,
+    context: IContext
+  ): Promise<string | null> {
     const step = this.stepMap.get(stepId);
     if (!step) {
-      return false;
+      return null;
     }
     return await step.execute(context);
   }

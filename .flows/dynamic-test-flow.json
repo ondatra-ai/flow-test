@@ -1,0 +1,50 @@
+{
+  "id": "dynamic-test-flow",
+  "name": "Dynamic Routing Test Flow",
+  "description": "A test flow to demonstrate dynamic step execution with context mapping",
+  "steps": [
+    {
+      "id": "router",
+      "message": "Router step - evaluating routing context",
+      "nextStepId": {
+        "bug": "bug-fix-step",
+        "feature": "feature-step",
+        "refactor": "refactor-step",
+        "default": "general-step"
+      }
+    },
+    {
+      "id": "bug-fix-step",
+      "message": "Executing bug fix workflow",
+      "nextStepId": {
+        "default": "completion"
+      }
+    },
+    {
+      "id": "feature-step",
+      "message": "Executing feature development workflow",
+      "nextStepId": {
+        "default": "completion"
+      }
+    },
+    {
+      "id": "refactor-step",
+      "message": "Executing refactoring workflow",
+      "nextStepId": {
+        "default": "completion"
+      }
+    },
+    {
+      "id": "general-step",
+      "message": "Executing general workflow (default path)",
+      "nextStepId": {
+        "default": "completion"
+      }
+    },
+    {
+      "id": "completion",
+      "message": "Workflow completed successfully",
+      "nextStepId": {}
+    }
+  ]
+} 

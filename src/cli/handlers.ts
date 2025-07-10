@@ -55,8 +55,12 @@ export async function handleFlowRunCommand(
 
     // Execute flow
     session.start();
-    while (!session.isComplete()) {
+    while (session.status === 'running') {
       await session.executeCurrentStep();
+    }
+
+    if (session.status === 'error') {
+      throw new Error('Flow execution failed');
     }
 
     logger.info(`Flow '${flowName}' completed successfully`);
