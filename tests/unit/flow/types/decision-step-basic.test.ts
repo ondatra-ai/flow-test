@@ -9,7 +9,7 @@ import {
 } from '../../../../src/flow/types/step-type.js';
 import { Logger } from '../../../../src/utils/logger.js';
 
-describe('DecisionStep - Basic Conditions', () => {
+describe('DecisionStep - Other Conditions', () => {
   let mockLogger: Logger;
   let mockContext: IContext;
   let decisionStep: DecisionStep;
@@ -35,64 +35,6 @@ describe('DecisionStep - Basic Conditions', () => {
     } as unknown as IContext;
   });
 
-  describe('equality condition (===)', () => {
-    beforeEach(() => {
-      const config: DecisionStepConfig = {
-        id: 'equality-decision',
-        type: StepType.DECISION,
-        condition: 'context.status === "active"',
-        contextKey: 'nextStep',
-        trueValue: 'success',
-        falseValue: 'failure',
-        nextStepId: {
-          success: 'success-step',
-          failure: 'failure-step',
-          default: 'default-step',
-        },
-      };
-      decisionStep = new DecisionStep(mockLogger, config);
-    });
-
-    it('should set context to trueValue when condition evaluates to true', async () => {
-      vi.mocked(mockContext.get).mockReturnValue('active');
-
-      await decisionStep.execute(mockContext);
-
-      expect(mockContext.get).toHaveBeenCalledWith('status');
-      expect(mockContext.set).toHaveBeenCalledWith('nextStep', 'success');
-      expect(mockLogger.info).toHaveBeenCalledWith(
-        'Executing DecisionStep with condition: context.status === "active"'
-      );
-    });
-
-    it('should set context to falseValue when condition evaluates to false', async () => {
-      vi.mocked(mockContext.get).mockReturnValue('inactive');
-
-      await decisionStep.execute(mockContext);
-
-      expect(mockContext.get).toHaveBeenCalledWith('status');
-      expect(mockContext.set).toHaveBeenCalledWith('nextStep', 'failure');
-    });
-
-    it('should handle quoted values in condition', async () => {
-      const config: DecisionStepConfig = {
-        id: 'quoted-decision',
-        type: StepType.DECISION,
-        condition: "context.type === 'bug'",
-        contextKey: 'nextStep',
-        trueValue: 'bug-flow',
-        falseValue: 'feature-flow',
-        nextStepId: { 'bug-flow': 'bug-step', 'feature-flow': 'feature-step' },
-      };
-      decisionStep = new DecisionStep(mockLogger, config);
-      vi.mocked(mockContext.get).mockReturnValue('bug');
-
-      await decisionStep.execute(mockContext);
-
-      expect(mockContext.set).toHaveBeenCalledWith('nextStep', 'bug-flow');
-    });
-  });
-
   describe('inequality condition (!==)', () => {
     beforeEach(() => {
       const config: DecisionStepConfig = {
@@ -105,13 +47,16 @@ describe('DecisionStep - Basic Conditions', () => {
         nextStepId: {
           enabled: 'enabled-step',
           disabled: 'disabled-step',
+          default: 'default-step',
         },
       };
       decisionStep = new DecisionStep(mockLogger, config);
     });
 
     it('should set context to trueValue when context value is different', async () => {
-      vi.mocked(mockContext.get).mockReturnValue('active');
+      vi.mocked(mockContext.get).mockImplementation((key: string) =>
+        key === 'status' ? 'active' : key === 'nextStep' ? 'enabled' : undefined
+      );
 
       await decisionStep.execute(mockContext);
 
@@ -120,7 +65,13 @@ describe('DecisionStep - Basic Conditions', () => {
     });
 
     it('should evaluate to false when context value matches', async () => {
-      vi.mocked(mockContext.get).mockReturnValue('disabled');
+      vi.mocked(mockContext.get).mockImplementation((key: string) =>
+        key === 'status'
+          ? 'disabled'
+          : key === 'nextStep'
+            ? 'disabled'
+            : undefined
+      );
 
       const result = await decisionStep.execute(mockContext);
 
@@ -141,6 +92,7 @@ describe('DecisionStep - Basic Conditions', () => {
         nextStepId: {
           authenticated: 'auth-step',
           unauthenticated: 'unauth-step',
+          default: 'default-step',
         },
       };
       decisionStep = new DecisionStep(mockLogger, config);
@@ -182,7 +134,9 @@ describe('DecisionStep - Basic Conditions', () => {
         nextStepId: { level1: 'level1-step', other: 'other-step' },
       };
       decisionStep = new DecisionStep(mockLogger, config);
-      vi.mocked(mockContext.get).mockReturnValue('level1');
+      vi.mocked(mockContext.get).mockImplementation((key: string) =>
+        key === 'level' ? 'level1' : key === 'nextStep' ? 'level1' : undefined
+      );
 
       await decisionStep.execute(mockContext);
 
@@ -200,7 +154,9 @@ describe('DecisionStep - Basic Conditions', () => {
         nextStepId: { empty: 'empty-step', 'not-empty': 'not-empty-step' },
       };
       decisionStep = new DecisionStep(mockLogger, config);
-      vi.mocked(mockContext.get).mockReturnValue('');
+      vi.mocked(mockContext.get).mockImplementation((key: string) =>
+        key === 'value' ? '' : key === 'nextStep' ? 'empty' : undefined
+      );
 
       await decisionStep.execute(mockContext);
 

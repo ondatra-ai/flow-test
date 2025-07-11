@@ -7,7 +7,7 @@ import {
   validateEnumField,
   validateRequired,
   validateObjectField,
-  toString,
+  toString as toStringUtil,
   createValidationError,
 } from '../../../src/utils/validation.js';
 
@@ -134,24 +134,24 @@ describe('Validation Utils - Core Functions', () => {
 
   describe('toString', () => {
     it('should return strings as-is', () => {
-      expect(toString('test')).toBe('test');
-      expect(toString('')).toBe('');
+      expect(toStringUtil('test')).toBe('test');
+      expect(toStringUtil('')).toBe('');
     });
 
     it('should convert null and undefined', () => {
-      expect(toString(null)).toBe('null');
-      expect(toString(undefined)).toBe('undefined');
+      expect(toStringUtil(null)).toBe('null');
+      expect(toStringUtil(undefined)).toBe('undefined');
     });
 
     it('should convert numbers and booleans', () => {
-      expect(toString(123)).toBe('123');
-      expect(toString(true)).toBe('true');
-      expect(toString(false)).toBe('false');
+      expect(toStringUtil(123)).toBe('123');
+      expect(toStringUtil(true)).toBe('true');
+      expect(toStringUtil(false)).toBe('false');
     });
 
     it('should convert objects and functions to descriptive strings', () => {
-      expect(toString({})).toBe('[object]');
-      expect(toString(() => {})).toBe('[function]');
+      expect(toStringUtil({})).toBe('[object]');
+      expect(toStringUtil(() => {})).toBe('[function]');
     });
   });
 
