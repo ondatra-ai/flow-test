@@ -76,21 +76,24 @@ export class LogStep extends Step implements IStep {
     message: string,
     context: IContext
   ): string {
-    // Replace placeholders in the format ${contextKey} with actual values
-    return message.replace(/\$\{([^}]+)\}/g, (match, key: string): string => {
-      const value: string | undefined = context.get(key);
-      if (value === null || value === undefined) {
-        return match;
+    // Replace placeholders in the format {{context.key}} with actual values
+    return message.replace(
+      /\{\{context\.([^}]+)\}\}/g,
+      (match, key: string): string => {
+        const value: string | undefined = context.get(key);
+        if (value === null || value === undefined) {
+          return match;
+        }
+        // Convert value to string safely
+        if (typeof value === 'string') {
+          return value;
+        }
+        if (typeof value === 'number' || typeof value === 'boolean') {
+          return String(value);
+        }
+        return match; // For unknown types, return the original match
       }
-      // Convert value to string safely
-      if (typeof value === 'string') {
-        return value;
-      }
-      if (typeof value === 'number' || typeof value === 'boolean') {
-        return String(value);
-      }
-      return match; // For unknown types, return the original match
-    });
+    );
   }
 
   /**
