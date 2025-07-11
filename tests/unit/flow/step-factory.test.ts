@@ -99,7 +99,9 @@ describe('StepFactory', () => {
         nextStepId: { default: 'next-step' },
       };
 
-      expect(() => stepFactory.createStep(invalidStepData)).toThrow();
+      expect(() => stepFactory.createStep(invalidStepData)).toThrow(
+        /Validation failed/
+      );
     });
 
     it('should throw error for missing required fields', () => {
@@ -107,7 +109,9 @@ describe('StepFactory', () => {
         type: 'action',
       };
 
-      expect(() => stepFactory.createStep(invalidStepData)).toThrow();
+      expect(() => stepFactory.createStep(invalidStepData)).toThrow(
+        /Validation failed/
+      );
     });
   });
 });

@@ -140,6 +140,86 @@ describe('DecisionStep - Equality Conditions', () => {
     });
   });
 
+  describe('not_contains condition', () => {
+    it('should return true when string does not contain substring', async () => {
+      const config: DecisionStepConfig = {
+        id: 'not-contains-test',
+        type: 'decision',
+        condition: 'not_contains',
+        contextKey: 'message',
+        trueValue: 'error',
+        falseValue: 'other',
+        nextStepId: { true: 'safe-step', false: 'error-step' },
+      };
+
+      context.set('message', 'This is a normal message');
+
+      const decisionStep = new DecisionStep(mockLogger, config);
+      const result = await decisionStep.execute(context);
+
+      expect(result).toBe('safe-step');
+    });
+
+    it('should return false when string contains substring', async () => {
+      const config: DecisionStepConfig = {
+        id: 'not-contains-test',
+        type: 'decision',
+        condition: 'not_contains',
+        contextKey: 'message',
+        trueValue: 'error',
+        falseValue: 'other',
+        nextStepId: { true: 'safe-step', false: 'error-step' },
+      };
+
+      context.set('message', 'This is an error message');
+
+      const decisionStep = new DecisionStep(mockLogger, config);
+      const result = await decisionStep.execute(context);
+
+      expect(result).toBe('error-step');
+    });
+  });
+
+  describe('not_empty condition', () => {
+    it('should return true when string is not empty', async () => {
+      const config: DecisionStepConfig = {
+        id: 'not-empty-test',
+        type: 'decision',
+        condition: 'not_empty',
+        contextKey: 'input',
+        trueValue: 'not-empty',
+        falseValue: 'empty',
+        nextStepId: { true: 'filled-step', false: 'empty-step' },
+      };
+
+      context.set('input', 'some value');
+
+      const decisionStep = new DecisionStep(mockLogger, config);
+      const result = await decisionStep.execute(context);
+
+      expect(result).toBe('filled-step');
+    });
+
+    it('should return false when string is empty', async () => {
+      const config: DecisionStepConfig = {
+        id: 'not-empty-test',
+        type: 'decision',
+        condition: 'not_empty',
+        contextKey: 'input',
+        trueValue: 'not-empty',
+        falseValue: 'empty',
+        nextStepId: { true: 'filled-step', false: 'empty-step' },
+      };
+
+      context.set('input', '');
+
+      const decisionStep = new DecisionStep(mockLogger, config);
+      const result = await decisionStep.execute(context);
+
+      expect(result).toBe('empty-step');
+    });
+  });
+
   describe('unknown condition error', () => {
     it('should throw an error for unknown condition types', async () => {
       const config = {

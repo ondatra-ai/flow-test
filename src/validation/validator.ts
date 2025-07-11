@@ -48,10 +48,19 @@ function normalizeStepData(data: unknown): unknown {
     }
 
     const typedData = data as Record<string, unknown>;
+    if (!typedData || typeof typedData !== 'object') {
+      throw new Error('Invalid data: expected object');
+    }
+
     const normalized = { ...typedData };
 
     if ('steps' in normalized && Array.isArray(normalized.steps)) {
-      normalized.steps = normalized.steps.map(normalizeStepType);
+      normalized.steps = normalized.steps.map(step => {
+        if (typeof step !== 'object' || step === null) {
+          throw new Error('Invalid step: expected object');
+        }
+        return normalizeStepType(step);
+      });
     }
 
     return normalized;

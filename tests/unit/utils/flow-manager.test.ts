@@ -240,12 +240,12 @@ describe('FlowManager', () => {
       {
         name: 'non-object step',
         data: { id: 'test', steps: ['not an object'] },
-        error: 'Invalid input',
+        error: 'Invalid step: expected object',
       },
       {
         name: 'null step',
         data: { id: 'test', steps: [null] },
-        error: 'Invalid input',
+        error: 'Invalid step: expected object',
       },
       {
         name: 'non-string step id',

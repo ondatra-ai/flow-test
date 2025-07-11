@@ -34,8 +34,11 @@ export class StepFactory {
       case 'log':
         return new LogStep(this.logger, validatedConfig);
 
-      default:
-        throw new Error(`Unknown step type: ${String(validatedConfig)}`);
+      default: {
+        const configType = (validatedConfig as unknown as { type: string })
+          .type;
+        throw new Error(`Unknown step type: ${configType}`);
+      }
     }
   }
 }
