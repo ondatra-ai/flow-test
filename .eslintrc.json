@@ -39,6 +39,7 @@
     "max-params": ["error", 5],
     "max-depth": ["error", 4],
     "max-nested-callbacks": ["error", 3],
+    "max-classes-per-file": ["error", 1],
     "no-console": "warn",
     "no-debugger": "error",
     "no-alert": "error",
