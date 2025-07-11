@@ -101,12 +101,7 @@ export class DecisionStep extends Step implements IStep {
       case 'not_empty':
         return stringValue !== '';
       default:
-        // For backward compatibility, treat unknown conditions as equals
-        this.logger.warn(
-          `Unknown condition type '${this.config.condition}', ` +
-            'using string equality'
-        );
-        return stringValue === this.config.trueValue;
+        throw new Error(`Unknown condition type: ${this.config.condition}`);
     }
   }
 

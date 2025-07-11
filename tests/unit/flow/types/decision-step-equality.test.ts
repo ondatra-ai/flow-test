@@ -140,8 +140,8 @@ describe('DecisionStep - Equality Conditions', () => {
     });
   });
 
-  describe('unknown condition fallback', () => {
-    it('should fall back to equals comparison for unknown conditions', async () => {
+  describe('unknown condition error', () => {
+    it('should throw an error for unknown condition types', async () => {
       const config = {
         id: 'unknown-test',
         type: 'decision',
@@ -155,11 +155,9 @@ describe('DecisionStep - Equality Conditions', () => {
       context.set('value', 'test');
 
       const decisionStep = new DecisionStep(mockLogger, config);
-      const result = await decisionStep.execute(context);
 
-      expect(result).toBe('match-step');
-      expect(mockLogger.warn).toHaveBeenCalledWith(
-        "Unknown condition type 'unknown_condition', using string equality"
+      await expect(decisionStep.execute(context)).rejects.toThrow(
+        'Unknown condition type: unknown_condition'
       );
     });
   });
