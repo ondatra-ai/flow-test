@@ -47,7 +47,7 @@
 ### Phase 1: Schema Validation Updates ✅ COMPLETE
 
 - [x] Updated `FlowDefinitionSchema` in `src/validation/schemas/flow.schema.ts`
-  - [x] Added `initialStepId` field as optional string
+  - [x] Added `initialStepId` field as required string
   - [x] Added validation to ensure `initialStepId` references existing step ID
   - [x] Updated error messages for comprehensive feedback
 
@@ -169,7 +169,6 @@
 - **New functionality**: 100% working as designed
 - **API Enhancement**: Mandatory initialStepId creates cleaner, more explicit interface
 - **Error handling**: Comprehensive validation with clear messages
-- **Backward compatibility**: Full support for legacy `initialStep` field
 
 ## Key Features Implemented
 
