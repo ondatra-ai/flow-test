@@ -144,14 +144,13 @@
     {
       "id": "decision-check-priority",
       "type": "decision",
-      "condition": "context.priority === 'high'",
-      "contextKey": "nextStep",
-      "trueValue": "urgent",
+      "condition": "equals",
+      "contextKey": "priority",
+      "trueValue": "high",
       "falseValue": "normal",
       "nextStepId": {
-        "urgent": "decision-urgent-path",
-        "normal": "decision-normal-path",
-        "default": "decision-fallback-path"
+        "true": "decision-urgent-path",
+        "false": "decision-normal-path"
       }
     },
     {
@@ -184,12 +183,13 @@
     {
       "id": "decision-check-exists",
       "type": "decision",
-      "condition": "context.priority exists",
-      "contextKey": "priorityExists",
+      "condition": "not_empty",
+      "contextKey": "priority",
       "trueValue": "yes",
       "falseValue": "no",
       "nextStepId": {
-        "default": "complete"
+        "true": "complete",
+        "false": "complete"
       }
     },
     
