@@ -5,28 +5,106 @@ import { injectable, inject } from 'tsyringe';
 
 import { SERVICES } from '../config/tokens.js';
 import { Flow, type IFlow } from '../flow/flow.js';
+import { StepFactory } from '../flow/step-factory.js';
 import { Step } from '../flow/step.js';
 
 import { Logger } from './logger.js';
+import {
+  isRecord,
+  validateStringField,
+  validateObjectField,
+  toString,
+} from './validation.js';
 
 /**
  * Type for flow data structure from JSON
  */
-type FlowData = {
+export type FlowData = {
   id: string;
   name?: string;
   description?: string;
-  steps: StepData[];
+  steps: unknown[];
 };
 
 /**
- * Type for step data structure from JSON
+ * Validate and convert flow data structure
  */
-type StepData = {
-  id: string;
-  message: string;
-  nextStepId: Record<string, string>;
-};
+function validateFlow(data: unknown): FlowData {
+  // Step 1: Validate basic structure
+  const flowData = validateBasicStructure(data);
+
+  // Step 2: Validate steps and references
+  const stepIds = validateSteps(flowData.steps);
+  validateStepReferences(flowData.steps, stepIds);
+
+  return flowData;
+}
+
+/**
+ * Validate basic flow structure
+ */
+function validateBasicStructure(data: unknown): FlowData {
+  if (!isRecord(data)) {
+    throw new Error('Invalid flow structure: data must be an object');
+  }
+
+  const { id, name, description, steps } = data;
+
+  const validId = validateStringField(id, 'id', 'Flow');
+
+  if (!Array.isArray(steps)) {
+    throw new Error('Invalid flow structure: steps must be an array');
+  }
+
+  return {
+    id: validId,
+    name: name as string | undefined,
+    description: description as string | undefined,
+    steps,
+  };
+}
+
+/**
+ * Validate steps array and return set of step IDs
+ */
+function validateSteps(steps: unknown[]): Set<string> {
+  const stepIds = new Set<string>();
+
+  for (const step of steps) {
+    if (!isRecord(step)) {
+      throw new Error('Invalid step structure: step must be an object');
+    }
+
+    const stepId = validateStringField(step.id, 'id', 'Step');
+    stepIds.add(stepId);
+  }
+
+  return stepIds;
+}
+
+/**
+ * Validate step references
+ */
+function validateStepReferences(steps: unknown[], stepIds: Set<string>): void {
+  for (const step of steps) {
+    const stepData = step as Record<string, unknown>;
+
+    // Validate nextStepId structure
+    const nextStepId = validateObjectField(
+      stepData.nextStepId,
+      'nextStepId',
+      'Step'
+    );
+
+    // Validate all references
+    for (const [key, value] of Object.entries(nextStepId)) {
+      const refStepId = validateStringField(value, key, 'NextStepId');
+      if (!stepIds.has(refStepId)) {
+        throw new Error(`Invalid nextStepId reference: ${refStepId}`);
+      }
+    }
+  }
+}
 
 /**
  * Service for managing flow discovery and loading
@@ -34,11 +112,12 @@ type StepData = {
 @injectable()
 export class FlowManager {
   private readonly flowsDir: string;
-  private readonly logger: Logger;
 
-  constructor(@inject(SERVICES.Logger) logger: Logger) {
+  constructor(
+    @inject(SERVICES.Logger) private readonly logger: Logger,
+    @inject(SERVICES.StepFactory) private readonly stepFactory: StepFactory
+  ) {
     this.flowsDir = path.join('.flows');
-    this.logger = logger;
   }
 
   /**
@@ -65,8 +144,6 @@ export class FlowManager {
     try {
       const jsonData = await fs.readFile(filePath, 'utf-8');
       const flowData = this.parseFlowData(jsonData);
-
-      // Convert to Flow object
       return this.convertToFlow(flowData);
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
@@ -84,127 +161,45 @@ export class FlowManager {
    */
   private parseFlowData(jsonData: string): FlowData {
     const data = JSON.parse(jsonData) as unknown;
-    return this.validateFlowStructure(data);
+    return validateFlow(data);
   }
 
   /**
    * Convert validated FlowData to Flow object
    */
-  private convertToFlow(flowData: FlowData): Flow {
-    const steps = flowData.steps.map(
-      (stepData: StepData) =>
-        new Step(
-          stepData.id,
-          stepData.message,
-          stepData.nextStepId,
-          this.logger
-        )
+  public convertToFlow(flowData: unknown): Flow {
+    const validatedFlowData = validateFlow(flowData);
+    const steps = validatedFlowData.steps.map(stepData =>
+      this.createStep(stepData)
     );
-
-    return new Flow(flowData.id, steps);
+    return new Flow(validatedFlowData.id, steps);
   }
 
   /**
-   * Validate flow structure and return typed FlowData
+   * Create a step from raw step data
    */
-  private validateFlowStructure(data: unknown): FlowData {
-    const validatedData = this.validateFlowDataType(data);
-    this.validateBasicFlowStructure(validatedData);
-
-    const stepIds = this.extractStepIds(validatedData.steps as unknown[]);
-    this.validateStepReferences(validatedData.steps as unknown[], stepIds);
-
-    return this.convertToFlowData(validatedData);
-  }
-
-  /**
-   * Validate that flow data is an object
-   */
-  private validateFlowDataType(flowData: unknown): Record<string, unknown> {
-    if (typeof flowData !== 'object' || flowData === null) {
-      throw new Error('Invalid flow structure: data must be an object');
-    }
-    return flowData as Record<string, unknown>;
-  }
-
-  /**
-   * Validate basic flow structure
-   */
-  private validateBasicFlowStructure(data: Record<string, unknown>): void {
-    if (
-      typeof data.id !== 'string' ||
-      !data.steps ||
-      !Array.isArray(data.steps)
-    ) {
-      throw new Error('Invalid flow structure: missing id or steps');
-    }
-  }
-
-  /**
-   * Extract step IDs from steps array
-   */
-  private extractStepIds(steps: unknown[]): Set<string> {
-    return new Set(
-      steps.map((step: unknown) => {
-        if (typeof step !== 'object' || step === null) {
-          throw new Error('Invalid step structure: step must be an object');
-        }
-        const stepData = step as Record<string, unknown>;
-        if (typeof stepData.id !== 'string') {
-          throw new Error('Invalid step structure: step id must be a string');
-        }
-        return stepData.id;
-      })
-    );
-  }
-
-  /**
-   * Validate step references
-   */
-  private validateStepReferences(steps: unknown[], stepIds: Set<string>): void {
-    for (const step of steps) {
-      if (typeof step !== 'object' || step === null) {
-        throw new Error('Invalid step structure: step must be an object');
-      }
-      const stepData = step as Record<string, unknown>;
-
-      // Validate nextStepId is an object
-      if (
-        !stepData.nextStepId ||
-        typeof stepData.nextStepId !== 'object' ||
-        Array.isArray(stepData.nextStepId)
-      ) {
-        throw new Error('Invalid step structure: nextStepId must be an object');
+  private createStep(stepData: unknown): Step {
+    try {
+      if (!isRecord(stepData)) {
+        throw new Error('Step data must be an object');
       }
 
-      const nextStepIdObj = stepData.nextStepId as Record<string, unknown>;
-
-      // Validate all values in nextStepId object are valid step IDs
-      for (const [key, value] of Object.entries(nextStepIdObj)) {
-        if (typeof value !== 'string') {
-          throw new Error(`Invalid nextStepId value: ${key} must be a string`);
-        }
-        if (!stepIds.has(value)) {
-          throw new Error(`Invalid nextStepId reference: ${value}`);
-        }
+      const step = stepData;
+      if (!step.type) {
+        const stepIdStr = toString(step.id);
+        throw new Error(
+          `Step ${stepIdStr} must have a type field. ` +
+            `Valid types: action, decision, log`
+        );
       }
-    }
-  }
 
-  /**
-   * Convert raw data to FlowData structure
-   */
-  private convertToFlowData(data: Record<string, unknown>): FlowData {
-    return {
-      id: data.id as string,
-      steps: (data.steps as unknown[]).map((step: unknown) => {
-        const stepData = step as Record<string, unknown>;
-        return {
-          id: stepData.id as string,
-          message: stepData.message as string,
-          nextStepId: stepData.nextStepId as Record<string, string>,
-        };
-      }),
-    };
+      return this.stepFactory.createStep(stepData);
+    } catch (error) {
+      this.logger.error('Failed to create step', {
+        stepData,
+        error: error instanceof Error ? error.message : toString(error),
+      });
+      throw error;
+    }
   }
 }

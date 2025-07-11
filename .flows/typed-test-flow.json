@@ -1,0 +1,94 @@
+{
+  "id": "typed-test-flow",
+  "name": "Comprehensive Typed Step Test Flow",
+  "description": "A test flow demonstrating all step types: ActionStep, DecisionStep, and LogStep",
+  "initialStep": "set-task-type",
+  "steps": [
+    {
+      "id": "set-task-type",
+      "type": "action",
+      "operation": "setContext",
+      "key": "taskType",
+      "value": "bug-fix",
+      "nextStepId": {
+        "default": "set-priority"
+      }
+    },
+    {
+      "id": "set-priority",
+      "type": "action",
+      "operation": "setContext",
+      "key": "priority",
+      "value": "high",
+      "nextStepId": {
+        "default": "log-initial-state"
+      }
+    },
+    {
+      "id": "log-initial-state",
+      "type": "log",
+      "message": "Starting workflow for {{context.taskType}} task with {{context.priority}} priority",
+      "level": "info",
+      "nextStepId": {
+        "default": "evaluate-priority"
+      }
+    },
+    {
+      "id": "evaluate-priority",
+      "type": "decision",
+      "condition": "context.priority === 'high'",
+      "contextKey": "nextStep",
+      "trueValue": "urgent",
+      "falseValue": "normal",
+      "nextStepId": {
+        "urgent": "urgent-workflow",
+        "normal": "normal-workflow",
+        "default": "general-workflow"
+      }
+    },
+    {
+      "id": "urgent-workflow",
+      "type": "log",
+      "message": "Executing urgent workflow for {{context.taskType}}",
+      "level": "warn",
+      "nextStepId": {
+        "default": "update-status"
+      }
+    },
+    {
+      "id": "normal-workflow",
+      "type": "log",
+      "message": "Executing normal workflow for {{context.taskType}}",
+      "level": "info",
+      "nextStepId": {
+        "default": "update-status"
+      }
+    },
+    {
+      "id": "general-workflow",
+      "type": "log",
+      "message": "Executing general workflow (fallback)",
+      "level": "debug",
+      "nextStepId": {
+        "default": "update-status"
+      }
+    },
+    {
+      "id": "update-status",
+      "type": "action",
+      "operation": "setContext",
+      "key": "status",
+      "value": "completed",
+      "nextStepId": {
+        "default": "log-completion"
+      }
+    },
+    {
+      "id": "log-completion",
+      "type": "log",
+      "message": "Workflow completed: {{context.taskType}} ({{context.priority}}) - Status: {{context.status}}",
+      "level": "info",
+      "nextStepId": {}
+    }
+  ]
+} 

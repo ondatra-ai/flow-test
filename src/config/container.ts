@@ -2,6 +2,7 @@ import 'reflect-metadata';
 
 import { container } from 'tsyringe';
 
+import { StepFactory } from '../flow/step-factory.js';
 import {
   ProviderHelper,
   type IProviderHelper,
@@ -25,8 +26,9 @@ export function initializeContainer(): void {
       useFactory: () => new ConsoleLogger(LogLevel.INFO),
     });
 
-    // Register FlowManager
+    // Register FlowManager and StepFactory
     container.registerSingleton<FlowManager>(SERVICES.FlowManager, FlowManager);
+    container.registerSingleton<StepFactory>(SERVICES.StepFactory, StepFactory);
 
     // Register LLM components
     container.registerSingleton<IProviderHelper>(

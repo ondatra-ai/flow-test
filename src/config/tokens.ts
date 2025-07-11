@@ -7,6 +7,11 @@
 export const SERVICES = {
   Logger: Symbol('Logger'),
   FlowManager: Symbol('FlowManager'),
+  // Step Factory tokens
+  StepFactory: Symbol('StepFactory'),
+  ActionStep: Symbol('ActionStep'),
+  DecisionStep: Symbol('DecisionStep'),
+  LogStep: Symbol('LogStep'),
   // LLM Provider tokens
   ProviderHelper: Symbol('ProviderHelper'),
   ClaudeProvider: Symbol('ClaudeProvider'),

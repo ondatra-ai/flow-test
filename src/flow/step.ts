@@ -13,7 +13,7 @@ export class Step implements IStep {
   private readonly id: string;
   private readonly message: string;
   private readonly nextStepId: Record<string, string>;
-  private readonly logger: Logger;
+  protected readonly logger: Logger;
 
   constructor(
     id: string,
