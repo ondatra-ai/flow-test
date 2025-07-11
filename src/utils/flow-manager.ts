@@ -77,7 +77,12 @@ export class FlowManager {
     const steps = validatedFlowData.steps.map(stepData =>
       this.createStep(stepData)
     );
-    return new Flow(validatedFlowData.id, steps);
+
+    return new Flow(
+      validatedFlowData.id,
+      steps,
+      validatedFlowData.initialStepId
+    );
   }
 
   /**

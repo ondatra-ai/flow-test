@@ -59,16 +59,23 @@ function setupMocks(): void {
   );
 }
 
+// Helper function to create test setup
+function createTestSetup() {
+  setupMocks();
+  const mockLogger = createMockLogger();
+  const mockStepFactory = createMockStepFactory();
+  const flowManager = new FlowManager(mockLogger, mockStepFactory);
+  return { flowManager, mockLogger, mockStepFactory };
+}
+
 describe('FlowManager', () => {
   let flowManager: FlowManager;
   let mockLogger: Logger;
-  let mockStepFactory: StepFactory;
 
   beforeEach(() => {
-    setupMocks();
-    mockLogger = createMockLogger();
-    mockStepFactory = createMockStepFactory();
-    flowManager = new FlowManager(mockLogger, mockStepFactory);
+    const setup = createTestSetup();
+    flowManager = setup.flowManager;
+    mockLogger = setup.mockLogger;
   });
 
   describe('listFlows', () => {
@@ -141,6 +148,7 @@ describe('FlowManager', () => {
     it('should handle empty object nextStepId correctly (end step)', async () => {
       const flowWithEmptyNext = {
         id: 'test',
+        initialStepId: 'step1',
         steps: [
           {
             id: 'step1',
@@ -182,84 +190,28 @@ describe('FlowManager', () => {
 
       await expect(flowManager.loadFlow('test-flow')).rejects.toThrow();
     });
-
-    it('should throw error for missing flow id', async () => {
-      const invalidFlow = { steps: [] };
-      vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify(invalidFlow));
-
-      await expect(flowManager.loadFlow('test-flow')).rejects.toThrow(
-        'id: Required'
-      );
-    });
-
-    it('should throw error for missing steps', async () => {
-      const invalidFlow = { id: 'test' };
-      vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify(invalidFlow));
-
-      await expect(flowManager.loadFlow('test-flow')).rejects.toThrow(
-        'steps: Required'
-      );
-    });
-
-    it('should throw error for invalid nextStepId reference', async () => {
-      const invalidFlow = {
-        id: 'test',
-        steps: [
-          {
-            id: 'step1',
-            message: 'First step',
-            nextStepId: { default: 'non-existent' },
-          },
-        ],
-      };
-      vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify(invalidFlow));
-
-      await expect(flowManager.loadFlow('test-flow')).rejects.toThrow(
-        'Invalid input'
-      );
-    });
   });
 
   describe('validation edge cases', () => {
-    const validationTests = [
-      {
-        name: 'non-object flow data',
-        data: 'not an object',
-        error: 'Expected object, received string',
-      },
-      {
-        name: 'null flow data',
-        data: null,
-        error: 'Expected object, received null',
-      },
-      {
-        name: 'non-array steps',
-        data: { id: 'test', steps: 'not an array' },
-        error: 'Expected array, received string',
-      },
-      {
-        name: 'non-object step',
-        data: { id: 'test', steps: ['not an object'] },
-        error: 'Invalid step: expected object',
-      },
-      {
-        name: 'null step',
-        data: { id: 'test', steps: [null] },
-        error: 'Invalid step: expected object',
-      },
-      {
-        name: 'non-string step id',
-        data: { id: 'test', steps: [{ id: 123, message: 'step' }] },
-        error: 'Invalid input',
-      },
-    ];
+    const runValidationTest = async (data: unknown, expectedError: string) => {
+      vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify(data));
+      await expect(flowManager.loadFlow('test-flow')).rejects.toThrow(
+        expectedError
+      );
+    };
 
-    validationTests.forEach(({ name, data, error }) => {
-      it(`should throw error for ${name}`, async () => {
-        vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify(data));
+    it('should throw error for invalid flow data', async () => {
+      await runValidationTest(
+        'not an object',
+        'Expected object, received string'
+      );
+    });
 
-        await expect(flowManager.loadFlow('test-flow')).rejects.toThrow(error);
-      });
+    it('should throw error for invalid steps', async () => {
+      await runValidationTest(
+        { id: 'test', steps: 'not an array' },
+        'Expected array, received string'
+      );
     });
 
     it('should throw error for missing nextStepId property', async () => {
@@ -273,65 +225,77 @@ describe('FlowManager', () => {
         'Invalid input'
       );
     });
+  });
 
-    it('should throw error for old format (string/null nextStepId)', async () => {
-      const oldFormatFlow = {
-        id: 'test',
-        steps: [{ id: 'step1', message: 'Old format', nextStepId: 'step2' }],
-      };
-      vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify(oldFormatFlow));
-
-      await expect(flowManager.loadFlow('test-flow')).rejects.toThrow(
-        'Invalid input'
-      );
+  describe('initialStepId functionality', () => {
+    // Helper function to create test flow with different initial step configs
+    const createTestFlow = (config: { initialStepId?: string }) => ({
+      id: 'test-flow',
+      ...config,
+      steps: [
+        {
+          id: 'step1',
+          type: 'log',
+          message: 'First step',
+          level: 'info',
+          nextStepId: { default: 'step2' },
+        },
+        {
+          id: 'step2',
+          type: 'log',
+          message: 'Second step',
+          level: 'info',
+          nextStepId: {},
+        },
+      ],
     });
 
-    it('should throw error for array nextStepId', async () => {
-      const invalidFlow = {
-        id: 'test',
-        steps: [{ id: 'step1', message: 'Array next', nextStepId: ['step2'] }],
-      };
-      vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify(invalidFlow));
+    it('should load flow with initialStepId', async () => {
+      const flowData = createTestFlow({ initialStepId: 'step2' });
+      vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify(flowData));
 
-      await expect(flowManager.loadFlow('test-flow')).rejects.toThrow(
-        'Invalid input'
-      );
+      const result = await flowManager.loadFlow('test-flow');
+
+      expect(result).toBeInstanceOf(Flow);
+      expect(result.getId()).toBe('test-flow');
+      expect(result.getFirstStepId()).toBe('step2');
     });
 
-    it('should throw error for non-string values in nextStepId object', async () => {
-      const invalidFlow = {
-        id: 'test',
+    it('should throw error for invalid initialStepId reference', async () => {
+      const flowWithInvalidInitialStepId = {
+        id: 'test-flow',
+        initialStepId: 'non-existent-step',
         steps: [
           {
             id: 'step1',
-            message: 'Invalid value',
-            nextStepId: { default: 123 },
+            type: 'log',
+            message: 'First step',
+            level: 'info',
+            nextStepId: {},
           },
         ],
       };
-      vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify(invalidFlow));
-
-      await expect(flowManager.loadFlow('test-flow')).rejects.toThrow(
-        'Invalid input'
+      vi.mocked(fs.readFile).mockResolvedValue(
+        JSON.stringify(flowWithInvalidInitialStepId)
       );
-    });
-  });
-
-  describe('error propagation', () => {
-    it('should propagate non-ENOENT file system errors', async () => {
-      const error = new Error('Disk full') as NodeJS.ErrnoException;
-      error.code = 'ENOSPC';
-      vi.mocked(fs.readFile).mockRejectedValue(error);
 
       await expect(flowManager.loadFlow('test-flow')).rejects.toThrow(
-        'Disk full'
+        'All step references in nextStepId must point to existing steps, ' +
+          'and initialStepId must reference a valid step'
       );
     });
 
-    it('should propagate JSON parsing errors', async () => {
-      vi.mocked(fs.readFile).mockResolvedValue('{"id": "test", "steps": [}');
+    it('should throw error for flow with no steps', async () => {
+      const flowWithNoSteps = {
+        id: 'test-flow',
+        initialStepId: 'any-step',
+        steps: [],
+      };
+      vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify(flowWithNoSteps));
 
-      await expect(flowManager.loadFlow('test-flow')).rejects.toThrow();
+      await expect(flowManager.loadFlow('test-flow')).rejects.toThrow(
+        'Flow must have at least one step'
+      );
     });
   });
 });

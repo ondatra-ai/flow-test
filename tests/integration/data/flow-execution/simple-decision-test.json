@@ -2,7 +2,7 @@
   "id": "simple-decision-test",
   "name": "Simple Decision Test",
   "description": "Simple test for decision step functionality",
-  "initialStep": "set-priority",
+  "initialStepId": "set-priority",
   "steps": [
     {
       "id": "set-priority",

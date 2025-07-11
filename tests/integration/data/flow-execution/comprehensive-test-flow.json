@@ -2,7 +2,7 @@
   "id": "comprehensive-test-flow",
   "name": "Comprehensive Test Flow",
   "description": "Tests all step types and various scenarios",
-  "initialStep": "start",
+  "initialStepId": "start",
   "steps": [
     {
       "id": "start",
