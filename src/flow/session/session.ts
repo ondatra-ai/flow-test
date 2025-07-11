@@ -27,11 +27,6 @@ export class Session {
     }
 
     const firstStepId = this.flow.getFirstStepId();
-    if (!firstStepId) {
-      this.status = 'error';
-      throw new Error('Flow has no steps');
-    }
-
     this.currentStepId = firstStepId;
     this.status = 'running';
     return this.status;

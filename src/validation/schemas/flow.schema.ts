@@ -10,6 +10,7 @@ export const FlowDefinitionSchema = z
     id: z.string().min(1, 'Flow ID is required'),
     name: z.string().optional(),
     description: z.string().optional(),
+    initialStepId: z.string().min(1, 'Initial step ID is required'),
     steps: z.array(StepConfigSchema).min(1, 'Flow must have at least one step'),
   })
   .refine(
@@ -37,10 +38,16 @@ export const FlowDefinitionSchema = z
         }
       }
 
+      // Validate initialStepId if provided
+      if (data.initialStepId && !stepIds.has(data.initialStepId)) {
+        return false;
+      }
+
       return true;
     },
     {
-      message: 'All step references in nextStepId must point to existing steps',
+      message:
+        'All step references in nextStepId must point to existing steps, and initialStepId must reference a valid step',
     }
   );
 

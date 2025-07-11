@@ -148,4 +148,61 @@ describe('CLI E2E Tests - flow:run command', () => {
       expect(result.stderr).toContain('Flow execution failed');
     });
   });
+
+  describe('InitialStepId Functionality', () => {
+    it('should execute flow with initialStepId configuration', async () => {
+      // Use existing simple-decision-test.json which has
+      // "initialStepId": "set-priority"
+      await copyFlowFile('simple-decision-test.json', tempTestDir);
+
+      // Run the flow
+      const result = await runFlowCommand(
+        testEnv,
+        tempTestDir,
+        'simple-decision-test'
+      );
+
+      // Verify successful execution
+      expect(result.exitCode).toBe(0);
+      expect(result.stdout).toContain(
+        "Flow 'simple-decision-test' completed successfully"
+      );
+
+      // Verify flow starts from set-priority (configured initialStepId)
+      expect(result.stdout).expectOutputToContain([
+        "Executing ActionStep: setContext on key 'priority'",
+        "Executing DecisionStep: evaluating condition 'equals'",
+        'High priority path taken',
+      ]);
+    });
+
+    it('should work with comprehensive flow using initialStepId', async () => {
+      // Use existing comprehensive-test-flow.json which has
+      // "initialStepId": "start"
+      await copyFlowFile('comprehensive-test-flow.json', tempTestDir);
+
+      // Run the flow
+      const result = await runFlowCommand(
+        testEnv,
+        tempTestDir,
+        'comprehensive-test-flow'
+      );
+
+      // Verify successful execution
+      expect(result.exitCode).toBe(0);
+      expect(result.stdout).toContain(
+        "Flow 'comprehensive-test-flow' completed successfully"
+      );
+
+      // Verify flow starts from "start" step (configured initialStepId)
+      expect(result.stdout).toContain('Starting comprehensive test flow');
+
+      // Verify it follows the correct execution path
+      expect(result.stdout).expectOutputToContain([
+        'Starting comprehensive test flow',
+        "Executing ActionStep: setContext on key 'username'",
+        'Comprehensive test flow completed successfully',
+      ]);
+    });
+  });
 });

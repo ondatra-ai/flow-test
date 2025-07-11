@@ -26,6 +26,15 @@ function createMockSteps(): Step[] {
   ];
 }
 
+// Helper function to create mock steps with more variety
+function createMultipleSteps(): Step[] {
+  return [
+    new Step('start', 'Start step', { default: 'middle' }, mockLogger),
+    new Step('middle', 'Middle step', { default: 'end' }, mockLogger),
+    new Step('end', 'End step', {}, mockLogger),
+  ];
+}
+
 // Helper function to clear mocks
 function clearMocks(): void {
   mockLoggerInfo.mockClear();
@@ -38,17 +47,53 @@ describe('Flow', () => {
   beforeEach(clearMocks);
 
   describe('constructor', () => {
-    it('should create a flow with steps', () => {
+    it('should create a flow with steps and initialStepId', () => {
       const mockSteps = createMockSteps();
-      const flow = new Flow('test-flow', mockSteps);
+      const flow = new Flow('test-flow', mockSteps, 'step1');
       expect(flow.getSteps()).toHaveLength(2);
+      expect(flow.getFirstStepId()).toBe('step1');
+    });
+
+    it('should create a flow with custom initialStepId', () => {
+      const mockSteps = createMockSteps();
+      const flow = new Flow('test-flow', mockSteps, 'step2');
+      expect(flow.getSteps()).toHaveLength(2);
+      expect(flow.getFirstStepId()).toBe('step2');
+    });
+
+    it('should throw error for invalid initialStepId', () => {
+      const mockSteps = createMockSteps();
+      expect(() => {
+        new Flow('test-flow', mockSteps, 'invalid-step');
+      }).toThrow("Initial step 'invalid-step' not found in flow steps");
+    });
+
+    it('should throw error for empty initialStepId', () => {
+      const mockSteps = createMockSteps();
+      expect(() => {
+        new Flow('test-flow', mockSteps, '');
+      }).toThrow('Initial step ID is required');
+    });
+
+    it('should throw error for missing initialStepId', () => {
+      const mockSteps = createMockSteps();
+      expect(() => {
+        // @ts-expect-error - Testing runtime behavior with missing parameter
+        new Flow('test-flow', mockSteps);
+      }).toThrow('Initial step ID is required');
+    });
+
+    it('should handle empty flow with any initialStepId', () => {
+      expect(() => {
+        new Flow('empty-flow', [], 'any-step');
+      }).toThrow("Initial step 'any-step' not found in flow steps");
     });
   });
 
   describe('getId', () => {
     it('should return the flow id', () => {
       const mockSteps = createMockSteps();
-      const flow = new Flow('test-flow', mockSteps);
+      const flow = new Flow('test-flow', mockSteps, 'step1');
       expect(flow.getId()).toBe('test-flow');
     });
   });
@@ -57,20 +102,39 @@ describe('Flow', () => {
 describe('Flow getFirstStepId', () => {
   beforeEach(clearMocks);
 
-  it('should return the first step id', () => {
+  it('should return the configured initialStepId', () => {
     const mockSteps = createMockSteps();
-    const flow = new Flow('test-flow', mockSteps);
+    const flow = new Flow('test-flow', mockSteps, 'step1');
     const firstStepId = flow.getFirstStepId();
 
     expect(firstStepId).toBeDefined();
     expect(firstStepId).toBe('step1');
   });
 
-  it('should return undefined for empty flow', () => {
-    const emptyFlow = new Flow('empty-flow', []);
-    const firstStepId = emptyFlow.getFirstStepId();
+  it('should return configured initialStepId when set to different step', () => {
+    const mockSteps = createMultipleSteps();
+    const flow = new Flow('test-flow', mockSteps, 'middle');
+    const firstStepId = flow.getFirstStepId();
 
-    expect(firstStepId).toBeUndefined();
+    expect(firstStepId).toBeDefined();
+    expect(firstStepId).toBe('middle');
+  });
+
+  it('should return configured initialStepId even if it is not the first in array', () => {
+    const mockSteps = createMultipleSteps();
+    const flow = new Flow('test-flow', mockSteps, 'end');
+    const firstStepId = flow.getFirstStepId();
+
+    expect(firstStepId).toBeDefined();
+    expect(firstStepId).toBe('end');
+  });
+
+  it('should return undefined for empty flow', () => {
+    // Note: This test is no longer valid since we can't create an empty flow
+    // with a valid initialStepId. Keeping for documentation but it will throw
+    expect(() => {
+      new Flow('empty-flow', [], 'any-step');
+    }).toThrow("Initial step 'any-step' not found in flow steps");
   });
 });
 
@@ -79,7 +143,7 @@ describe('Flow getSteps', () => {
 
   it('should return all steps', () => {
     const mockSteps = createMockSteps();
-    const flow = new Flow('test-flow', mockSteps);
+    const flow = new Flow('test-flow', mockSteps, 'step1');
     const steps = flow.getSteps();
 
     expect(steps).toHaveLength(2);
@@ -93,7 +157,7 @@ describe('Flow execute', () => {
 
   it('should execute step by id and return next step id', async () => {
     const mockSteps = createMockSteps();
-    const flow = new Flow('test-flow', mockSteps);
+    const flow = new Flow('test-flow', mockSteps, 'step1');
     const context = new Context();
     const result = await flow.execute('step1', context);
 
@@ -103,7 +167,7 @@ describe('Flow execute', () => {
 
   it('should execute end step and return null', async () => {
     const mockSteps = createMockSteps();
-    const flow = new Flow('test-flow', mockSteps);
+    const flow = new Flow('test-flow', mockSteps, 'step1');
     const context = new Context();
     const result = await flow.execute('step2', context);
 
@@ -113,7 +177,7 @@ describe('Flow execute', () => {
 
   it('should return null for non-existent step', async () => {
     const mockSteps = createMockSteps();
-    const flow = new Flow('test-flow', mockSteps);
+    const flow = new Flow('test-flow', mockSteps, 'step1');
     const context = new Context();
     const result = await flow.execute('non-existent', context);
 
@@ -131,7 +195,7 @@ describe('Flow execute', () => {
       },
       mockLogger
     );
-    const flow = new Flow('test-flow', [dynamicStep]);
+    const flow = new Flow('test-flow', [dynamicStep], 'dynamic-step');
     const context = new Context();
     context.set('nextStep', 'bug');
 

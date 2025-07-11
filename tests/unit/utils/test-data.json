@@ -3,6 +3,7 @@
     "id": "test-flow",
     "name": "Test Flow",
     "description": "A test flow",
+    "initialStepId": "step1",
     "steps": [
       {
         "id": "step1",
@@ -24,6 +25,7 @@
   },
   "dynamicFlowData": {
     "id": "dynamic-flow",
+    "initialStepId": "router",
     "steps": [
       {
         "id": "router",

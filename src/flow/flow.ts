@@ -4,7 +4,7 @@ import { IStep } from './step.js';
 // Flow interface - Defines Flow contract
 export interface IFlow {
   getId(): string;
-  getFirstStepId(): string | undefined;
+  getFirstStepId(): string;
   getSteps(): IStep[];
   execute(stepId: string, context: IContext): Promise<string | null>;
 }
@@ -12,10 +12,11 @@ export interface IFlow {
 // Flow entity - Simple data structure for directed graph of steps
 export class Flow implements IFlow {
   private readonly id: string;
+  private readonly initialStepId: string;
   private readonly steps: IStep[];
   private readonly stepMap: Map<string, IStep>;
 
-  constructor(id: string, steps: IStep[]) {
+  constructor(id: string, steps: IStep[], initialStepId: string) {
     this.id = id;
     this.steps = steps;
     this.stepMap = new Map();
@@ -24,14 +25,32 @@ export class Flow implements IFlow {
     for (const step of steps) {
       this.stepMap.set(step.getId(), step);
     }
+
+    // Validate and store initial step ID
+    if (!initialStepId) {
+      throw new Error('Initial step ID is required');
+    }
+
+    if (!this.stepMap.has(initialStepId)) {
+      throw new Error(
+        `Initial step '${initialStepId}' not found in flow steps`
+      );
+    }
+
+    this.initialStepId = initialStepId;
   }
 
   public getId(): string {
     return this.id;
   }
 
-  public getFirstStepId(): string | undefined {
-    return this.steps.length > 0 ? this.steps[0].getId() : undefined;
+  public getFirstStepId(): string {
+    // Since we validate initialStepId in constructor, this should always
+    // return a valid string
+    if (!this.initialStepId) {
+      throw new Error('No initial step ID configured');
+    }
+    return this.initialStepId;
   }
 
   public getSteps(): IStep[] {
