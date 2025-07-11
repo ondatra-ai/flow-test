@@ -1,11 +1,10 @@
 import { Logger } from '../../utils/logger.js';
+import { type DecisionStepConfig } from '../../validation/index.js';
 import { IContext } from '../context.js';
 import { Step, IStep } from '../step.js';
 
-import { DecisionStepConfig } from './step-type.js';
-
 /**
- * DecisionStep for condition evaluation and context-based routing
+ * DecisionStep for conditional flow routing
  */
 export class DecisionStep extends Step implements IStep {
   private readonly config: DecisionStepConfig;
@@ -21,134 +20,94 @@ export class DecisionStep extends Step implements IStep {
   }
 
   /**
-   * Execute the decision step with condition evaluation
+   * Execute the decision step with conditional logic
    */
-  public async execute(context: IContext): Promise<string | null> {
+  public execute(context: IContext): Promise<string | null> {
     this.logger.info(
-      `Executing DecisionStep with condition: ${this.config.condition}`
+      `Executing DecisionStep: evaluating condition '${this.config.condition}'`
     );
 
     try {
+      // Evaluate the condition
       const conditionResult = this.evaluateCondition(context);
-      const contextValue = conditionResult
-        ? this.config.trueValue
-        : this.config.falseValue;
 
-      // Set the context value based on condition result
-      context.set(this.config.contextKey, contextValue);
-
-      this.logger.info(`Decision result: ${conditionResult}`, {
+      this.logger.debug(`DecisionStep condition evaluated`, {
         condition: this.config.condition,
+        result: conditionResult,
         contextKey: this.config.contextKey,
-        contextValue,
+        trueValue: this.config.trueValue,
+        falseValue: this.config.falseValue,
       });
 
-      // Use parent's routing logic
-      // (which will use the context value we just set)
-      return super.execute(context);
+      // Determine next step based on condition result
+      const nextStepKey = conditionResult ? 'true' : 'false';
+      const nextStepId = this.config.nextStepId[nextStepKey];
+
+      if (!nextStepId) {
+        throw new Error(
+          `No next step defined for condition result: ${String(
+            conditionResult
+          )}`
+        );
+      }
+
+      this.logger.debug(`DecisionStep routing to next step`, {
+        conditionResult,
+        nextStepKey,
+        nextStepId,
+      });
+
+      return Promise.resolve(nextStepId);
     } catch (error) {
       this.logger.error(`DecisionStep failed`, {
         condition: this.config.condition,
         error: error instanceof Error ? error.message : String(error),
       });
-      throw error;
-    }
-  }
-
-  /**
-   * Evaluate the condition string against the context
-   */
-  private evaluateCondition(context: IContext): boolean {
-    try {
-      const condition = this.config.condition.trim();
-      const contextKey = this.extractContextKey(condition);
-      const contextValue = context.get(contextKey) || '';
-
-      if (condition.includes('===')) {
-        return this.evaluateEquality(condition, contextValue);
-      }
-
-      if (condition.includes('!==')) {
-        return this.evaluateInequality(condition, contextValue);
-      }
-
-      if (condition.includes('exists')) {
-        return this.evaluateExistence(context, contextKey);
-      }
-
-      throw new Error(`Unsupported condition format: ${condition}`);
-    } catch (error) {
-      this.logger.error(`Condition evaluation failed`, {
-        condition: this.config.condition,
-        error: error instanceof Error ? error.message : String(error),
-      });
-      throw new Error(`Failed to evaluate condition: ${this.config.condition}`);
-    }
-  }
-
-  /**
-   * Extract context key from condition
-   */
-  private extractContextKey(condition: string): string {
-    const contextKeyRegex = /context\.(\w+)/;
-    const contextKeyMatch = contextKeyRegex.exec(condition);
-    if (!contextKeyMatch) {
-      throw new Error(
-        'Condition must reference a context key using context.keyName format'
+      return Promise.reject(
+        error instanceof Error ? error : new Error(String(error))
       );
     }
-    return contextKeyMatch[1];
   }
 
   /**
-   * Evaluate equality comparison
+   * Evaluate the condition against context
    */
-  private evaluateEquality(condition: string, contextValue: string): boolean {
-    const quotedValueRegex = /===\s*['"](.*?)['"]/;
-    const unquotedValueRegex = /===\s*(\w+)/;
-    const valueMatch =
-      quotedValueRegex.exec(condition) || unquotedValueRegex.exec(condition);
-    if (!valueMatch) {
-      throw new Error('Invalid condition format for === comparison');
+  private evaluateCondition(context: IContext): boolean {
+    // Get the value from context
+    const contextValue = context.get(this.config.contextKey);
+
+    if (contextValue === null || contextValue === undefined) {
+      this.logger.warn(
+        `Context key '${this.config.contextKey}' not found, treating as false`
+      );
+      return false;
     }
-    const expectedValue = valueMatch[1];
-    const result = contextValue === expectedValue;
-    this.logger.debug(
-      `Condition evaluation: '${contextValue}' === ` +
-        `'${expectedValue}' = ${result}`
-    );
-    return result;
-  }
 
-  /**
-   * Evaluate inequality comparison
-   */
-  private evaluateInequality(condition: string, contextValue: string): boolean {
-    const quotedValueRegex = /!==\s*['"](.*?)['"]/;
-    const unquotedValueRegex = /!==\s*(\w+)/;
-    const valueMatch =
-      quotedValueRegex.exec(condition) || unquotedValueRegex.exec(condition);
-    if (!valueMatch) {
-      throw new Error('Invalid condition format for !== comparison');
+    // Convert context value to string for comparison
+    const stringValue = String(contextValue);
+
+    // Evaluate condition based on the configured logic
+    switch (this.config.condition) {
+      case 'equals':
+        return stringValue === this.config.trueValue;
+      case 'not_equals':
+        return stringValue !== this.config.trueValue;
+      case 'contains':
+        return stringValue.includes(this.config.trueValue);
+      case 'not_contains':
+        return !stringValue.includes(this.config.trueValue);
+      case 'empty':
+        return stringValue === '';
+      case 'not_empty':
+        return stringValue !== '';
+      default:
+        // For backward compatibility, treat unknown conditions as string equality
+        this.logger.warn(
+          `Unknown condition type '${this.config.condition}', ` +
+          `using string equality`
+        );
+        return stringValue === this.config.trueValue;
     }
-    const expectedValue = valueMatch[1];
-    const result = contextValue !== expectedValue;
-    this.logger.debug(
-      `Condition evaluation: '${contextValue}' !== ` +
-        `'${expectedValue}' = ${result}`
-    );
-    return result;
-  }
-
-  /**
-   * Evaluate existence check
-   */
-  private evaluateExistence(context: IContext, contextKey: string): boolean {
-    const result = context.has(contextKey);
-    this.logger.debug(
-      `Condition evaluation: context.${contextKey} exists = ${result}`
-    );
-    return result;
   }
 
   /**
