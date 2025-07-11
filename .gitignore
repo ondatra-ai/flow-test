@@ -72,6 +72,7 @@ Thumbs.db
 .temp/
 *.tmp
 *.temp
+*.bak
 .cursor/tmp/
 
 # Git hooks (if using husky)
