@@ -77,7 +77,7 @@ export class LogStep extends Step implements IStep {
     context: IContext
   ): string {
     // Replace placeholders in the format ${contextKey} with actual values
-    return message.replace(/\$\{([^}]+)\}/g, (match, key): string => {
+    return message.replace(/\$\{([^}]+)\}/g, (match, key: string): string => {
       const value: string | undefined = context.get(key);
       if (value === null || value === undefined) {
         return match;
