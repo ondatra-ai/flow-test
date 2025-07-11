@@ -1,8 +1,7 @@
 import { Logger } from '../../utils/logger.js';
+import { type ActionStepConfig } from '../../validation/index.js';
 import { IContext } from '../context.js';
 import { Step, IStep } from '../step.js';
-
-import { ActionStepConfig } from './step-type.js';
 
 /**
  * ActionStep for context manipulation operations

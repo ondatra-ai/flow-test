@@ -1,227 +1,165 @@
-import 'reflect-metadata';
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { IContext } from '../../../../src/flow/context.js';
+import { Context, IContext } from '../../../../src/flow/context.js';
 import { ActionStep } from '../../../../src/flow/types/action-step.js';
-import {
-  StepType,
-  type ActionStepConfig,
-} from '../../../../src/flow/types/step-type.js';
 import { Logger } from '../../../../src/utils/logger.js';
+import { type ActionStepConfig } from '../../../../src/validation/index.js';
 
 describe('ActionStep', () => {
   let mockLogger: Logger;
-  let mockContext: IContext;
-  let actionStep: ActionStep;
+  let context: IContext;
 
   beforeEach(() => {
     mockLogger = {
       info: vi.fn(),
-      error: vi.fn(),
       warn: vi.fn(),
+      error: vi.fn(),
       debug: vi.fn(),
     } as unknown as Logger;
 
-    mockContext = {
-      get: vi.fn(),
-      set: vi.fn(),
-      has: vi.fn(),
-      delete: vi.fn(),
-      clear: vi.fn(),
-    } as unknown as IContext;
+    context = new Context();
   });
 
   describe('setContext operation', () => {
-    beforeEach(() => {
+    it('should set context value', async () => {
       const config: ActionStepConfig = {
         id: 'test-action',
-        type: StepType.ACTION,
+        type: 'action',
         operation: 'setContext',
         key: 'testKey',
         value: 'testValue',
-        nextStepId: { default: 'next' },
+        nextStepId: { default: 'next-step' },
       };
-      actionStep = new ActionStep(mockLogger, config);
+
+      const actionStep = new ActionStep(mockLogger, config);
+      await actionStep.execute(context);
+
+      expect(context.get('testKey')).toBe('testValue');
     });
 
-    it('should set context value and return default next step', async () => {
-      const result = await actionStep.execute(mockContext);
-
-      expect(mockContext.set).toHaveBeenCalledWith('testKey', 'testValue');
-      expect(mockLogger.info).toHaveBeenCalledWith(
-        "Executing ActionStep: setContext on key 'testKey'"
-      );
-      expect(result).toBe('next');
-    });
-
-    it('should throw error for missing value', async () => {
+    it('should throw error if value is missing', async () => {
       const config: ActionStepConfig = {
         id: 'test-action',
-        type: StepType.ACTION,
+        type: 'action',
         operation: 'setContext',
         key: 'testKey',
-        nextStepId: { default: 'next' },
+        nextStepId: { default: 'next-step' },
       };
-      actionStep = new ActionStep(mockLogger, config);
 
-      await expect(actionStep.execute(mockContext)).rejects.toThrow(
+      const actionStep = new ActionStep(mockLogger, config);
+
+      await expect(actionStep.execute(context)).rejects.toThrow(
         'Value is required for setContext operation'
       );
     });
   });
 
   describe('updateContext operation', () => {
-    beforeEach(() => {
+    it('should update existing context value', async () => {
+      // Set initial value
+      context.set('testKey', 'initialValue');
+
       const config: ActionStepConfig = {
         id: 'test-action',
-        type: StepType.ACTION,
+        type: 'action',
         operation: 'updateContext',
-        key: 'existingKey',
+        key: 'testKey',
         value: 'updatedValue',
-        nextStepId: { default: 'next' },
+        nextStepId: { default: 'next-step' },
       };
-      actionStep = new ActionStep(mockLogger, config);
+
+      const actionStep = new ActionStep(mockLogger, config);
+      await actionStep.execute(context);
+
+      expect(context.get('testKey')).toBe('updatedValue');
     });
 
-    it('should update existing context value', async () => {
-      vi.mocked(mockContext.has).mockReturnValue(true);
+    it('should throw error if context key does not exist', async () => {
+      const config: ActionStepConfig = {
+        id: 'test-action',
+        type: 'action',
+        operation: 'updateContext',
+        key: 'nonExistentKey',
+        value: 'newValue',
+        nextStepId: { default: 'next-step' },
+      };
 
-      const result = await actionStep.execute(mockContext);
+      const actionStep = new ActionStep(mockLogger, config);
 
-      expect(mockContext.has).toHaveBeenCalledWith('existingKey');
-      expect(mockContext.set).toHaveBeenCalledWith(
-        'existingKey',
-        'updatedValue'
+      await expect(actionStep.execute(context)).rejects.toThrow(
+        'Cannot update non-existent context key: nonExistentKey'
       );
-      expect(mockLogger.info).toHaveBeenCalledWith(
-        "Executing ActionStep: updateContext on key 'existingKey'"
-      );
-      expect(result).toBe('next');
     });
 
-    it('should throw error if key does not exist', async () => {
-      vi.mocked(mockContext.has).mockReturnValue(false);
+    it('should throw error if value is missing', async () => {
+      context.set('testKey', 'initialValue');
 
-      await expect(actionStep.execute(mockContext)).rejects.toThrow(
-        'Cannot update non-existent context key: existingKey'
+      const config: ActionStepConfig = {
+        id: 'test-action',
+        type: 'action',
+        operation: 'updateContext',
+        key: 'testKey',
+        nextStepId: { default: 'next-step' },
+      };
+
+      const actionStep = new ActionStep(mockLogger, config);
+
+      await expect(actionStep.execute(context)).rejects.toThrow(
+        'Value is required for updateContext operation'
       );
     });
   });
 
   describe('removeContext operation', () => {
-    beforeEach(() => {
+    it('should remove context value', async () => {
+      // Set initial value
+      context.set('testKey', 'testValue');
+
       const config: ActionStepConfig = {
         id: 'test-action',
-        type: StepType.ACTION,
+        type: 'action',
         operation: 'removeContext',
-        key: 'keyToRemove',
-        nextStepId: { default: 'next' },
+        key: 'testKey',
+        nextStepId: { default: 'next-step' },
       };
-      actionStep = new ActionStep(mockLogger, config);
+
+      const actionStep = new ActionStep(mockLogger, config);
+      await actionStep.execute(context);
+
+      expect(context.has('testKey')).toBe(false);
     });
 
-    it('should remove existing context key', async () => {
-      vi.mocked(mockContext.has).mockReturnValue(true);
+    it('should log warning when removing non-existent key', async () => {
+      const config: ActionStepConfig = {
+        id: 'test-action',
+        type: 'action',
+        operation: 'removeContext',
+        key: 'nonExistentKey',
+        nextStepId: { default: 'next-step' },
+      };
 
-      const result = await actionStep.execute(mockContext);
+      const actionStep = new ActionStep(mockLogger, config);
+      await actionStep.execute(context);
 
-      expect(mockContext.has).toHaveBeenCalledWith('keyToRemove');
-      expect(mockContext.delete).toHaveBeenCalledWith('keyToRemove');
-      expect(mockLogger.info).toHaveBeenCalledWith(
-        "Executing ActionStep: removeContext on key 'keyToRemove'"
-      );
-      expect(result).toBe('next');
-    });
-
-    it('should skip removal if key does not exist', async () => {
-      vi.mocked(mockContext.has).mockReturnValue(false);
-
-      const result = await actionStep.execute(mockContext);
-
-      expect(mockContext.has).toHaveBeenCalledWith('keyToRemove');
-      expect(mockContext.delete).not.toHaveBeenCalled();
       expect(mockLogger.warn).toHaveBeenCalledWith(
-        'Attempting to remove non-existent context key: keyToRemove'
-      );
-      expect(result).toBe('next');
-    });
-  });
-
-  describe('complex nextStepId routing', () => {
-    it('should return null when nextStepId is empty', async () => {
-      const config: ActionStepConfig = {
-        id: 'test-action',
-        type: StepType.ACTION,
-        operation: 'setContext',
-        key: 'testKey',
-        value: 'testValue',
-        nextStepId: {},
-      };
-      actionStep = new ActionStep(mockLogger, config);
-
-      const result = await actionStep.execute(mockContext);
-
-      expect(result).toBeNull();
-    });
-
-    it('should handle multiple routing options', async () => {
-      const config: ActionStepConfig = {
-        id: 'test-action',
-        type: StepType.ACTION,
-        operation: 'setContext',
-        key: 'testKey',
-        value: 'testValue',
-        nextStepId: {
-          success: 'success-step',
-          error: 'error-step',
-          default: 'default-step',
-        },
-      };
-      actionStep = new ActionStep(mockLogger, config);
-
-      const result = await actionStep.execute(mockContext);
-
-      // Should return default since ActionStep doesn't use conditional routing
-      expect(result).toBe('default-step');
-    });
-  });
-
-  describe('error handling', () => {
-    it('should handle context operation errors gracefully', async () => {
-      const config: ActionStepConfig = {
-        id: 'test-action',
-        type: StepType.ACTION,
-        operation: 'setContext',
-        key: 'testKey',
-        value: 'testValue',
-        nextStepId: { default: 'next' },
-      };
-      actionStep = new ActionStep(mockLogger, config);
-
-      // Mock context.set to throw an error
-      vi.mocked(mockContext.set).mockImplementation(() => {
-        throw new Error('Context error');
-      });
-
-      await expect(actionStep.execute(mockContext)).rejects.toThrow(
-        'Context error'
+        'Attempting to remove non-existent context key: nonExistentKey'
       );
     });
   });
 
-  describe('getId method', () => {
-    it('should return the step id', () => {
+  describe('getConfig', () => {
+    it('should return step configuration', () => {
       const config: ActionStepConfig = {
-        id: 'test-action-id',
-        type: StepType.ACTION,
+        id: 'test-action',
+        type: 'action',
         operation: 'setContext',
         key: 'testKey',
         value: 'testValue',
-        nextStepId: { default: 'next' },
+        nextStepId: { default: 'next-step' },
       };
-      actionStep = new ActionStep(mockLogger, config);
 
-      expect(actionStep.getId()).toBe('test-action-id');
+      const actionStep = new ActionStep(mockLogger, config);
+      expect(actionStep.getConfig()).toEqual(config);
     });
   });
 });

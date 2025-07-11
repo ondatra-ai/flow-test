@@ -1,109 +1,244 @@
-import 'reflect-metadata';
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { IContext } from '../../../../src/flow/context.js';
+import { Context, IContext } from '../../../../src/flow/context.js';
 import { DecisionStep } from '../../../../src/flow/types/decision-step.js';
-import {
-  StepType,
-  type DecisionStepConfig,
-} from '../../../../src/flow/types/step-type.js';
 import { Logger } from '../../../../src/utils/logger.js';
+import { type DecisionStepConfig } from '../../../../src/validation/index.js';
 
 describe('DecisionStep - Equality Conditions', () => {
   let mockLogger: Logger;
-  let mockContext: IContext;
-  let decisionStep: DecisionStep;
+  let context: IContext;
 
   beforeEach(() => {
     mockLogger = {
       info: vi.fn(),
-      error: vi.fn(),
       warn: vi.fn(),
+      error: vi.fn(),
       debug: vi.fn(),
     } as unknown as Logger;
 
-    // Create a context that tracks set values
-    const contextStorage = new Map<string, string>();
-    mockContext = {
-      get: vi.fn((key: string) => contextStorage.get(key)),
-      set: vi.fn((key: string, value: string) =>
-        contextStorage.set(key, value)
-      ),
-      has: vi.fn(),
-      delete: vi.fn(),
-      clear: vi.fn(),
-    } as unknown as IContext;
+    context = new Context();
   });
 
-  describe('equality condition (===)', () => {
-    beforeEach(() => {
+  describe('equals condition', () => {
+    it('should handle string equality', async () => {
       const config: DecisionStepConfig = {
-        id: 'equality-decision',
-        type: StepType.DECISION,
-        condition: 'context.status === "active"',
-        contextKey: 'nextStep',
-        trueValue: 'success',
-        falseValue: 'failure',
-        nextStepId: {
-          success: 'success-step',
-          failure: 'failure-step',
-          default: 'default-step',
-        },
+        id: 'equality-test',
+        type: 'decision',
+        condition: 'equals',
+        contextKey: 'status',
+        trueValue: 'active',
+        falseValue: 'inactive',
+        nextStepId: { true: 'active-step', false: 'inactive-step' },
       };
-      decisionStep = new DecisionStep(mockLogger, config);
+
+      context.set('status', 'active');
+
+      const decisionStep = new DecisionStep(mockLogger, config);
+      const result = await decisionStep.execute(context);
+
+      expect(result).toBe('active-step');
     });
 
-    it('should set context to trueValue when condition evaluates to true', async () => {
-      vi.mocked(mockContext.get).mockImplementation((key: string) =>
-        key === 'status' ? 'active' : key === 'nextStep' ? 'success' : undefined
-      );
-
-      await decisionStep.execute(mockContext);
-
-      expect(mockContext.get).toHaveBeenCalledWith('status');
-      expect(mockContext.set).toHaveBeenCalledWith('nextStep', 'success');
-      expect(mockLogger.info).toHaveBeenCalledWith(
-        'Executing DecisionStep with condition: context.status === "active"'
-      );
-    });
-
-    it('should set context to falseValue when condition evaluates to false', async () => {
-      vi.mocked(mockContext.get).mockImplementation((key: string) =>
-        key === 'status'
-          ? 'inactive'
-          : key === 'nextStep'
-            ? 'failure'
-            : undefined
-      );
-
-      await decisionStep.execute(mockContext);
-
-      expect(mockContext.get).toHaveBeenCalledWith('status');
-      expect(mockContext.set).toHaveBeenCalledWith('nextStep', 'failure');
-    });
-
-    it('should handle quoted values in condition', async () => {
+    it('should handle number comparison as strings', async () => {
       const config: DecisionStepConfig = {
-        id: 'quoted-decision',
-        type: StepType.DECISION,
-        condition: "context.type === 'bug'",
-        contextKey: 'nextStep',
-        trueValue: 'bug-flow',
-        falseValue: 'feature-flow',
-        nextStepId: {
-          'bug-flow': 'bug-step',
-          'feature-flow': 'feature-step',
-          default: 'default-step',
-        },
+        id: 'number-test',
+        type: 'decision',
+        condition: 'equals',
+        contextKey: 'count',
+        trueValue: '5',
+        falseValue: 'other',
+        nextStepId: { true: 'match-step', false: 'nomatch-step' },
       };
-      decisionStep = new DecisionStep(mockLogger, config);
-      vi.mocked(mockContext.get).mockImplementation((key: string) =>
-        key === 'type' ? 'bug' : key === 'nextStep' ? 'bug-flow' : undefined
+
+      context.set('count', '5'); // Set as string
+
+      const decisionStep = new DecisionStep(mockLogger, config);
+      const result = await decisionStep.execute(context);
+
+      expect(result).toBe('match-step');
+    });
+  });
+
+  describe('contains condition', () => {
+    it('should return true when string contains substring', async () => {
+      const config: DecisionStepConfig = {
+        id: 'contains-test',
+        type: 'decision',
+        condition: 'contains',
+        contextKey: 'message',
+        trueValue: 'error',
+        falseValue: 'other',
+        nextStepId: { true: 'error-step', false: 'normal-step' },
+      };
+
+      context.set('message', 'This is an error message');
+
+      const decisionStep = new DecisionStep(mockLogger, config);
+      const result = await decisionStep.execute(context);
+
+      expect(result).toBe('error-step');
+    });
+
+    it('should return false when string does not contain substring', async () => {
+      const config: DecisionStepConfig = {
+        id: 'contains-test',
+        type: 'decision',
+        condition: 'contains',
+        contextKey: 'message',
+        trueValue: 'warning',
+        falseValue: 'other',
+        nextStepId: { true: 'warning-step', false: 'normal-step' },
+      };
+
+      context.set('message', 'This is an info message');
+
+      const decisionStep = new DecisionStep(mockLogger, config);
+      const result = await decisionStep.execute(context);
+
+      expect(result).toBe('normal-step');
+    });
+  });
+
+  describe('empty condition', () => {
+    it('should return true when string is empty', async () => {
+      const config: DecisionStepConfig = {
+        id: 'empty-test',
+        type: 'decision',
+        condition: 'empty',
+        contextKey: 'input',
+        trueValue: 'empty',
+        falseValue: 'not-empty',
+        nextStepId: { true: 'empty-step', false: 'filled-step' },
+      };
+
+      context.set('input', '');
+
+      const decisionStep = new DecisionStep(mockLogger, config);
+      const result = await decisionStep.execute(context);
+
+      expect(result).toBe('empty-step');
+    });
+
+    it('should return false when string is not empty', async () => {
+      const config: DecisionStepConfig = {
+        id: 'empty-test',
+        type: 'decision',
+        condition: 'empty',
+        contextKey: 'input',
+        trueValue: 'empty',
+        falseValue: 'not-empty',
+        nextStepId: { true: 'empty-step', false: 'filled-step' },
+      };
+
+      context.set('input', 'some value');
+
+      const decisionStep = new DecisionStep(mockLogger, config);
+      const result = await decisionStep.execute(context);
+
+      expect(result).toBe('filled-step');
+    });
+  });
+
+  describe('not_contains condition', () => {
+    it('should return true when string does not contain substring', async () => {
+      const config: DecisionStepConfig = {
+        id: 'not-contains-test',
+        type: 'decision',
+        condition: 'not_contains',
+        contextKey: 'message',
+        trueValue: 'error',
+        falseValue: 'other',
+        nextStepId: { true: 'safe-step', false: 'error-step' },
+      };
+
+      context.set('message', 'This is a normal message');
+
+      const decisionStep = new DecisionStep(mockLogger, config);
+      const result = await decisionStep.execute(context);
+
+      expect(result).toBe('safe-step');
+    });
+
+    it('should return false when string contains substring', async () => {
+      const config: DecisionStepConfig = {
+        id: 'not-contains-test',
+        type: 'decision',
+        condition: 'not_contains',
+        contextKey: 'message',
+        trueValue: 'error',
+        falseValue: 'other',
+        nextStepId: { true: 'safe-step', false: 'error-step' },
+      };
+
+      context.set('message', 'This is an error message');
+
+      const decisionStep = new DecisionStep(mockLogger, config);
+      const result = await decisionStep.execute(context);
+
+      expect(result).toBe('error-step');
+    });
+  });
+
+  describe('not_empty condition', () => {
+    it('should return true when string is not empty', async () => {
+      const config: DecisionStepConfig = {
+        id: 'not-empty-test',
+        type: 'decision',
+        condition: 'not_empty',
+        contextKey: 'input',
+        trueValue: 'not-empty',
+        falseValue: 'empty',
+        nextStepId: { true: 'filled-step', false: 'empty-step' },
+      };
+
+      context.set('input', 'some value');
+
+      const decisionStep = new DecisionStep(mockLogger, config);
+      const result = await decisionStep.execute(context);
+
+      expect(result).toBe('filled-step');
+    });
+
+    it('should return false when string is empty', async () => {
+      const config: DecisionStepConfig = {
+        id: 'not-empty-test',
+        type: 'decision',
+        condition: 'not_empty',
+        contextKey: 'input',
+        trueValue: 'not-empty',
+        falseValue: 'empty',
+        nextStepId: { true: 'filled-step', false: 'empty-step' },
+      };
+
+      context.set('input', '');
+
+      const decisionStep = new DecisionStep(mockLogger, config);
+      const result = await decisionStep.execute(context);
+
+      expect(result).toBe('empty-step');
+    });
+  });
+
+  describe('unknown condition error', () => {
+    it('should throw an error for unknown condition types', async () => {
+      const config = {
+        id: 'unknown-test',
+        type: 'decision',
+        condition: 'unknown_condition',
+        contextKey: 'value',
+        trueValue: 'test',
+        falseValue: 'other',
+        nextStepId: { true: 'match-step', false: 'nomatch-step' },
+      } as DecisionStepConfig;
+
+      context.set('value', 'test');
+
+      const decisionStep = new DecisionStep(mockLogger, config);
+
+      await expect(decisionStep.execute(context)).rejects.toThrow(
+        'Unknown condition type: unknown_condition'
       );
-
-      await decisionStep.execute(mockContext);
-
-      expect(mockContext.set).toHaveBeenCalledWith('nextStep', 'bug-flow');
     });
   });
 });

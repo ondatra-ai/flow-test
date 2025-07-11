@@ -90,7 +90,7 @@ describe('CLI E2E Tests - flow:run command', () => {
       // Verify decision steps
       expect(result.stdout).expectOutputToContain([
         'Taking urgent path',
-        'DecisionStep with condition: context.priority exists',
+        "Executing DecisionStep: evaluating condition 'not_empty'",
       ]);
     });
   });

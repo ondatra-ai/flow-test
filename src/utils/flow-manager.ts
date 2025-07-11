@@ -7,104 +7,9 @@ import { SERVICES } from '../config/tokens.js';
 import { Flow, type IFlow } from '../flow/flow.js';
 import { StepFactory } from '../flow/step-factory.js';
 import { Step } from '../flow/step.js';
+import { validateFlow, type FlowDefinition } from '../validation/index.js';
 
 import { Logger } from './logger.js';
-import {
-  isRecord,
-  validateStringField,
-  validateObjectField,
-  toString,
-} from './validation.js';
-
-/**
- * Type for flow data structure from JSON
- */
-export type FlowData = {
-  id: string;
-  name?: string;
-  description?: string;
-  steps: unknown[];
-};
-
-/**
- * Validate and convert flow data structure
- */
-function validateFlow(data: unknown): FlowData {
-  // Step 1: Validate basic structure
-  const flowData = validateBasicStructure(data);
-
-  // Step 2: Validate steps and references
-  const stepIds = validateSteps(flowData.steps);
-  validateStepReferences(flowData.steps, stepIds);
-
-  return flowData;
-}
-
-/**
- * Validate basic flow structure
- */
-function validateBasicStructure(data: unknown): FlowData {
-  if (!isRecord(data)) {
-    throw new Error('Invalid flow structure: data must be an object');
-  }
-
-  const { id, name, description, steps } = data;
-
-  const validId = validateStringField(id, 'id', 'Flow');
-
-  if (!Array.isArray(steps)) {
-    throw new Error('Invalid flow structure: steps must be an array');
-  }
-
-  return {
-    id: validId,
-    name: name as string | undefined,
-    description: description as string | undefined,
-    steps,
-  };
-}
-
-/**
- * Validate steps array and return set of step IDs
- */
-function validateSteps(steps: unknown[]): Set<string> {
-  const stepIds = new Set<string>();
-
-  for (const step of steps) {
-    if (!isRecord(step)) {
-      throw new Error('Invalid step structure: step must be an object');
-    }
-
-    const stepId = validateStringField(step.id, 'id', 'Step');
-    stepIds.add(stepId);
-  }
-
-  return stepIds;
-}
-
-/**
- * Validate step references
- */
-function validateStepReferences(steps: unknown[], stepIds: Set<string>): void {
-  for (const step of steps) {
-    const stepData = step as Record<string, unknown>;
-
-    // Validate nextStepId structure
-    const nextStepId = validateObjectField(
-      stepData.nextStepId,
-      'nextStepId',
-      'Step'
-    );
-
-    // Validate all references
-    for (const [key, value] of Object.entries(nextStepId)) {
-      const refStepId = validateStringField(value, key, 'NextStepId');
-      if (!stepIds.has(refStepId)) {
-        throw new Error(`Invalid nextStepId reference: ${refStepId}`);
-      }
-    }
-  }
-}
 
 /**
  * Service for managing flow discovery and loading
@@ -157,15 +62,15 @@ export class FlowManager {
   }
 
   /**
-   * Parse JSON data and validate it as FlowData
+   * Parse JSON data and validate it using Zod schema
    */
-  private parseFlowData(jsonData: string): FlowData {
+  private parseFlowData(jsonData: string): FlowDefinition {
     const data = JSON.parse(jsonData) as unknown;
     return validateFlow(data);
   }
 
   /**
-   * Convert validated FlowData to Flow object
+   * Convert validated FlowDefinition to Flow object
    */
   public convertToFlow(flowData: unknown): Flow {
     const validatedFlowData = validateFlow(flowData);
@@ -176,28 +81,15 @@ export class FlowManager {
   }
 
   /**
-   * Create a step from raw step data
+   * Create a step from validated step data
    */
   private createStep(stepData: unknown): Step {
     try {
-      if (!isRecord(stepData)) {
-        throw new Error('Step data must be an object');
-      }
-
-      const step = stepData;
-      if (!step.type) {
-        const stepIdStr = toString(step.id);
-        throw new Error(
-          `Step ${stepIdStr} must have a type field. ` +
-            `Valid types: action, decision, log`
-        );
-      }
-
       return this.stepFactory.createStep(stepData);
     } catch (error) {
       this.logger.error('Failed to create step', {
         stepData,
-        error: error instanceof Error ? error.message : toString(error),
+        error: error instanceof Error ? error.message : String(error),
       });
       throw error;
     }

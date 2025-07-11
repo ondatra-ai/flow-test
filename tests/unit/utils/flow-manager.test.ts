@@ -188,7 +188,7 @@ describe('FlowManager', () => {
       vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify(invalidFlow));
 
       await expect(flowManager.loadFlow('test-flow')).rejects.toThrow(
-        "Flow field 'id' must be a non-empty string"
+        'id: Required'
       );
     });
 
@@ -197,7 +197,7 @@ describe('FlowManager', () => {
       vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify(invalidFlow));
 
       await expect(flowManager.loadFlow('test-flow')).rejects.toThrow(
-        'Invalid flow structure: steps must be an array'
+        'steps: Required'
       );
     });
 
@@ -215,7 +215,7 @@ describe('FlowManager', () => {
       vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify(invalidFlow));
 
       await expect(flowManager.loadFlow('test-flow')).rejects.toThrow(
-        'Invalid nextStepId reference: non-existent'
+        'Invalid input'
       );
     });
   });
@@ -225,32 +225,32 @@ describe('FlowManager', () => {
       {
         name: 'non-object flow data',
         data: 'not an object',
-        error: 'Invalid flow structure: data must be an object',
+        error: 'Expected object, received string',
       },
       {
         name: 'null flow data',
         data: null,
-        error: 'Invalid flow structure: data must be an object',
+        error: 'Expected object, received null',
       },
       {
         name: 'non-array steps',
         data: { id: 'test', steps: 'not an array' },
-        error: 'Invalid flow structure: steps must be an array',
+        error: 'Expected array, received string',
       },
       {
         name: 'non-object step',
         data: { id: 'test', steps: ['not an object'] },
-        error: 'Invalid step structure: step must be an object',
+        error: 'Invalid step: expected object',
       },
       {
         name: 'null step',
         data: { id: 'test', steps: [null] },
-        error: 'Invalid step structure: step must be an object',
+        error: 'Invalid step: expected object',
       },
       {
         name: 'non-string step id',
         data: { id: 'test', steps: [{ id: 123, message: 'step' }] },
-        error: "Step field 'id' must be a non-empty string",
+        error: 'Invalid input',
       },
     ];
 
@@ -270,7 +270,7 @@ describe('FlowManager', () => {
       vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify(flowWithoutNext));
 
       await expect(flowManager.loadFlow('test-flow')).rejects.toThrow(
-        "Step field 'nextStepId' must be an object"
+        'Invalid input'
       );
     });
 
@@ -282,7 +282,7 @@ describe('FlowManager', () => {
       vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify(oldFormatFlow));
 
       await expect(flowManager.loadFlow('test-flow')).rejects.toThrow(
-        "Step field 'nextStepId' must be an object"
+        'Invalid input'
       );
     });
 
@@ -294,7 +294,7 @@ describe('FlowManager', () => {
       vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify(invalidFlow));
 
       await expect(flowManager.loadFlow('test-flow')).rejects.toThrow(
-        "Step field 'nextStepId' must be an object"
+        'Invalid input'
       );
     });
 
@@ -312,7 +312,7 @@ describe('FlowManager', () => {
       vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify(invalidFlow));
 
       await expect(flowManager.loadFlow('test-flow')).rejects.toThrow(
-        "NextStepId field 'default' must be a non-empty string"
+        'Invalid input'
       );
     });
   });

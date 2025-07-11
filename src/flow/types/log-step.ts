@@ -1,11 +1,10 @@
 import { Logger } from '../../utils/logger.js';
+import { type LogStepConfig } from '../../validation/index.js';
 import { IContext } from '../context.js';
 import { Step, IStep } from '../step.js';
 
-import { LogStepConfig } from './step-type.js';
-
 /**
- * LogStep for logging with context interpolation
+ * LogStep for logging operations
  */
 export class LogStep extends Step implements IStep {
   private readonly config: LogStepConfig;
@@ -16,18 +15,17 @@ export class LogStep extends Step implements IStep {
   }
 
   /**
-   * Execute the log step with context interpolation
+   * Execute the log step with custom logging
    */
   public async execute(context: IContext): Promise<string | null> {
-    try {
-      const interpolatedMessage = this.interpolateMessage(context);
+    this.logger.info(`Executing LogStep: ${this.config.message}`);
 
+    try {
       // Log the message at the specified level
-      this.logMessage(interpolatedMessage);
+      this.logAtLevel(this.config.message, context);
 
       this.logger.debug(`LogStep completed successfully`, {
-        originalMessage: this.config.message,
-        interpolatedMessage,
+        message: this.config.message,
         level: this.config.level,
       });
 
@@ -44,50 +42,58 @@ export class LogStep extends Step implements IStep {
   }
 
   /**
-   * Interpolate context variables in the message
-   * Supports {{context.key}} syntax
+   * Log message at the specified level
    */
-  private interpolateMessage(context: IContext): string {
-    const contextVariableRegex = /\{\{context\.(\w+)\}\}/g;
+  private logAtLevel(message: string, context: IContext): void {
+    // Replace context placeholders in the message
+    const resolvedMessage = this.resolveContextPlaceholders(message, context);
 
-    return this.config.message.replace(
-      contextVariableRegex,
-      (_fullMatch, contextKey: string) => {
-        const contextValue = context.get(contextKey);
-        if (contextValue !== undefined) {
-          this.logger.debug(
-            `Interpolated context variable: ${contextKey} = ${contextValue}`
-          );
-          return contextValue;
-        } else {
-          this.logger.warn(`Context variable not found: ${contextKey}`);
-          return `{{UNDEFINED:${contextKey}}}`;
-        }
+    // Log at the specified level
+    switch (this.config.level) {
+      case 'error':
+        this.logger.error(resolvedMessage);
+        break;
+      case 'warn':
+        this.logger.warn(resolvedMessage);
+        break;
+      case 'info':
+        this.logger.info(resolvedMessage);
+        break;
+      case 'debug':
+        this.logger.debug(resolvedMessage);
+        break;
+      default: {
+        const exhaustiveCheck: never = this.config.level;
+        throw new Error(`Unknown log level: ${exhaustiveCheck as string}`);
       }
-    );
+    }
   }
 
   /**
-   * Log the message at the specified level
+   * Resolve context placeholders in the message
    */
-  private logMessage(message: string): void {
-    switch (this.config.level) {
-      case 'error':
-        this.logger.error(message);
-        break;
-      case 'warn':
-        this.logger.warn(message);
-        break;
-      case 'info':
-        this.logger.info(message);
-        break;
-      case 'debug':
-        this.logger.debug(message);
-        break;
-      default:
-        this.logger.info(message); // Default to info level
-        break;
-    }
+  private resolveContextPlaceholders(
+    message: string,
+    context: IContext
+  ): string {
+    // Replace placeholders in the format {{context.key}} with actual values
+    return message.replace(
+      /\{\{context\.([^}]+)\}\}/g,
+      (match, key: string): string => {
+        const value: string | undefined = context.get(key);
+        if (value === null || value === undefined) {
+          return `{{UNDEFINED:${key}}}`;
+        }
+        // Convert value to string safely
+        if (typeof value === 'string') {
+          return value;
+        }
+        if (typeof value === 'number' || typeof value === 'boolean') {
+          return String(value);
+        }
+        return match; // For unknown types, return the original match
+      }
+    );
   }
 
   /**
@@ -95,13 +101,5 @@ export class LogStep extends Step implements IStep {
    */
   public getConfig(): LogStepConfig {
     return this.config;
-  }
-
-  /**
-   * Get the interpolated message without executing the step
-   * Useful for testing and debugging
-   */
-  public getInterpolatedMessage(context: IContext): string {
-    return this.interpolateMessage(context);
   }
 }
