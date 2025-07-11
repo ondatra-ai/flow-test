@@ -82,7 +82,7 @@ export class LogStep extends Step implements IStep {
       (match, key: string): string => {
         const value: string | undefined = context.get(key);
         if (value === null || value === undefined) {
-          return match;
+          return `{{UNDEFINED:${key}}}`;
         }
         // Convert value to string safely
         if (typeof value === 'string') {

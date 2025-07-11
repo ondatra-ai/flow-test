@@ -88,7 +88,8 @@ describe('LogStep', () => {
       const config: LogStepConfig = {
         id: 'test-log',
         type: 'log',
-        message: 'User ${username} logged in from ${location}',
+        message:
+          'User {{context.username}} logged in from {{context.location}}',
         level: 'info',
         nextStepId: { default: 'next-step' },
       };
@@ -108,7 +109,7 @@ describe('LogStep', () => {
       const config: LogStepConfig = {
         id: 'test-log',
         type: 'log',
-        message: 'User ${username} performed action',
+        message: 'User {{context.username}} performed action',
         level: 'info',
         nextStepId: { default: 'next-step' },
       };
@@ -117,7 +118,7 @@ describe('LogStep', () => {
       await logStep.execute(context);
 
       expect(mockLogger.info).toHaveBeenCalledWith(
-        'User ${username} performed action'
+        'User {{UNDEFINED:username}} performed action'
       );
     });
 
@@ -126,7 +127,7 @@ describe('LogStep', () => {
         id: 'test-log',
         type: 'log',
         message:
-          'Process ${process} completed with status ${status} at ${timestamp}',
+          'Process {{context.process}} completed with status {{context.status}} at {{context.timestamp}}',
         level: 'info',
         nextStepId: { default: 'next-step' },
       };
