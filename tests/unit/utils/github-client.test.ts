@@ -67,7 +67,7 @@ describe('GitHubClient', () => {
       const { Octokit } = await import('@octokit/rest');
       const originalGithubToken = process.env.GITHUB_TOKEN;
       const originalGhToken = process.env.GH_TOKEN;
-      delete process.env.GITHUB_TOKEN;
+      process.env.GITHUB_TOKEN = '';
       process.env.GH_TOKEN = 'gh-token';
 
       new GitHubClient();
@@ -84,8 +84,8 @@ describe('GitHubClient', () => {
       const { Octokit } = await import('@octokit/rest');
       const originalGithubToken = process.env.GITHUB_TOKEN;
       const originalGhToken = process.env.GH_TOKEN;
-      delete process.env.GITHUB_TOKEN;
-      delete process.env.GH_TOKEN;
+      process.env.GITHUB_TOKEN = '';
+      process.env.GH_TOKEN = '';
 
       new GitHubClient();
 
