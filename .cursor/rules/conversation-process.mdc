@@ -19,7 +19,7 @@ This workflow processes analyzed pull request comments from `./tmp/PR_CONVERSATI
 2. if Decision is IGNORE or Empty on you can't recognise what to do then go to next item
 3. if Decision is RESOLVE then just mark it as resolved  
 4. if Decision is PROCESS or FIX, then process it carefully, using common rules and then mark it as resolved
-5. if Decision is Create Issue , fix later, then create issue on github, add link and full description of this comment and mark it as resolved
+5. if Decision is Create Issue or Fix later, then create issue on github, and full description of current comment to body. Add link to new issue to PR and to the issue that associated with given PR.  and mark it as resolved
 
 ## Notes
 - If Id: Local then no need to resolve conversation, it's made by local tool
