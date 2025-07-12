@@ -5,12 +5,14 @@ import { StepFactory } from '../../../src/flow/step-factory.js';
 import { ActionStep } from '../../../src/flow/types/action-step.js';
 import { DecisionStep } from '../../../src/flow/types/decision-step.js';
 import { LogStep } from '../../../src/flow/types/log-step.js';
+import { GitHubClient } from '../../../src/utils/github-client.js';
 import { Logger } from '../../../src/utils/logger.js';
 import { type StepConfig } from '../../../src/validation/index.js';
 
 describe('StepFactory', () => {
   let stepFactory: StepFactory;
   let mockLogger: Logger;
+  let mockGitHubClient: GitHubClient;
 
   beforeEach(() => {
     mockLogger = {
@@ -20,7 +22,11 @@ describe('StepFactory', () => {
       debug: vi.fn(),
     } as unknown as Logger;
 
-    stepFactory = new StepFactory(mockLogger);
+    mockGitHubClient = {
+      getIssueWithComments: vi.fn(),
+    } as unknown as GitHubClient;
+
+    stepFactory = new StepFactory(mockLogger, mockGitHubClient);
   });
 
   afterEach(() => {

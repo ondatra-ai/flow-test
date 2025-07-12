@@ -54,12 +54,23 @@ const LogStepConfigSchema = StepConfigBaseSchema.extend({
 });
 
 /**
+ * Schema for ReadGitHubIssueStep configuration
+ */
+const ReadGitHubIssueStepConfigSchema = StepConfigBaseSchema.extend({
+  type: z.literal('read-github-issue'),
+  issueUrl: z.string().url('Issue URL must be a valid URL'),
+  includeComments: z.boolean().optional().default(true),
+  github_token: z.string().optional(),
+});
+
+/**
  * Union schema for all step configurations
  */
 export const StepConfigSchema = z.union([
   ActionStepConfigSchema,
   DecisionStepConfigSchema,
   LogStepConfigSchema,
+  ReadGitHubIssueStepConfigSchema,
 ]);
 
 /**
@@ -86,3 +97,6 @@ export type StepConfig = z.infer<typeof StepConfigSchema>;
 export type ActionStepConfig = z.infer<typeof ActionStepConfigSchema>;
 export type DecisionStepConfig = z.infer<typeof DecisionStepConfigSchema>;
 export type LogStepConfig = z.infer<typeof LogStepConfigSchema>;
+export type ReadGitHubIssueStepConfig = z.infer<
+  typeof ReadGitHubIssueStepConfigSchema
+>;

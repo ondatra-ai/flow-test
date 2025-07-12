@@ -12,6 +12,7 @@ import { ClaudeProvider } from '../providers/llm/providers/claude/claude.provide
 import { GeminiProvider } from '../providers/llm/providers/gemini/gemini.provider.js';
 import { OpenAIProvider } from '../providers/llm/providers/openai/openai.provider.js';
 import { FlowManager } from '../utils/flow-manager.js';
+import { GitHubClient } from '../utils/github-client.js';
 import { ConsoleLogger, LogLevel, Logger } from '../utils/logger.js';
 
 import { SERVICES, type TokenType } from './tokens.js';
@@ -29,6 +30,12 @@ export function initializeContainer(): void {
     // Register FlowManager and StepFactory
     container.registerSingleton<FlowManager>(SERVICES.FlowManager, FlowManager);
     container.registerSingleton<StepFactory>(SERVICES.StepFactory, StepFactory);
+
+    // Register GitHub integration
+    container.registerSingleton<GitHubClient>(
+      SERVICES.GitHubClient,
+      GitHubClient
+    );
 
     // Register LLM components
     container.registerSingleton<IProviderHelper>(

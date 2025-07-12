@@ -11,6 +11,7 @@ describe('CLI Setup', () => {
       version: vi.fn().mockReturnThis(),
       command: vi.fn().mockReturnThis(),
       argument: vi.fn().mockReturnThis(),
+      option: vi.fn().mockReturnThis(),
       action: vi.fn().mockReturnThis(),
     } as unknown as Command;
     vi.clearAllMocks();

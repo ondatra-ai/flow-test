@@ -12,6 +12,8 @@ export const SERVICES = {
   ActionStep: Symbol('ActionStep'),
   DecisionStep: Symbol('DecisionStep'),
   LogStep: Symbol('LogStep'),
+  // GitHub integration tokens
+  GitHubClient: Symbol('GitHubClient'),
   // LLM Provider tokens
   ProviderHelper: Symbol('ProviderHelper'),
   ClaudeProvider: Symbol('ClaudeProvider'),
