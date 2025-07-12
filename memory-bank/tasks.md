@@ -4,7 +4,7 @@
 
 **Current Task**: github-reader-step-implementation-20250117  
 **Start Date**: 2025-01-17  
-**Issue Reference**: [#37](https://github.com/ondrata-ai/flow-test/issues/37)  
+**Issue Reference**: [#37](https://github.com/ondatra-ai/flow-test/issues/37)  
 **Status**: IMPLEMENT TDD-GREEN ✅ - REFACTOR PHASE READY
 
 ### Current Task: Implement Step 1: Read task description from GitHub
@@ -35,8 +35,8 @@
 **✅ CORRECTED GitHub Issue URL**:
 
 - **Original Issue**: Tests were incorrectly using `https://github.com/microsoft/vscode/issues/1`
-- **Corrected Issue**: Updated to use `https://github.com/ondrata-ai/for-test-purpose/issues/1` as originally required
-- **Test Data Updated**: Expected values now match the actual ondrata-ai issue:
+- **Corrected Issue**: Updated to use `https://github.com/ondatra-ai/for-test-purpose/issues/1` as originally required
+- **Test Data Updated**: Expected values now match the actual ondatra-ai issue:
   - Title: `[TEST Issue] Create something for ai`
   - Author: `killev`
   - Comments: `1`
@@ -76,7 +76,7 @@
 - GitHub API integration working ✅
 - Context population working ✅
 - Public repo access working ✅
-- **Correct GitHub issue URL**: `https://github.com/ondrata-ai/for-test-purpose/issues/1` ✅
+- **Correct GitHub issue URL**: `https://github.com/ondatra-ai/for-test-purpose/issues/1` ✅
 
 ### 🔵 REFACTOR Phase: READY FOR START
 
@@ -135,7 +135,7 @@
 - **RED Phase**: Create failing e2e test using specific GitHub issue
 - **GREEN Phase**: Implement minimal functionality to pass test
 - **REFACTOR Phase**: Improve code quality and add comprehensive tests
-- **Real GitHub Issue**: Use https://github.com/ondrata-ai/for-test-purpose/issues/1
+- **Real GitHub Issue**: Use https://github.com/ondatra-ai/for-test-purpose/issues/1
 - **CLI Arguments**: Accept GitHub issue URLs as command line arguments
 
 **Benefits:**
@@ -148,7 +148,7 @@
 ### Additional Requirements from User Feedback
 
 1. **TDD Approach**: Create failing e2e test first before any implementation
-2. **Specific Issue**: Use https://github.com/ondrata-ai/for-test-purpose/issues/1 for testing
+2. **Specific Issue**: Use https://github.com/ondatra-ai/for-test-purpose/issues/1 for testing
 3. **CLI Arguments**: Pass GitHub issue URL to CLI via command line argument
 4. **GitHub Token Property**: GitHubReaderStep should have githubToken property
 5. **JSON Schema**: Include github_token in GitHubReaderStep JSON schema
@@ -158,7 +158,7 @@
 
 ### Overview of Changes
 
-This Level 2 enhancement follows **Test-Driven Development** approach, starting with a failing e2e test using the specific GitHub issue **https://github.com/ondrata-ai/for-test-purpose/issues/1**. The implementation adds a new `GitHubReaderStep` to the existing flow system for reading GitHub issue data **including comments**. The CLI will accept GitHub issue URLs as arguments for flexible testing and usage.
+This Level 2 enhancement follows **Test-Driven Development** approach, starting with a failing e2e test using the specific GitHub issue **https://github.com/ondatra-ai/for-test-purpose/issues/1**. The implementation adds a new `GitHubReaderStep` to the existing flow system for reading GitHub issue data **including comments**. The CLI will accept GitHub issue URLs as arguments for flexible testing and usage.
 
 **Key Components:**
 
@@ -241,7 +241,7 @@ This Level 2 enhancement follows **Test-Driven Development** approach, starting 
 
 15. **`tests/integration/github-reader-tdd-e2e.test.ts`** (NEW)
     - TDD e2e tests following existing patterns
-    - Uses https://github.com/ondrata-ai/for-test-purpose/issues/1
+    - Uses https://github.com/ondatra-ai/for-test-purpose/issues/1
     - Tests CLI argument passing
 
 ### TDD IMPLEMENTATION STEPS (RED-GREEN-REFACTOR)
@@ -282,7 +282,7 @@ describe('GitHub Reader TDD E2E Tests', () => {
         'github-reader-tdd-flow',
         [
           '--github-issue',
-          'https://github.com/ondrata-ai/for-test-purpose/issues/1',
+          'https://github.com/ondatra-ai/for-test-purpose/issues/1',
         ]
       );
 
@@ -295,7 +295,7 @@ describe('GitHub Reader TDD E2E Tests', () => {
       // Verify GitHub step executed
       expect(result.stdout).toContain('GitHubReaderStep: Reading issue #1');
       expect(result.stdout).toContain(
-        'Successfully loaded GitHub issue #1 from ondrata-ai/for-test-purpose'
+        'Successfully loaded GitHub issue #1 from ondatra-ai/for-test-purpose'
       );
 
       // Verify context was populated (check log step output)
@@ -657,10 +657,10 @@ describe('GitHubReaderStep', () => {
   });
 
   it('should parse GitHub issue URL correctly', () => {
-    const url = 'https://github.com/ondrata-ai/for-test-purpose/issues/1';
+    const url = 'https://github.com/ondatra-ai/for-test-purpose/issues/1';
     const result = parseGitHubIssueUrl(url);
 
-    expect(result.owner).toBe('ondrata-ai');
+    expect(result.owner).toBe('ondatra-ai');
     expect(result.repo).toBe('for-test-purpose');
     expect(result.issueNumber).toBe(1);
   });
@@ -740,7 +740,7 @@ const GitHubReaderStepConfigSchema = z.object({
 **Red Phase Verification:**
 
 - [ ] E2E test created and fails (GitHubReaderStep not found)
-- [ ] Test uses specific GitHub issue: https://github.com/ondrata-ai/for-test-purpose/issues/1
+- [ ] Test uses specific GitHub issue: https://github.com/ondatra-ai/for-test-purpose/issues/1
 - [ ] CLI argument parsing tested
 - [ ] Expected behavior clearly defined in test
 
@@ -785,7 +785,7 @@ const GitHubReaderStepConfigSchema = z.object({
 **RED Phase:**
 
 - [ ] E2E test created that fails initially
-- [ ] Test uses https://github.com/ondrata-ai/for-test-purpose/issues/1
+- [ ] Test uses https://github.com/ondatra-ai/for-test-purpose/issues/1
 - [ ] CLI argument handling tested
 - [ ] Expected behavior defined in test
 
