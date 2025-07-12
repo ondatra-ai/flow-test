@@ -21,4 +21,5 @@ export const SERVICES = {
   GeminiProvider: Symbol('GeminiProvider'),
 } as const;
 
-export type TokenType = (typeof SERVICES)[keyof typeof SERVICES];
+// Re-export for backward compatibility
+export type { TokenType } from '../types/config/index.js';

@@ -6,6 +6,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { Flow } from '../../../src/flow/flow.js';
 import { StepFactory } from '../../../src/flow/step-factory.js';
+import { cast } from '../../../src/utils/cast.js';
 import { FlowManager } from '../../../src/utils/flow-manager.js';
 import { Logger } from '../../../src/utils/logger.js';
 
@@ -29,16 +30,16 @@ vi.mock('path', () => ({
 
 // Mock factory functions
 function createMockLogger(): Logger {
-  return {
+  return cast<Logger>({
     info: vi.fn(),
     error: vi.fn(),
     warn: vi.fn(),
     debug: vi.fn(),
-  } as unknown as Logger;
+  });
 }
 
 function createMockStepFactory(): StepFactory {
-  return {
+  return cast<StepFactory>({
     createStep: vi.fn().mockImplementation((stepData: unknown) => {
       const data = stepData as { id: string };
       // Create a simple mock step
@@ -47,7 +48,7 @@ function createMockStepFactory(): StepFactory {
         execute: vi.fn().mockResolvedValue(null),
       };
     }),
-  } as unknown as StepFactory;
+  });
 }
 
 // Helper functions moved to module level for better reusability
@@ -113,7 +114,7 @@ describe('FlowManager', () => {
         'Unable to access flows directory'
       );
       expect(mockLogger.error).toHaveBeenCalledWith('Failed to list flows', {
-        error,
+        error: 'Permission denied',
       });
     });
   });

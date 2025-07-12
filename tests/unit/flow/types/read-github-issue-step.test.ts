@@ -2,6 +2,7 @@ import 'reflect-metadata';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 import { ReadGitHubIssueStep } from '../../../../src/flow/types/read-github-issue-step.js';
+import { cast } from '../../../../src/utils/cast.js';
 import type { GitHubClient } from '../../../../src/utils/github-client.js';
 import type { Logger } from '../../../../src/utils/logger.js';
 import type { ReadGitHubIssueStepConfig } from '../../../../src/validation/schemas/step.schema.js';
@@ -10,7 +11,7 @@ import type { ReadGitHubIssueStepConfig } from '../../../../src/validation/schem
 vi.mock('../../../../src/utils/github-url-parser.js', () => ({
   parseGitHubIssueUrl: vi.fn(url => {
     if (url === 'https://github.com/owner/repo/issues/123') {
-      return { owner: 'owner', repo: 'repo', issueNumber: 123 };
+      return { owner: 'owner', repo: 'repo', issue_number: 123 };
     }
     throw new Error('Invalid GitHub issue URL');
   }),
@@ -38,16 +39,16 @@ vi.mock('../../../../src/utils/github-client.js', () => ({
 
 // Test helper functions
 function createMockLogger(): Logger {
-  return {
+  return cast<Logger>({
     info: vi.fn(),
     error: vi.fn(),
     warn: vi.fn(),
     debug: vi.fn(),
-  } as unknown as Logger;
+  });
 }
 
 function createMockGitHubClient(): GitHubClient {
-  return {
+  return cast<GitHubClient>({
     getIssueWithComments: vi.fn().mockResolvedValue({
       issue: {
         number: 123,
@@ -63,7 +64,7 @@ function createMockGitHubClient(): GitHubClient {
         { id: 2, body: 'Comment 2', user: { login: 'user2' } },
       ],
     }),
-  } as unknown as GitHubClient;
+  });
 }
 
 describe('ReadGitHubIssueStep - Constructor', () => {
@@ -113,7 +114,7 @@ describe('ReadGitHubIssueStep - Constructor', () => {
 
   it('should have empty githubToken when no token provided', () => {
     const originalEnv = process.env.GITHUB_TOKEN;
-    process.env.GITHUB_TOKEN = undefined as unknown as string;
+    process.env.GITHUB_TOKEN = cast<string>(undefined);
 
     const config: ReadGitHubIssueStepConfig = {
       type: 'read-github-issue',

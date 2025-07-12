@@ -3,6 +3,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { Context } from '../../../src/flow/context.js';
 import { Flow } from '../../../src/flow/flow.js';
 import { Step } from '../../../src/flow/step.js';
+import { cast } from '../../../src/utils/cast.js';
 import { Logger } from '../../../src/utils/logger.js';
 
 // Mock logger functions
@@ -11,12 +12,12 @@ const mockLoggerError = vi.fn();
 const mockLoggerDebug = vi.fn();
 const mockLoggerWarn = vi.fn();
 
-const mockLogger = {
+const mockLogger = cast<Logger>({
   info: mockLoggerInfo,
   error: mockLoggerError,
   debug: mockLoggerDebug,
   warn: mockLoggerWarn,
-} as unknown as Logger;
+});
 
 // Helper function to create mock steps
 function createMockSteps(): Step[] {

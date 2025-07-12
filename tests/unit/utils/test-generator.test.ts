@@ -30,11 +30,11 @@ vi.mock('../../../src/utils/test-templates.js', () => ({
   getLogoutPageTemplate: vi.fn().mockReturnValue('logout page template'),
 }));
 
-interface MockFs {
+type MockFs = {
   readFile: ReturnType<typeof vi.fn>;
   writeFile: ReturnType<typeof vi.fn>;
   mkdir: ReturnType<typeof vi.fn>;
-}
+};
 
 describe('Test Generator', () => {
   let mockFs: MockFs;

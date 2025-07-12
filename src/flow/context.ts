@@ -1,11 +1,7 @@
-// Context interface - Key-Value storage for flow execution
-export interface IContext {
-  get(key: string): string | undefined;
-  set(key: string, value: string): void;
-  has(key: string): boolean;
-  delete(key: string): boolean;
-  clear(): void;
-}
+import type { IContext } from '../interfaces/flow/index.js';
+
+// Re-export for backward compatibility
+export type { IContext } from '../interfaces/flow/index.js';
 
 // Context implementation - Simple Map-based storage
 export class Context implements IContext, Iterable<[string, string]> {

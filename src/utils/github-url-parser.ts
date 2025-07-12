@@ -1,11 +1,7 @@
-/**
- * Interface for parsed GitHub issue information
- */
-export interface GitHubIssueArgs {
-  owner: string;
-  repo: string;
-  issueNumber: number;
-}
+import type { GitHubIssueArgs } from '../interfaces/github/index.js';
+
+// Re-export for backward compatibility
+export type { GitHubIssueArgs } from '../interfaces/github/index.js';
 
 /**
  * Parse a GitHub issue URL and extract owner, repo, and issue number
@@ -24,6 +20,6 @@ export function parseGitHubIssueUrl(url: string): GitHubIssueArgs {
   return {
     owner,
     repo,
-    issueNumber: parseInt(issueNumber, 10),
+    issue_number: parseInt(issueNumber, 10),
   };
 }

@@ -4,27 +4,27 @@ import { IncomingMessage } from 'http';
 import * as https from 'https';
 
 // Types for GitHub API responses
-interface GitHubPullRequest {
+type GitHubPullRequest = {
   number: number;
   title: string;
   html_url: string;
   merged_at: string | null;
   state: 'open' | 'closed';
-}
+};
 
 // Types for Slack webhook payload
-interface SlackPayload {
+type SlackPayload = {
   text: string;
   username?: string;
   icon_emoji?: string;
   channel?: string;
-}
+};
 
 // Types for message styling
-interface MessageStyle {
+type MessageStyle = {
   emoji: string;
   message: string;
-}
+};
 
 // Environment variable access using process.env
 function getEnv(key: string): string | undefined {

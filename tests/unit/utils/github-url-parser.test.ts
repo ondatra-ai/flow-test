@@ -11,7 +11,7 @@ describe('GitHub URL Parser', () => {
       expect(result).toEqual({
         owner: 'owner',
         repo: 'repo',
-        issueNumber: 123,
+        issue_number: 123,
       });
     });
 
@@ -22,7 +22,7 @@ describe('GitHub URL Parser', () => {
       expect(result).toEqual({
         owner: 'owner',
         repo: 'repo',
-        issueNumber: 456,
+        issue_number: 456,
       });
     });
 
@@ -33,7 +33,7 @@ describe('GitHub URL Parser', () => {
       expect(result).toEqual({
         owner: 'owner',
         repo: 'repo',
-        issueNumber: 789,
+        issue_number: 789,
       });
     });
 
@@ -44,7 +44,7 @@ describe('GitHub URL Parser', () => {
       expect(result).toEqual({
         owner: 'my-owner',
         repo: 'my-repo',
-        issueNumber: 1,
+        issue_number: 1,
       });
     });
 
@@ -55,7 +55,7 @@ describe('GitHub URL Parser', () => {
       expect(result).toEqual({
         owner: 'my_owner',
         repo: 'my_repo',
-        issueNumber: 2,
+        issue_number: 2,
       });
     });
 
@@ -66,7 +66,7 @@ describe('GitHub URL Parser', () => {
       expect(result).toEqual({
         owner: 'owner',
         repo: 'my.repo',
-        issueNumber: 3,
+        issue_number: 3,
       });
     });
 
@@ -107,7 +107,7 @@ describe('GitHub URL Parser', () => {
       expect(result).toEqual({
         owner: 'owner',
         repo: 'repo',
-        issueNumber: 999999,
+        issue_number: 999999,
       });
     });
   });

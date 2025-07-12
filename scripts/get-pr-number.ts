@@ -25,12 +25,12 @@
 
 import { execSync } from 'child_process';
 
-interface PullRequest {
+type PullRequest = {
   number: number;
   title: string;
   state: string;
   url: string;
-}
+};
 
 function getCurrentBranch(): string {
   try {

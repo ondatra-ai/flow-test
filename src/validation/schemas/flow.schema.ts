@@ -51,7 +51,5 @@ export const FlowDefinitionSchema = z
     }
   );
 
-/**
- * Zod-inferred type for flow definition
- */
-export type FlowDefinition = z.infer<typeof FlowDefinitionSchema>;
+// Re-export for backward compatibility
+export type { FlowDefinition } from '../../types/validation/index.js';

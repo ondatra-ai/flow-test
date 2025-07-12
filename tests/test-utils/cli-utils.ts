@@ -1,4 +1,5 @@
-import { CommandResult, TestEnvironment } from './test-environment.js';
+import type { TestEnvironment } from './test-environment.js';
+import type { CommandResult } from './types/index.js';
 
 /**
  * Run a CLI command and return the result

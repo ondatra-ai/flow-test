@@ -1,12 +1,10 @@
-import { Logger } from '../utils/logger.js';
+import type { IStep } from '../interfaces/flow/index.js';
+import type { Logger } from '../utils/logger.js';
 
-import { IContext } from './context.js';
+import type { IContext } from './context.js';
 
-// Step interface - Defines Step contract
-export interface IStep {
-  getId(): string;
-  execute(context: IContext): Promise<string | null>;
-}
+// Re-export for backward compatibility
+export type { IStep } from '../interfaces/flow/index.js';
 
 // Step entity - Simple action-based execution with dynamic routing
 export class Step implements IStep {

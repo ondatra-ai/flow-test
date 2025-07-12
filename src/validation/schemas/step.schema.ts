@@ -73,30 +73,11 @@ export const StepConfigSchema = z.union([
   ReadGitHubIssueStepConfigSchema,
 ]);
 
-/**
- * Normalize step type to lowercase for case-insensitive validation
- */
-export function normalizeStepType(data: unknown): unknown {
-  if (typeof data === 'object' && data !== null && 'type' in data) {
-    const typedData = data as Record<string, unknown>;
-    return {
-      ...typedData,
-      type:
-        typeof typedData.type === 'string'
-          ? typedData.type.toLowerCase()
-          : typedData.type,
-    };
-  }
-  return data;
-}
-
-/**
- * Zod-inferred types for step configurations
- */
-export type StepConfig = z.infer<typeof StepConfigSchema>;
-export type ActionStepConfig = z.infer<typeof ActionStepConfigSchema>;
-export type DecisionStepConfig = z.infer<typeof DecisionStepConfigSchema>;
-export type LogStepConfig = z.infer<typeof LogStepConfigSchema>;
-export type ReadGitHubIssueStepConfig = z.infer<
-  typeof ReadGitHubIssueStepConfigSchema
->;
+// Re-export for backward compatibility
+export type {
+  StepConfig,
+  ActionStepConfig,
+  DecisionStepConfig,
+  LogStepConfig,
+  ReadGitHubIssueStepConfig,
+} from '../../types/validation/index.js';

@@ -2,16 +2,16 @@
 
 import { execSync } from 'child_process';
 
-interface GitHubThread {
+type GitHubThread = {
   id: string;
   isResolved: boolean;
-}
+};
 
-interface GitHubError {
+type GitHubError = {
   message: string;
-}
+};
 
-interface GitHubResponse {
+type GitHubResponse = {
   data?: {
     resolveReviewThread?: {
       thread: GitHubThread;
@@ -23,7 +23,7 @@ interface GitHubResponse {
     };
   };
   errors?: GitHubError[];
-}
+};
 
 /**
  * Adds a comment to a specific review thread
