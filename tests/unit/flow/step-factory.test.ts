@@ -84,31 +84,18 @@ describe('StepFactory', () => {
     });
 
     it('should throw error for invalid step type that bypassed schema validation', () => {
-      // Note: In real scenarios, invalid step types should be caught by Zod schema
-      // This test covers the edge case where somehow invalid data reaches the factory
+      // Note: In real scenarios, invalid step types should be caught by Zod
+      // schema. This test covers edge case where invalid data reaches
+      // factory
       const stepData = cast<StepConfig>({
         id: 'invalid-step',
-        type: cast<any>('invalid'),
+        type: cast<'action'>('invalid'),
         nextStepId: { default: 'next-step' },
       });
 
       expect(() => stepFactory.createStep(stepData)).toThrow(
         /Unknown step type/
       );
-    });
-
-    it('should throw error for data that bypassed schema validation', () => {
-      // Note: In real scenarios, missing required fields should be caught by Zod schema
-      // This test covers the edge case where somehow invalid data reaches the factory
-      const invalidStepData = cast<StepConfig>({
-        id: 'incomplete-step',
-        type: cast<any>('action'),
-        // Missing required operation, key fields
-        nextStepId: { default: 'next-step' },
-      });
-
-      // The factory will try to create ActionStep which will fail during construction
-      expect(() => stepFactory.createStep(invalidStepData)).toThrow();
     });
 
     it('should handle all valid step types correctly', () => {

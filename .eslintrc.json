@@ -87,7 +87,8 @@
     "node_modules/",
     "*.js",
     "*.d.ts",
-    "tests/integration/data/**"
+    "tests/integration/data/**",
+    "test_results/**"
   ],
   "overrides": [
     {
