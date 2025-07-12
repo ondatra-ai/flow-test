@@ -113,7 +113,7 @@ describe('ReadGitHubIssueStep - Constructor', () => {
 
   it('should have empty githubToken when no token provided', () => {
     const originalEnv = process.env.GITHUB_TOKEN;
-    delete process.env.GITHUB_TOKEN;
+    process.env.GITHUB_TOKEN = undefined as unknown as string;
 
     const config: ReadGitHubIssueStepConfig = {
       type: 'read-github-issue',

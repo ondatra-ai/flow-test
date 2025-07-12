@@ -69,7 +69,12 @@ export class ReadGitHubIssueStep extends Step implements IStep {
     this.config = config;
     // Keep for backward compatibility - actual authentication handled by
     // GitHubClient
-    this.githubToken = config.github_token || process.env.GITHUB_TOKEN || '';
+    this.githubToken =
+      config.github_token ||
+      (process.env.GITHUB_TOKEN !== 'undefined'
+        ? process.env.GITHUB_TOKEN
+        : '') ||
+      '';
   }
 
   /**
