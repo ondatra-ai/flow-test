@@ -1,6 +1,7 @@
 import { injectable, inject } from 'tsyringe';
 
 import { SERVICES } from '../config/tokens.js';
+import { GitHubClient } from '../utils/github-client.js';
 import { Logger } from '../utils/logger.js';
 import { validateStep } from '../validation/index.js';
 
@@ -15,7 +16,10 @@ import { ReadGitHubIssueStep } from './types/read-github-issue-step.js';
  */
 @injectable()
 export class StepFactory {
-  constructor(@inject(SERVICES.Logger) private readonly logger: Logger) {}
+  constructor(
+    @inject(SERVICES.Logger) private readonly logger: Logger,
+    @inject(SERVICES.GitHubClient) private readonly githubClient: GitHubClient
+  ) {}
 
   /**
    * Create a step instance based on step data
@@ -36,7 +40,11 @@ export class StepFactory {
         return new LogStep(this.logger, validatedConfig);
 
       case 'read-github-issue':
-        return new ReadGitHubIssueStep(this.logger, validatedConfig);
+        return new ReadGitHubIssueStep(
+          this.logger,
+          this.githubClient,
+          validatedConfig
+        );
 
       default:
         // This should never happen since validateStep ensures valid types

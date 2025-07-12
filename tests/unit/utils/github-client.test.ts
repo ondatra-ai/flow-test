@@ -35,20 +35,11 @@ describe('GitHubClient', () => {
     vi.clearAllMocks();
     // Get the mocked Octokit instance
     const { Octokit } = await import('@octokit/rest');
-    client = new GitHubClient('test-token');
+    client = new GitHubClient();
     mockOctokit = new Octokit() as unknown as MockOctokit;
   });
 
   describe('constructor', () => {
-    it('should create client with provided token', async () => {
-      const { Octokit } = await import('@octokit/rest');
-      new GitHubClient('my-token');
-
-      expect(Octokit).toHaveBeenCalledWith({
-        auth: 'my-token',
-      });
-    });
-
     it('should create client with GITHUB_TOKEN env var', async () => {
       const { Octokit } = await import('@octokit/rest');
       const originalEnv = process.env.GITHUB_TOKEN;
@@ -63,29 +54,10 @@ describe('GitHubClient', () => {
       process.env.GITHUB_TOKEN = originalEnv;
     });
 
-    it('should create client with GH_TOKEN env var', async () => {
-      const { Octokit } = await import('@octokit/rest');
-      const originalGithubToken = process.env.GITHUB_TOKEN;
-      const originalGhToken = process.env.GH_TOKEN;
-      process.env.GITHUB_TOKEN = '';
-      process.env.GH_TOKEN = 'gh-token';
-
-      new GitHubClient();
-
-      expect(Octokit).toHaveBeenCalledWith({
-        auth: 'gh-token',
-      });
-
-      process.env.GITHUB_TOKEN = originalGithubToken;
-      process.env.GH_TOKEN = originalGhToken;
-    });
-
     it('should create client without auth when no token provided', async () => {
       const { Octokit } = await import('@octokit/rest');
       const originalGithubToken = process.env.GITHUB_TOKEN;
-      const originalGhToken = process.env.GH_TOKEN;
       process.env.GITHUB_TOKEN = '';
-      process.env.GH_TOKEN = '';
 
       new GitHubClient();
 
@@ -94,7 +66,6 @@ describe('GitHubClient', () => {
       });
 
       process.env.GITHUB_TOKEN = originalGithubToken;
-      process.env.GH_TOKEN = originalGhToken;
     });
   });
 
