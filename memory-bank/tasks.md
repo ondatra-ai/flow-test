@@ -7,7 +7,7 @@
 **Issue Reference**: [#76](https://github.com/ondatra-ai/flow-test/issues/76)  
 **Status**: Updated Plan - Ready for Implementation ✅
 
-# Task: Centralize Type System with Type/Interface Separation
+# Task: Centralize Type System with Type/Interface Separation and Cast Utilities
 
 ## Description
 
@@ -15,12 +15,14 @@ Create a comprehensive centralized type system by:
 
 1. Moving ALL type definitions into `src/types/` folder
 2. Moving ALL interface definitions into `src/interfaces/` folder
-3. Implementing ESLint rules to forbid `type` and `interface` keywords outside their designated folders
+3. Creating `src/utils/cast.ts` as the only file allowed to use `unknown` keyword
+4. Implementing ESLint rules to enforce these restrictions
 
 Current analysis shows:
 
 - 12 type definitions scattered across src/
 - 10 interface definitions scattered across src/
+- Multiple uses of `unknown` keyword throughout codebase
 - Types/interfaces found in 13 different files
 
 ## Complexity
@@ -39,9 +41,9 @@ Type: Intermediate Feature
 
 - [x] ESLint custom rule creation mechanism verified
   - ✅ Created working rule using no-restricted-syntax with AST selectors
-  - ✅ File exclusion pattern tested for src/types/ and src/interfaces/
-- [x] ESLint rule for type and interface keyword restriction
-  - ✅ Can use TSTypeAliasDeclaration and TSInterfaceDeclaration selectors
+  - ✅ File exclusion pattern tested for src/types/, src/interfaces/, and src/utils/cast.ts
+- [x] ESLint rule for type, interface, and unknown keyword restriction
+  - ✅ Can use TSTypeAliasDeclaration, TSInterfaceDeclaration, and TSUnknownKeyword selectors
 
 ## Status
 
@@ -59,8 +61,10 @@ Type: Intermediate Feature
 
 - [x] Centralized types folder (`src/types/`) for ALL type definitions
 - [x] Centralized interfaces folder (`src/interfaces/`) for ALL interface definitions
-- [x] Custom ESLint rules that forbid `type` and `interface` keywords outside designated folders
+- [x] Cast utilities file (`src/utils/cast.ts`) as only location for `unknown` keyword
+- [x] Custom ESLint rules that forbid keywords outside designated locations
 - [x] Migration of all existing types/interfaces to centralized locations
+- [x] Replace all unknown usage with cast utilities
 - [x] Maintain 100% test coverage for core logic
 
 ### Technical Constraints:
@@ -101,24 +105,34 @@ Type: Intermediate Feature
 4. **Utility Interfaces:**
    - `src/utils/logger.ts`: `Logger`
 
+### Unknown Usage Patterns to Replace:
+
+- JSON parsing with `as unknown`
+- Error catching with `unknown` type
+- Logger meta parameters
+- Validation inputs
+- Flow data conversions
+
 ## Design Decisions
 
 ### Architecture:
 
 - [x] Create organized `src/types/` folder structure for types
 - [x] Create organized `src/interfaces/` folder structure for interfaces
-- [x] Both organized by domain (flow, providers, github, config, validation, utils)
+- [x] Create `src/utils/cast.ts` for centralized unknown handling
+- [x] Both type folders organized by domain (flow, providers, github, config, validation, utils)
 - [x] Use re-exports to maintain backward compatibility
 
 ## Implementation Strategy
 
 ### Phase 1: Infrastructure Setup
 
-1. Create folder structures
+1. Create folder structures and cast utilities
    - [ ] Create src/interfaces/ directory structure
+   - [ ] Create src/utils/cast.ts with utilities
    - [ ] Create index.ts files in src/types/ subdirectories
    - [ ] Create index.ts files in src/interfaces/ subdirectories
-   - [ ] Set up ESLint rules for type/interface restrictions
+   - [ ] Set up ESLint rules for type/interface/unknown restrictions
    - [ ] Test ESLint catches violations
 
 ### Phase 2: Type Migration
@@ -164,7 +178,17 @@ Type: Intermediate Feature
    - [ ] Update imports throughout flow system
    - [ ] Ensure tests pass
 
-### Phase 4: Finalization
+### Phase 4: Unknown Migration
+
+1. Replace unknown usage patterns
+   - [ ] Replace JSON parsing unknown patterns with cast
+   - [ ] Replace error handling unknown patterns
+   - [ ] Replace logger meta unknown patterns
+   - [ ] Replace validation unknown patterns
+   - [ ] Replace flow conversion unknown patterns
+   - [ ] Ensure all tests pass
+
+### Phase 5: Finalization
 
 1. Remove temporary re-exports
    - [ ] Remove all backward compatibility exports
@@ -175,12 +199,14 @@ Type: Intermediate Feature
    - [ ] Update API documentation
    - [ ] Create migration guide
    - [ ] Document new type/interface organization
+   - [ ] Document cast utility usage
    - [ ] Update README with new patterns
 
 ## Creative Phases Completed
 
 - [x] **Type and Interface Organization Architecture** - Separated folders with domain-based structure
-- [x] **ESLint Rules Design** - Configuration using no-restricted-syntax with separate rules
+- [x] **ESLint Rules Design** - Configuration using no-restricted-syntax with three rules
+- [x] **Cast Function Design** - Simple type assertion helper for unknown handling
 - [x] **Migration Strategy** - Automated incremental approach with separate scripts
 
 ## Dependencies
@@ -194,24 +220,29 @@ Type: Intermediate Feature
 
 - **Challenge 1**: Large-scale type/interface migration across codebase
   - **Mitigation**: Phased approach, maintain backward compatibility with re-exports
-- **Challenge 2**: ESLint rule complexity for type/interface restrictions
-  - **Mitigation**: Use AST selectors with different rules for each folder
+- **Challenge 2**: ESLint rule complexity for three different restrictions
+  - **Mitigation**: Use AST selectors with different rules for each folder/file
 - **Challenge 3**: Import path updates throughout codebase
   - **Mitigation**: Use TypeScript's "Update imports on file move" or automated script
-- **Challenge 4**: Potential circular dependencies
+- **Challenge 4**: Unknown usage patterns vary across codebase
+  - **Mitigation**: Create comprehensive cast utilities to handle all cases
+- **Challenge 5**: Potential circular dependencies
   - **Mitigation**: Careful organization, use type-only imports where needed
 
 ## Testing Strategy
 
 - Unit Tests:
-  - [ ] ESLint rule detection for type and interface keywords
+  - [ ] Cast utilities functionality
+  - [ ] ESLint rule detection for type, interface, and unknown keywords
 - Integration Tests:
   - [ ] All imports still work after migration
+  - [ ] Cast utilities work in real scenarios
   - [ ] Build process succeeds
 
 ## Documentation Plan
 
 - [ ] Type and interface organization guide
+- [ ] Cast utilities usage guide
 - [ ] Migration guide for developers
 - [ ] ESLint rule configuration documentation
 - [ ] Best practices for type/interface definitions
@@ -221,7 +252,9 @@ Type: Intermediate Feature
 
 - [ ] All types centralized in src/types/ folder
 - [ ] All interfaces centralized in src/interfaces/ folder
-- [ ] ESLint rules prevent type/interface definitions outside designated folders
+- [ ] src/utils/cast.ts created with utilities
+- [ ] All unknown usage replaced with cast utilities
+- [ ] ESLint rules prevent violations outside designated locations
 - [ ] Test coverage remains at 100% for core logic
 - [ ] No breaking changes to existing APIs
 - [ ] All imports updated and working
