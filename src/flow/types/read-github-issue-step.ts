@@ -85,11 +85,11 @@ export class ReadGitHubIssueStep extends Step implements IStep {
     issue_number: number
   ): void {
     context.set('github.issue.number', issue_number.toString());
-    context.set('github.issue.title', issue.title);
+    context.set('github.issue.title', issue.title || '');
     context.set('github.issue.author', issue.user.login);
     context.set('github.issue.comments_count', comments.length.toString());
     context.set('github.issue.url', issueUrl);
-    context.set('github.issue.body', issue.body);
+    context.set('github.issue.body', issue.body || '');
     context.set('github.issue.state', issue.state);
     context.set('github.issue.created_at', issue.created_at);
     context.set('github.issue.updated_at', issue.updated_at);

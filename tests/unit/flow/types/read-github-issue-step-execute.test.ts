@@ -12,7 +12,7 @@ import type { ReadGitHubIssueStepConfig } from '../../../../src/validation/schem
 vi.mock('../../../../src/utils/github-url-parser.js', () => ({
   parseGitHubIssueUrl: vi.fn(url => {
     if (url === 'https://github.com/owner/repo/issues/123') {
-      return { owner: 'owner', repo: 'repo', issueNumber: 123 };
+      return { owner: 'owner', repo: 'repo', issue_number: 123 };
     }
     throw new Error('Invalid GitHub issue URL');
   }),

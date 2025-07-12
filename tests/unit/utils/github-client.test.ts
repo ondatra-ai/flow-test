@@ -5,18 +5,6 @@ import type { MockOctokit } from '../../../src/interfaces/github/index.js';
 import { cast } from '../../../src/utils/cast.js';
 import { GitHubClient } from '../../../src/utils/github-client.js';
 
-// Mock Octokit
-vi.mock('@octokit/rest', () => ({
-  Octokit: vi.fn(() => ({
-    rest: {
-      issues: {
-        get: vi.fn(),
-        listComments: vi.fn(),
-      },
-    },
-  })),
-}));
-
 describe('GitHubClient', () => {
   let client: GitHubClient;
   let mockOctokit: MockOctokit;
@@ -24,10 +12,24 @@ describe('GitHubClient', () => {
   beforeEach(async () => {
     vi.clearAllMocks();
 
-    // Get the mocked Octokit instance
-    const { Octokit } = await import('@octokit/rest');
+    // Create a mock octokit instance
+    mockOctokit = cast<MockOctokit>({
+      rest: {
+        issues: {
+          get: vi.fn(),
+          listComments: vi.fn(),
+        },
+      },
+    });
+
+    // Mock the Octokit constructor to return our mock instance
+    vi.doMock('@octokit/rest', () => ({
+      Octokit: vi.fn(() => mockOctokit),
+    }));
+
+    // Import and create client after mocking
+    const { GitHubClient } = await import('../../../src/utils/github-client.js');
     client = new GitHubClient();
-    mockOctokit = cast<MockOctokit>(new Octokit());
   });
 
   describe('constructor', () => {
@@ -70,23 +72,18 @@ describe('GitHubClient', () => {
       ];
 
       // Mock the Octokit methods
-      const mockGet = vi.fn().mockResolvedValue({ data: mockIssue });
-      const mockListComments = vi
-        .fn()
-        .mockResolvedValue({ data: mockComments });
-
-      mockOctokit.rest.issues.get = mockGet;
-      mockOctokit.rest.issues.listComments = mockListComments;
+      vi.mocked(mockOctokit.rest.issues.get).mockResolvedValue({ data: mockIssue });
+      vi.mocked(mockOctokit.rest.issues.listComments).mockResolvedValue({ data: mockComments });
 
       const result = await client.getIssueWithComments('owner', 'repo', 123);
 
-      expect(mockGet).toHaveBeenCalledWith({
+      expect(mockOctokit.rest.issues.get).toHaveBeenCalledWith({
         owner: 'owner',
         repo: 'repo',
         issue_number: 123,
       });
 
-      expect(mockListComments).toHaveBeenCalledWith({
+      expect(mockOctokit.rest.issues.listComments).toHaveBeenCalledWith({
         owner: 'owner',
         repo: 'repo',
         issue_number: 123,
@@ -99,8 +96,7 @@ describe('GitHubClient', () => {
     });
 
     it('should throw error when issue not found', async () => {
-      const mockGet = vi.fn().mockRejectedValue(new Error('Not found'));
-      mockOctokit.rest.issues.get = mockGet;
+      vi.mocked(mockOctokit.rest.issues.get).mockRejectedValue(new Error('Not found'));
 
       await expect(
         client.getIssueWithComments('owner', 'repo', 404)
@@ -116,13 +112,8 @@ describe('GitHubClient', () => {
         user: { login: 'testuser' },
       };
 
-      const mockGet = vi.fn().mockResolvedValue({ data: mockIssue });
-      const mockListComments = vi
-        .fn()
-        .mockRejectedValue(new Error('Comments error'));
-
-      mockOctokit.rest.issues.get = mockGet;
-      mockOctokit.rest.issues.listComments = mockListComments;
+      vi.mocked(mockOctokit.rest.issues.get).mockResolvedValue({ data: mockIssue });
+      vi.mocked(mockOctokit.rest.issues.listComments).mockRejectedValue(new Error('Comments error'));
 
       const result = await client.getIssueWithComments('owner', 'repo', 123);
 
@@ -141,26 +132,10 @@ describe('GitHubClient', () => {
         user: { login: 'publicuser' },
       };
 
-      const publicMockOctokit = {
-        rest: {
-          issues: {
-            get: vi.fn().mockResolvedValue({ data: mockIssue }),
-            listComments: vi.fn().mockResolvedValue({ data: [] }),
-          },
-        },
-      };
+      vi.mocked(mockOctokit.rest.issues.get).mockResolvedValue({ data: mockIssue });
+      vi.mocked(mockOctokit.rest.issues.listComments).mockResolvedValue({ data: [] });
 
-      const { Octokit } = await import('@octokit/rest');
-      cast<ReturnType<typeof vi.fn>>(Octokit).mockImplementationOnce(
-        () => publicMockOctokit
-      );
-
-      const unauthenticatedClient = new GitHubClient();
-      const result = await unauthenticatedClient.getIssueWithComments(
-        'owner',
-        'repo',
-        123
-      );
+      const result = await client.getIssueWithComments('owner', 'repo', 123);
 
       expect(result).toEqual({
         issue: mockIssue,
@@ -177,23 +152,10 @@ describe('GitHubClient', () => {
         user: { login: 'testuser' },
       };
 
-      const mockGet = vi.fn().mockResolvedValue({ data: mockIssue });
-      const mockListComments = vi.fn().mockResolvedValue({ data: [] });
+      vi.mocked(mockOctokit.rest.issues.get).mockResolvedValue({ data: mockIssue });
+      vi.mocked(mockOctokit.rest.issues.listComments).mockResolvedValue({ data: [] });
 
-      mockOctokit.rest.issues.get = mockGet;
-      mockOctokit.rest.issues.listComments = mockListComments;
-
-      const { Octokit } = await import('@octokit/rest');
-      cast<ReturnType<typeof vi.fn>>(Octokit).mockImplementationOnce(
-        () => mockOctokit
-      );
-
-      const emptyCommentsClient = new GitHubClient();
-      const result = await emptyCommentsClient.getIssueWithComments(
-        'owner',
-        'repo',
-        123
-      );
+      const result = await client.getIssueWithComments('owner', 'repo', 123);
 
       expect(result).toEqual({
         issue: mockIssue,

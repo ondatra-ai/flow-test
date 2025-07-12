@@ -114,7 +114,7 @@ describe('FlowManager', () => {
         'Unable to access flows directory'
       );
       expect(mockLogger.error).toHaveBeenCalledWith('Failed to list flows', {
-        error,
+        error: 'Permission denied',
       });
     });
   });

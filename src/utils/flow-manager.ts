@@ -11,7 +11,7 @@ import type { StepConfig } from '../types/validation/index.js';
 import type { FlowDefinition } from '../validation/index.js';
 import { FlowDefinitionSchema } from '../validation/schemas/flow.schema.js';
 
-import { castJson } from './cast.js';
+import { castJson, castError } from './cast.js';
 import { Logger } from './logger.js';
 
 /**
@@ -39,7 +39,7 @@ export class FlowManager {
         .map(file => path.basename(file, '.json'));
     } catch (error) {
       this.logger.error('Failed to list flows', {
-        error: error instanceof Error ? error.message : String(error),
+        error: castError(error).message,
       });
       throw new Error('Unable to access flows directory');
     }
