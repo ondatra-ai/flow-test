@@ -4,7 +4,7 @@ import { Octokit } from '@octokit/rest';
  * GitHub client for fetching issue and comment data
  */
 export class GitHubClient {
-  private octokit: Octokit;
+  private readonly octokit: Octokit;
 
   constructor(token?: string) {
     const authToken = token || process.env.GITHUB_TOKEN || process.env.GH_TOKEN;

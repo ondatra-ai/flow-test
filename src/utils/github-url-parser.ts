@@ -14,7 +14,8 @@ export interface GitHubIssueArgs {
  * @throws Error if URL is invalid
  */
 export function parseGitHubIssueUrl(url: string): GitHubIssueArgs {
-  const match = url.match(/github\.com\/([^/]+)\/([^/]+)\/issues\/(\d+)/);
+  const regex = /github\.com\/([^/]+)\/([^/]+)\/issues\/(\d+)/;
+  const match = regex.exec(url);
   if (!match) {
     throw new Error('Invalid GitHub issue URL');
   }
