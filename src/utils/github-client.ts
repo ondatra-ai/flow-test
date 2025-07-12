@@ -27,23 +27,40 @@ export class GitHubClient {
     issueNumber: number
   ): Promise<{ issue: unknown; comments: unknown[] }> {
     try {
-      const [issue, comments] = await Promise.all([
-        this.octokit.rest.issues.get({
-          owner,
-          repo,
-          issue_number: issueNumber,
-        }),
-        this.octokit.rest.issues.listComments({
-          owner,
-          repo,
-          issue_number: issueNumber,
-        }),
-      ]);
-
-      return { issue: issue.data, comments: comments.data };
+      return await this.fetchIssueAndComments(
+        this.octokit,
+        owner,
+        repo,
+        issueNumber
+      );
     } catch (error) {
       return await this.handleGitHubApiError(error, owner, repo, issueNumber);
     }
+  }
+
+  /**
+   * Fetch issue and comments using the provided Octokit instance
+   */
+  private async fetchIssueAndComments(
+    octokit: Octokit,
+    owner: string,
+    repo: string,
+    issueNumber: number
+  ): Promise<{ issue: unknown; comments: unknown[] }> {
+    const [issue, comments] = await Promise.all([
+      octokit.rest.issues.get({
+        owner,
+        repo,
+        issue_number: issueNumber,
+      }),
+      octokit.rest.issues.listComments({
+        owner,
+        repo,
+        issue_number: issueNumber,
+      }),
+    ]);
+
+    return { issue: issue.data, comments: comments.data };
   }
 
   /**
@@ -62,19 +79,12 @@ export class GitHubClient {
         // For public repos, retry without authentication
         try {
           const publicOctokit = new Octokit(); // No auth for public repos
-          const [issue, comments] = await Promise.all([
-            publicOctokit.rest.issues.get({
-              owner,
-              repo,
-              issue_number: issueNumber,
-            }),
-            publicOctokit.rest.issues.listComments({
-              owner,
-              repo,
-              issue_number: issueNumber,
-            }),
-          ]);
-          return { issue: issue.data, comments: comments.data };
+          return await this.fetchIssueAndComments(
+            publicOctokit,
+            owner,
+            repo,
+            issueNumber
+          );
         } catch (_retryError) {
           throw new Error(
             'GitHub authentication failed and repository is not public. Please check your github_token configuration.'

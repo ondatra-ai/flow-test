@@ -52,34 +52,15 @@ export class ReadGitHubIssueStep extends Step implements IStep {
           `${owner}/${repo}`
       );
 
-      // Create GitHub client with token
-      const client = new GitHubClient(this.githubToken);
-
-      // Fetch issue and comments
-      const { issue, comments } = await client.getIssueWithComments(
+      // Fetch issue data
+      const { issue, comments } = await this.fetchGitHubData(
         owner,
         repo,
         issueNumber
       );
 
-      // Type cast to ensure safety
-      const typedIssue = issue as GitHubIssueData;
-
-      // Populate context with issue data
-      context.set('github.issue.number', issueNumber.toString());
-      context.set('github.issue.title', typedIssue.title);
-      context.set('github.issue.author', typedIssue.user?.login || 'unknown');
-      context.set('github.issue.comments_count', comments.length.toString());
-      context.set('github.issue.url', issueUrl);
-      context.set('github.issue.body', typedIssue.body || '');
-      context.set('github.issue.state', typedIssue.state);
-      context.set('github.issue.created_at', typedIssue.created_at);
-      context.set('github.issue.updated_at', typedIssue.updated_at);
-
-      // Store comments as JSON string if including comments
-      if (this.config.includeComments) {
-        context.set('github.issue.comments', JSON.stringify(comments));
-      }
+      // Populate context with fetched data
+      this.populateContext(context, issue, comments, issueUrl, issueNumber);
 
       this.logger.info(
         `Successfully loaded GitHub issue #${issueNumber} from ${owner}/${repo}`
@@ -101,6 +82,52 @@ export class ReadGitHubIssueStep extends Step implements IStep {
         error: error instanceof Error ? error.message : String(error),
       });
       throw error;
+    }
+  }
+
+  /**
+   * Fetch issue and comments from GitHub
+   */
+  private async fetchGitHubData(
+    owner: string,
+    repo: string,
+    issueNumber: number
+  ): Promise<{ issue: GitHubIssueData; comments: unknown[] }> {
+    const client = new GitHubClient(this.githubToken);
+    const { issue, comments } = await client.getIssueWithComments(
+      owner,
+      repo,
+      issueNumber
+    );
+    return { issue: issue as GitHubIssueData, comments };
+  }
+
+  /**
+   * Populate context with GitHub issue data
+   */
+  private populateContext(
+    context: IContext,
+    issue: GitHubIssueData,
+    comments: unknown[],
+    issueUrl: string,
+    issueNumber: number
+  ): void {
+    // Set basic issue information
+    context.set('github.issue.number', issueNumber.toString());
+    context.set('github.issue.title', issue.title);
+    context.set('github.issue.author', issue.user?.login || 'unknown');
+    context.set('github.issue.comments_count', comments.length.toString());
+    context.set('github.issue.url', issueUrl);
+
+    // Set additional issue details
+    context.set('github.issue.body', issue.body || '');
+    context.set('github.issue.state', issue.state);
+    context.set('github.issue.created_at', issue.created_at);
+    context.set('github.issue.updated_at', issue.updated_at);
+
+    // Store comments if configured
+    if (this.config.includeComments) {
+      context.set('github.issue.comments', JSON.stringify(comments));
     }
   }
 
