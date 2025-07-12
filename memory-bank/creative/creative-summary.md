@@ -1,50 +1,43 @@
 # CREATIVE PHASES SUMMARY
 
-## Task: Centralize Type System and Unknown Type Handling
+## Task: Centralize Type System with Type/Interface Separation and Cast Utilities
 
 ### Creative Phases Completed
 
-#### 1. Type Organization Architecture ✅
+#### 1. Type and Interface Organization Architecture ✅
 
-**Decision**: Domain-Based Nested Structure
+**Decision**: Separated Folders with Domain-Based Structure
 
-- Organized by domain (flow, providers, github, config, validation, utils)
+- Types organized in `src/types/` by domain
+- Interfaces organized in `src/interfaces/` by domain
 - Maximum 2 levels of nesting
 - Barrel exports for clean imports
-- Special handling for unknown-handler.ts
 
-#### 2. Unknown Handler Architecture ✅
+#### 2. ESLint Rules Design ✅
 
-**Decision**: Flat Static Methods with Individual Exports
-
-- Single UnknownHandler class with static methods
-- Grouped into: Type Guards, Converters, Validators, Utilities
-- Dual API supporting both class and function imports
-- Zero runtime overhead for type guards
-
-#### 3. Cast Function Algorithm ✅
-
-**Decision**: Registry-Based Validation with Type Guards
-
-- Clean cast<T,X>(x:X):T signature with overloads
-- Registry-based type guards, inline validators, schema support
-- Fast registry lookups (~5μs) with lazy validation
-- Clear, specific error messages
-
-#### 4. ESLint Rules Design ✅
-
-**Decision**: Layered Configuration Using no-restricted-syntax
+**Decision**: Configuration Using no-restricted-syntax with Three Rules
 
 - Built-in ESLint rules only (no custom plugin)
-- AST selectors for type detection
-- File-based overrides for src/types/
+- AST selectors for type, interface, and unknown detection
+- Different messages for types vs interfaces vs unknown
+- File-based overrides for src/types/, src/interfaces/, and src/utils/cast.ts
 - Migration support with warnings
 
-#### 5. Migration Strategy ✅
+#### 3. Cast Function Design ✅
+
+**Decision**: Simple Type Assertion Helper
+
+- Minimal API with cast<T> function
+- Optional safeCast with validation
+- Common type guards included
+- Only file allowed to use unknown keyword
+- Located at src/utils/cast.ts
+
+#### 4. Migration Strategy ✅
 
 **Decision**: Automated Incremental Migration
 
-- Custom scripts using ts-morph
+- Separate scripts for types, interfaces, and unknown
 - Dependency-aware migration ordering
 - Automated import updates
 - Incremental validation at each step
@@ -53,16 +46,18 @@
 ## Key Architectural Decisions
 
 1. **Type Location**: All types must reside in `src/types/` organized by domain
-2. **Unknown Handling**: Only `unknown-handler.ts` may use the `unknown` keyword
-3. **Import Strategy**: Use path aliases (@/types) for clean imports
-4. **Backward Compatibility**: Temporary re-exports during migration
-5. **Validation Approach**: Progressive enhancement from simple to complex
+2. **Interface Location**: All interfaces must reside in `src/interfaces/` organized by domain
+3. **Unknown Handling**: Only `src/utils/cast.ts` may use the `unknown` keyword
+4. **Import Strategy**: Use path aliases (@/types, @/interfaces, @/utils/cast) for clean imports
+5. **Backward Compatibility**: Temporary re-exports during migration
+6. **Test Exception**: Test files can define local types, interfaces, and use unknown
 
 ## Implementation Readiness
 
 All creative design work is complete. The project now has:
 
-- Clear architectural vision
+- Clear architectural vision with type/interface separation
+- Centralized unknown handling through cast.ts
 - Detailed implementation patterns
 - Comprehensive migration plan
 - Risk mitigation strategies

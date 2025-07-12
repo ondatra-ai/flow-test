@@ -1,67 +1,76 @@
-# CREATIVE PHASE: TYPE ORGANIZATION ARCHITECTURE
+# CREATIVE PHASE: TYPE AND INTERFACE ORGANIZATION ARCHITECTURE
 
 ## Problem Statement
 
-The codebase currently has types and interfaces scattered across 13 different files with no consistent organization. We need to design a comprehensive folder structure in `src/types/` that:
+The codebase currently has types and interfaces scattered across 13 different files with no consistent organization. We need to design a comprehensive folder structure that:
 
-- Organizes 12 type definitions and 10 interface definitions logically
+- Organizes 12 type definitions in `src/types/`
+- Organizes 10 interface definitions in `src/interfaces/`
 - Supports future growth without becoming unwieldy
 - Maintains clear separation of concerns
-- Enables easy discovery and import of types
+- Enables easy discovery and import of types/interfaces
 - Prevents circular dependencies
 - Supports backward compatibility during migration
 
 ## Decision Summary
 
-**Chosen Approach:** Domain-Based Nested Structure
+**Chosen Approach:** Separated Type and Interface Folders with Domain-Based Structure
 
 ### Final Architecture
 
 ```
-src/types/
-├── index.ts                    # Barrel exports for all types
-├── unknown-handler.ts          # Centralized unknown handling
-├── unknown-handler.test.ts     # Tests for unknown handler
-├── flow/                       # Flow-related types
-│   ├── index.ts
-│   ├── flow.types.ts
-│   ├── step.types.ts
-│   ├── context.types.ts
-│   └── session.types.ts
-├── providers/                  # Provider-related types
-│   ├── index.ts
-│   ├── provider.types.ts
-│   └── llm.types.ts
-├── github/                     # GitHub-related types
-│   ├── index.ts
-│   └── github.types.ts
-├── config/                     # Configuration types
-│   ├── index.ts
-│   └── tokens.types.ts
-├── validation/                 # Validation types
-│   ├── index.ts
-│   └── schemas.types.ts
-└── utils/                      # Utility types
-    ├── index.ts
-    └── logger.types.ts
+src/
+├── types/                      # Type definitions only
+│   ├── index.ts               # Barrel exports for all types
+│   ├── flow/                  # Flow-related types
+│   │   ├── index.ts
+│   │   └── flow.types.ts
+│   ├── github/                # GitHub-related types
+│   │   ├── index.ts
+│   │   └── github.types.ts
+│   ├── config/                # Configuration types
+│   │   ├── index.ts
+│   │   └── tokens.types.ts
+│   └── validation/            # Validation types
+│       ├── index.ts
+│       └── schemas.types.ts
+│
+└── interfaces/                 # Interface definitions only
+    ├── index.ts               # Barrel exports for all interfaces
+    ├── flow/                  # Flow-related interfaces
+    │   ├── index.ts
+    │   ├── context.interface.ts
+    │   ├── step.interface.ts
+    │   ├── session.interface.ts
+    │   └── flow.interface.ts
+    ├── providers/             # Provider-related interfaces
+    │   ├── index.ts
+    │   ├── provider.interface.ts
+    │   └── helper.interface.ts
+    ├── github/                # GitHub-related interfaces
+    │   ├── index.ts
+    │   └── github.interface.ts
+    └── utils/                 # Utility interfaces
+        ├── index.ts
+        └── logger.interface.ts
 ```
 
 ## Key Design Decisions
 
-1. **Domain-based organization** for intuitive type discovery
-2. **Shallow nesting** (max 2 levels) to avoid complexity
-3. **Barrel exports** for clean import paths
-4. **Consistent naming** with `.types.ts` suffix
-5. **Special handling** for unknown-handler.ts as the only file allowed to use 'unknown'
+1. **Separation of Concerns**: Types in `src/types/`, interfaces in `src/interfaces/`
+2. **Domain-based organization** within each folder for intuitive discovery
+3. **Shallow nesting** (max 2 levels) to avoid complexity
+4. **Barrel exports** for clean import paths
+5. **Consistent naming**: `.types.ts` for types, `.interface.ts` for interfaces
 
 ## Migration Strategy
 
 1. Config types first (least dependencies)
-2. GitHub types (standalone)
-3. Provider types
-4. Flow types (most complex)
-5. Validation types
-6. Utility types
+2. GitHub types and interfaces
+3. Utility interfaces
+4. Provider interfaces
+5. Flow interfaces (most complex)
+6. Validation types
 
 ## Backward Compatibility
 
@@ -69,5 +78,5 @@ During migration, maintain re-exports in original locations:
 
 ```typescript
 // In src/flow/flow.ts (temporary)
-export type { Flow } from '../types/flow/index.js';
+export type { IFlow } from '../interfaces/flow/index.js';
 ```
