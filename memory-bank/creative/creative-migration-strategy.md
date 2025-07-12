@@ -2,101 +2,126 @@
 
 ## Problem Statement
 
-Design a comprehensive migration strategy to safely move 12 type definitions to `src/types/`, 10 interface definitions to `src/interfaces/`, and replace unknown usage with cast utilities while maintaining backward compatibility.
+Design a migration strategy that starts with implementing ESLint rules to identify all violations, then systematically fixes them step by step.
 
 ## Decision Summary
 
-**Chosen Approach:** Automated Incremental Migration with Validation
+**Chosen Approach:** ESLint-Driven Migration
 
 ### Migration Timeline
 
-- **Day 1**: Preparation and Infrastructure Setup
-- **Day 2**: Type Migration to src/types/
-- **Day 3**: Interface Migration to src/interfaces/
-- **Day 4**: Unknown Usage Migration to cast utilities
-- **Day 5**: Cleanup and Validation
+- **Phase 1**: Implement ESLint Rules (Day 1)
+- **Phase 2**: Fix Type Violations (Day 2)
+- **Phase 3**: Fix Interface Violations (Day 3)
+- **Phase 4**: Fix Unknown Violations (Day 4)
+- **Phase 5**: Cleanup and Validation (Day 5)
 
-### Key Components
+### Phase Details
 
-#### Migration Scripts
+#### Phase 1: Implement ESLint Rules
 
-1. **analyze-types.ts** - Find all type declarations
-2. **analyze-interfaces.ts** - Find all interface declarations
-3. **analyze-unknown.ts** - Find all unknown usage
-4. **migrate-types.ts** - Move types to src/types/ with dependency ordering
-5. **migrate-interfaces.ts** - Move interfaces to src/interfaces/
-6. **migrate-unknown.ts** - Replace unknown with cast utilities
-7. **update-imports.ts** - Automatically update import paths
-8. **verify-migration.ts** - Validate migration success
-9. **rollback.ts** - Emergency rollback procedures
+1. **Update .eslintrc.json**:
+   - Add no-restricted-syntax rules for types, interfaces, and unknown
+   - Set as "error" level to see all violations immediately
+   - Add file overrides for allowed locations
 
-#### Migration Order
+2. **Run ESLint to identify violations**:
 
-Based on dependency analysis:
+   ```bash
+   npm run lint
+   ```
 
-1. Create cast.ts utilities first
-2. Configuration types (no dependencies)
-3. GitHub types and interfaces
-4. Utility interfaces
-5. Provider interfaces
-6. Flow interfaces (complex dependencies)
-7. Validation types
-8. Unknown usage replacement
+   This will show:
+   - All type definitions outside src/types/
+   - All interface definitions outside src/interfaces/
+   - All unknown usage outside src/utils/cast.ts
 
-#### Safety Measures
+3. **Document violation counts**:
+   - Count type violations
+   - Count interface violations
+   - Count unknown violations
+   - Create priority list based on dependencies
 
-- Backup branch before starting
-- Re-exports maintain compatibility
-- Incremental commits for partial rollback
-- Test validation after each step
-- ESLint rules as warnings initially
+#### Phase 2: Fix Type Violations
 
-### Technical Approach
+1. **Create src/types/ structure**:
+   - Create subdirectories (config, github, validation, etc.)
+   - Create index.ts files
 
-- Use ts-morph for AST manipulation
-- Dependency graph for migration ordering
-- Automated import path updates
-- Pattern matching for unknown replacement
-- Git automation for commits
+2. **Move types systematically**:
+   - Start with types that have no dependencies
+   - Move type definition to appropriate file
+   - Update imports in source file
+   - Add temporary re-export for compatibility
+   - Run tests after each move
 
-### Unknown Migration Patterns
+3. **Verify no type violations remain**
 
-```typescript
-// Before:
-const data = JSON.parse(json) as unknown;
-// After:
-import { cast } from '@/utils/cast';
-const data = cast<any>(JSON.parse(json));
+#### Phase 3: Fix Interface Violations
 
-// Before:
-} catch (error: unknown) {
-// After:
-} catch (error) {
-  const err = cast<Error>(error);
-```
+1. **Create src/interfaces/ structure**:
+   - Create subdirectories (flow, providers, utils, github)
+   - Create index.ts files
 
-### Rollback Strategy
+2. **Move interfaces systematically**:
+   - Start with standalone interfaces
+   - Move interface definition to appropriate file
+   - Update imports in source file
+   - Add temporary re-export for compatibility
+   - Run tests after each move
 
-- **Critical Issues**: Full git revert to backup
-- **Major Issues**: Revert specific commits
-- **Minor Issues**: Fix forward with patches
+3. **Verify no interface violations remain**
+
+#### Phase 4: Fix Unknown Violations
+
+1. **Create src/utils/cast.ts**:
+   - Implement cast<T> function
+   - Add safeCast with validation
+   - Add common type guards
+
+2. **Replace unknown usage**:
+   - Replace JSON parsing patterns
+   - Replace error handling patterns
+   - Replace type assertions
+   - Update imports to use cast utilities
+   - Run tests after each replacement
+
+3. **Verify no unknown violations remain**
+
+#### Phase 5: Cleanup and Validation
+
+1. **Remove temporary re-exports**
+2. **Update all import paths**
+3. **Run full test suite**
+4. **Update documentation**
+
+### Benefits of ESLint-First Approach
+
+1. **Immediate Visibility**: See all violations upfront
+2. **Guided Process**: ESLint errors guide what to fix
+3. **Incremental Progress**: Fix one violation at a time
+4. **Validation Built-in**: ESLint confirms when violations are fixed
+5. **No Guesswork**: Clear list of what needs to be moved/fixed
+
+### Expected Violations
+
+Based on analysis:
+
+- ~12 type definition violations
+- ~10 interface definition violations
+- ~20-30 unknown usage violations
 
 ### Success Metrics
 
-- All 12 types successfully migrated to src/types/
-- All 10 interfaces successfully migrated to src/interfaces/
-- All unknown usage replaced with cast utilities
-- src/utils/cast.ts created and working
-- All imports updated (estimated 150+)
+- Zero ESLint errors for type/interface/unknown rules
 - All tests passing
 - Build successful
-- ESLint rules enabled
+- No breaking changes to APIs
 
-## Benefits
+### Rollback Strategy
 
-1. **Automated** - Reduces human error
-2. **Incremental** - Each step validated
-3. **Traceable** - Clear migration log
-4. **Reversible** - Multiple rollback options
-5. **Reproducible** - Scripts can be reused
-6. **Type Safe** - Centralized unknown handling
+Since we're not using automated scripts:
+
+- Git commit after each successful move
+- Can revert individual commits if needed
+- Re-exports ensure no breaking changes during migration

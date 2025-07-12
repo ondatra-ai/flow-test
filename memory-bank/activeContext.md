@@ -2,72 +2,71 @@
 
 ## Current Focus
 
-Creative phase complete for comprehensive type system centralization with type/interface separation and cast utilities (GitHub Issue #76)
+Ready to implement ESLint-first migration approach for type system centralization (GitHub Issue #76)
 
 ## Status
 
-**Mode**: CREATIVE COMPLETE  
-**Phase**: All 4 creative phases successfully completed  
+**Mode**: READY FOR IMPLEMENTATION  
+**Approach**: ESLint-First Migration  
 **Task**: centralize-type-system-20250712
 
-## Creative Phases Completed
+## New Implementation Approach
 
-### 1. Type and Interface Organization Architecture ✅
+### ESLint-First Strategy
 
-- **Decision**: Separated folders with domain-based structure
-- **Key Features**: Types in src/types/, interfaces in src/interfaces/, max 2 levels nesting, barrel exports
-- **Document**: memory-bank/creative/creative-type-organization.md
+Instead of creating infrastructure first, we will:
 
-### 2. ESLint Rules Design ✅
+1. **Implement ESLint rules immediately** to identify all violations
+2. **Use ESLint errors as a guide** to fix issues systematically
+3. **Fix violations incrementally** with immediate validation
 
-- **Decision**: Configuration using no-restricted-syntax with three separate rules
-- **Key Features**: AST selectors for types, interfaces, and unknown; file overrides; migration support
-- **Document**: memory-bank/creative/creative-eslint-rules.md
+### Implementation Order
 
-### 3. Cast Function Design ✅
+1. **Phase 1**: Add ESLint rules to .eslintrc.json
+2. **Phase 2**: Run lint and document all violations
+3. **Phase 3**: Fix type violations one by one
+4. **Phase 4**: Fix interface violations one by one
+5. **Phase 5**: Fix unknown violations one by one
+6. **Phase 6**: Remove temporary re-exports and cleanup
 
-- **Decision**: Simple type assertion helper for centralized unknown handling
-- **Key Features**: Minimal API, optional validation, only file allowed to use unknown
-- **Document**: memory-bank/creative/creative-cast-design.md
-
-### 4. Migration Strategy ✅
-
-- **Decision**: Automated incremental migration
-- **Key Features**: Separate scripts for types, interfaces, and unknown; dependency ordering; 5-day timeline
-- **Document**: memory-bank/creative/creative-migration-strategy.md
-
-## Key Architectural Decisions
+## Key Architectural Decisions (Unchanged)
 
 1. All types must reside in `src/types/` organized by domain
 2. All interfaces must reside in `src/interfaces/` organized by domain
 3. Only `src/utils/cast.ts` may use the `unknown` keyword
 4. Use path aliases (@/types, @/interfaces, @/utils/cast) for clean imports
-5. Temporary re-exports for backward compatibility
+5. Temporary re-exports for backward compatibility during migration
 6. Test files can define local types, interfaces, and use unknown
 
-## Implementation Plan Ready
+## Benefits of New Approach
 
-- Phase 1: Infrastructure Setup (Day 1)
-- Phase 2: Type Migration to src/types/ (Day 2)
-- Phase 3: Interface Migration to src/interfaces/ (Day 3)
-- Phase 4: Unknown Usage Migration (Day 4)
-- Phase 5: Cleanup & Validation (Day 5)
+- **Immediate Visibility**: See all problems upfront
+- **Guided Process**: ESLint errors tell us exactly what to fix
+- **Progress Tracking**: Watch violation count decrease
+- **No Infrastructure Waste**: Only create folders/files as needed
+- **Validation Built-in**: ESLint confirms when each fix is correct
 
-## Next Steps
+## Next Immediate Steps
 
-1. Switch to IMPLEMENT mode
-2. Begin with Phase 1: Infrastructure setup
-3. Create src/interfaces/ directory structure
-4. Create src/utils/cast.ts with utilities
-5. Set up ESLint rules as warnings
-6. Execute migration plan
+1. Open `.eslintrc.json`
+2. Add the no-restricted-syntax rules from tasks.md
+3. Run `npm run lint` to see all violations
+4. Start fixing violations based on ESLint output
 
-## Context for Next Mode
+## Expected Initial Results
 
-**Recommended**: IMPLEMENT mode to begin executing the migration plan
+After adding rules and running lint:
 
-- Start with creating src/interfaces/ directory structure
-- Create src/utils/cast.ts with simple cast utilities
-- Set up ESLint rules as warnings with all three restrictions
-- Create migration scripts
-- Begin incremental migration of types, interfaces, and unknown usage
+- ~12 type definition errors
+- ~10 interface definition errors
+- ~20-30 unknown keyword errors
+
+Each error will show:
+
+- Exact file and line number
+- Clear message about what's wrong
+- Where it should be moved/how to fix it
+
+## Context for Implementation
+
+The ESLint-first approach transforms the migration from a planning exercise to a systematic fixing process. Each ESLint error becomes a clear task with a known solution.

@@ -1,6 +1,6 @@
 # CREATIVE PHASES SUMMARY
 
-## Task: Centralize Type System with Type/Interface Separation and Cast Utilities
+## Task: Centralize Type System with ESLint-First Migration
 
 ### Creative Phases Completed
 
@@ -21,7 +21,7 @@
 - AST selectors for type, interface, and unknown detection
 - Different messages for types vs interfaces vs unknown
 - File-based overrides for src/types/, src/interfaces/, and src/utils/cast.ts
-- Migration support with warnings
+- Clear, actionable error messages
 
 #### 3. Cast Function Design ✅
 
@@ -35,32 +35,32 @@
 
 #### 4. Migration Strategy ✅
 
-**Decision**: Automated Incremental Migration
+**Decision**: ESLint-First Migration Approach
 
-- Separate scripts for types, interfaces, and unknown
-- Dependency-aware migration ordering
-- Automated import updates
-- Incremental validation at each step
-- 5-day migration timeline
+- Start by implementing ESLint rules
+- Use violations as a task list
+- Fix violations systematically
+- Create infrastructure only as needed
+- Validate progress through ESLint
 
-## Key Architectural Decisions
+## Key Implementation Decision
 
-1. **Type Location**: All types must reside in `src/types/` organized by domain
-2. **Interface Location**: All interfaces must reside in `src/interfaces/` organized by domain
-3. **Unknown Handling**: Only `src/utils/cast.ts` may use the `unknown` keyword
-4. **Import Strategy**: Use path aliases (@/types, @/interfaces, @/utils/cast) for clean imports
-5. **Backward Compatibility**: Temporary re-exports during migration
-6. **Test Exception**: Test files can define local types, interfaces, and use unknown
+**ESLint-First Approach**: Rather than creating infrastructure upfront, implement ESLint rules first to identify all violations, then fix them systematically. This provides:
+
+- Clear visibility of all issues
+- Guided migration process
+- Built-in validation
+- Progress tracking
+- No wasted effort
 
 ## Implementation Readiness
 
-All creative design work is complete. The project now has:
+All creative design work is complete. The implementation approach is:
 
-- Clear architectural vision with type/interface separation
-- Centralized unknown handling through cast.ts
-- Detailed implementation patterns
-- Comprehensive migration plan
-- Risk mitigation strategies
-- Success criteria defined
+1. Add ESLint rules to .eslintrc.json
+2. Run lint to see all violations
+3. Fix each violation systematically
+4. Validate with ESLint after each fix
+5. Complete when zero violations remain
 
-Ready to proceed to IMPLEMENT mode.
+Ready to proceed to IMPLEMENT mode with ESLint-first approach.
