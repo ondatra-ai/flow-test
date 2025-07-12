@@ -105,7 +105,7 @@
       }
     },
     {
-      "files": ["tests/**/*.test.ts", "tests/**/*.spec.ts"],
+      "files": ["tests/**/*.test.ts", "tests/**/*.spec.ts", "tests/test-utils/**/*.ts"],
       "rules": {
         "max-lines-per-function": ["error", { "max": 250, "skipBlankLines": true, "skipComments": true }],
         "max-nested-callbacks": ["error", 5],
@@ -121,6 +121,22 @@
           {
             "selector": "TSInterfaceDeclaration",
             "message": "Interfaces should be in src/interfaces/, not src/types/"
+          }
+        ]
+      }
+    },
+    {
+      "files": ["tests/test-utils/custom-matchers.ts"],
+      "rules": {
+
+        "@typescript-eslint/explicit-function-return-type": "off",
+        "@typescript-eslint/require-await": "off",
+        "@typescript-eslint/unbound-method": "off",
+        "no-restricted-syntax": [
+          "error",
+          {
+            "selector": "TSAsExpression > TSUnknownKeyword",
+            "message": "Use cast<T>() from '@/utils/cast' instead of 'as unknown as T'"
           }
         ]
       }

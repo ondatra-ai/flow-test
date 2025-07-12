@@ -2,10 +2,7 @@ import { spawn, ChildProcess, SpawnOptionsWithoutStdio } from 'child_process';
 import { existsSync, mkdirSync, writeFileSync, rmSync } from 'fs';
 import { resolve } from 'path';
 
-import type {
-  CommandResult,
-  RunCommandOptions,
-} from '../../src/types/utils/index.js';
+import type { CommandResult, RunCommandOptions } from './types/index.js';
 
 // Chat session interface removed - not needed for current testing
 
