@@ -36,7 +36,7 @@ describe('GitHubClient', () => {
     // Get the mocked Octokit instance
     const { Octokit } = await import('@octokit/rest');
     client = new GitHubClient('test-token');
-    mockOctokit = new Octokit() as MockOctokit;
+    mockOctokit = new Octokit() as unknown as MockOctokit;
   });
 
   describe('constructor', () => {
@@ -170,7 +170,7 @@ describe('GitHubClient', () => {
       };
 
       const { Octokit } = await import('@octokit/rest');
-      (Octokit as ReturnType<typeof vi.fn>).mockImplementationOnce(
+      (Octokit as unknown as ReturnType<typeof vi.fn>).mockImplementationOnce(
         () => publicMockOctokit
       );
 
@@ -200,7 +200,7 @@ describe('GitHubClient', () => {
       };
 
       const { Octokit } = await import('@octokit/rest');
-      (Octokit as ReturnType<typeof vi.fn>).mockImplementationOnce(
+      (Octokit as unknown as ReturnType<typeof vi.fn>).mockImplementationOnce(
         () => publicMockOctokit
       );
 

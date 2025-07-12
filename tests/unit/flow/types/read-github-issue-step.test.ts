@@ -63,7 +63,7 @@ describe('ReadGitHubIssueStep', () => {
 
       const step = new ReadGitHubIssueStep(mockLogger, config);
 
-      expect(step.id).toBe('test-step');
+      expect(step.getId()).toBe('test-step');
       expect(step.githubToken).toBe('test-token');
     });
 
@@ -94,6 +94,7 @@ describe('ReadGitHubIssueStep', () => {
         type: 'read-github-issue',
         id: 'test-step',
         issueUrl: 'https://github.com/owner/repo/issues/123',
+        includeComments: true,
         nextStepId: {},
       };
 
