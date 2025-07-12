@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 import { GitHubClient } from '../../../src/utils/github-client.js';
