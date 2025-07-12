@@ -3,7 +3,7 @@ import { injectable } from 'tsyringe';
 
 import type { GitHubIssue, GitHubComment } from '../types/github/index.js';
 
-import { cast } from './cast.js';
+import { castError } from './cast.js';
 
 // Re-export for backward compatibility
 export type { GitHubIssue, GitHubComment } from '../types/github/index.js';
@@ -36,7 +36,12 @@ export class GitHubClient {
         issueNumber
       );
     } catch (error) {
-      return await this.handleGitHubApiError(error, owner, repo, issueNumber);
+      return await this.handleGitHubApiError(
+        castError(error),
+        owner,
+        repo,
+        issueNumber
+      );
     }
   }
 
@@ -66,7 +71,7 @@ export class GitHubClient {
   }
 
   private async handleGitHubApiError(
-    error: ReturnType<typeof cast>,
+    error: Error,
     owner: string,
     repo: string,
     issueNumber: number

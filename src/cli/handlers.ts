@@ -1,6 +1,7 @@
 import { container } from '../config/container.js';
 import { SERVICES } from '../config/tokens.js';
 import { Session } from '../flow/session/session.js';
+import { cast } from '../utils/cast.js';
 import { FlowManager } from '../utils/flow-manager.js';
 import { parseGitHubIssueUrl } from '../utils/github-url-parser.js';
 import type { Logger } from '../utils/logger.js';
@@ -58,13 +59,13 @@ export async function handleFlowRunCommand(
     // Handle GitHub issue URL if provided
     if (options?.githubIssue) {
       try {
-        const { owner, repo, issueNumber } = parseGitHubIssueUrl(
+        const { owner, repo, issue_number } = parseGitHubIssueUrl(
           options.githubIssue
         );
         context.set('github.issue.url', options.githubIssue);
         context.set('github.issue.owner', owner);
         context.set('github.issue.repo', repo);
-        context.set('github.issue.number', issueNumber.toString());
+        context.set('github.issue.number', issue_number.toString());
       } catch (error) {
         const errorMessage =
           error instanceof Error
@@ -87,7 +88,8 @@ export async function handleFlowRunCommand(
 
     logger.info(`Flow '${flowName}' completed successfully`);
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
+    const errorMessage =
+      error instanceof Error ? error.message : cast<string>(error);
     logger.error(`Flow execution failed: ${errorMessage}`);
     throw error;
   }

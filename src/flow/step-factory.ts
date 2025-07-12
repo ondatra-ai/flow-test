@@ -4,7 +4,6 @@ import { SERVICES } from '../config/tokens.js';
 import type { StepConfig } from '../types/validation/index.js';
 import { GitHubClient } from '../utils/github-client.js';
 import { Logger } from '../utils/logger.js';
-import { validateStep } from '../validation/index.js';
 
 import type { IStep } from './step.js';
 import { ActionStep } from './types/action-step.js';
@@ -26,32 +25,27 @@ export class StepFactory {
    * Create a step instance based on step data
    */
   createStep(stepData: StepConfig): IStep {
-    // Validate step data using Zod schema
-    const validatedConfig = validateStep(stepData);
-
     // Create appropriate step instance based on type
-    switch (validatedConfig.type) {
+    switch (stepData.type) {
       case 'action':
-        return new ActionStep(this.logger, validatedConfig);
+        return new ActionStep(this.logger, stepData);
 
       case 'decision':
-        return new DecisionStep(this.logger, validatedConfig);
+        return new DecisionStep(this.logger, stepData);
 
       case 'log':
-        return new LogStep(this.logger, validatedConfig);
+        return new LogStep(this.logger, stepData);
 
       case 'read-github-issue':
         return new ReadGitHubIssueStep(
           this.logger,
           this.githubClient,
-          validatedConfig
+          stepData
         );
 
       default:
-        // This should never happen since validateStep ensures valid types
-        throw new Error(
-          `Unknown step type: ${JSON.stringify(validatedConfig)}`
-        );
+        // This should never happen since Zod schema ensures valid types
+        throw new Error(`Unknown step type: ${JSON.stringify(stepData)}`);
     }
   }
 }

@@ -1,6 +1,7 @@
 import { inject, injectable } from 'tsyringe';
 
 import { SERVICES } from '../../config/tokens.js';
+import { cast } from '../../utils/cast.js';
 import {
   GitHubClient,
   type GitHubIssue,
@@ -46,30 +47,31 @@ export class ReadGitHubIssueStep extends Step implements IStep {
 
     try {
       const issueUrl = context.get('github.issue.url') || this.config.issueUrl;
-      const { owner, repo, issueNumber } = parseGitHubIssueUrl(issueUrl);
+      const { owner, repo, issue_number } = parseGitHubIssueUrl(issueUrl);
 
       this.logger.info(
-        `ReadGitHubIssueStep: Reading issue #${issueNumber} from ` +
+        `ReadGitHubIssueStep: Reading issue #${issue_number} from ` +
           `${owner}/${repo}`
       );
 
       const { issue, comments } = await this.githubClient.getIssueWithComments(
         owner,
         repo,
-        issueNumber
+        issue_number
       );
 
-      this.populateContext(context, issue, comments, issueUrl, issueNumber);
+      this.populateContext(context, issue, comments, issueUrl, issue_number);
 
       this.logger.info(
-        `Successfully loaded GitHub issue #${issueNumber} from ${owner}/${repo}`
+        `Successfully loaded GitHub issue #${issue_number} from ` +
+          `${owner}/${repo}`
       );
 
       return super.execute(context);
     } catch (error) {
       this.logger.error(`ReadGitHubIssueStep failed`, {
         issueUrl: this.config.issueUrl,
-        error: error instanceof Error ? error.message : String(error),
+        error: error instanceof Error ? error.message : cast<string>(error),
       });
       throw error;
     }
@@ -80,9 +82,9 @@ export class ReadGitHubIssueStep extends Step implements IStep {
     issue: GitHubIssue,
     comments: GitHubComment[],
     issueUrl: string,
-    issueNumber: number
+    issue_number: number
   ): void {
-    context.set('github.issue.number', issueNumber.toString());
+    context.set('github.issue.number', issue_number.toString());
     context.set('github.issue.title', issue.title);
     context.set('github.issue.author', issue.user.login);
     context.set('github.issue.comments_count', comments.length.toString());

@@ -1,7 +1,5 @@
 import { z } from 'zod';
 
-import { cast } from '../../utils/cast.js';
-
 /**
  * Base schema for all step configurations
  */
@@ -74,25 +72,6 @@ export const StepConfigSchema = z.union([
   LogStepConfigSchema,
   ReadGitHubIssueStepConfigSchema,
 ]);
-
-/**
- * Normalize step type to lowercase for case-insensitive validation
- */
-export function normalizeStepType(
-  data: ReturnType<typeof cast>
-): ReturnType<typeof cast> {
-  if (typeof data === 'object' && data !== null && 'type' in data) {
-    const typedData = data as Record<string, ReturnType<typeof cast>>;
-    return {
-      ...typedData,
-      type:
-        typeof typedData.type === 'string'
-          ? typedData.type.toLowerCase()
-          : typedData.type,
-    };
-  }
-  return data;
-}
 
 // Re-export for backward compatibility
 export type {

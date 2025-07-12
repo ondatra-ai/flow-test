@@ -8,7 +8,7 @@ import { Flow, type IFlow } from '../flow/flow.js';
 import { StepFactory } from '../flow/step-factory.js';
 import { type IStep } from '../flow/step.js';
 import type { StepConfig } from '../types/validation/index.js';
-import { validateFlow, type FlowDefinition } from '../validation/index.js';
+import type { FlowDefinition } from '../validation/index.js';
 import { FlowDefinitionSchema } from '../validation/schemas/flow.schema.js';
 
 import { castJson } from './cast.js';
@@ -53,7 +53,7 @@ export class FlowManager {
 
     try {
       const jsonData = await fs.readFile(filePath, 'utf-8');
-      const flowData = this.parseFlowData(jsonData);
+      const flowData = castJson(FlowDefinitionSchema, jsonData);
       return this.convertToFlow(flowData);
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
@@ -67,26 +67,12 @@ export class FlowManager {
   }
 
   /**
-   * Parse JSON data and validate it using Zod schema
-   */
-  private parseFlowData(jsonData: string): FlowDefinition {
-    return castJson(FlowDefinitionSchema, jsonData);
-  }
-
-  /**
    * Convert validated FlowDefinition to Flow object
    */
   public convertToFlow(flowData: FlowDefinition): Flow {
-    const validatedFlowData = validateFlow(flowData);
-    const steps = validatedFlowData.steps.map(stepData =>
-      this.createStep(stepData)
-    );
+    const steps = flowData.steps.map(stepData => this.createStep(stepData));
 
-    return new Flow(
-      validatedFlowData.id,
-      steps,
-      validatedFlowData.initialStepId
-    );
+    return new Flow(flowData.id, steps, flowData.initialStepId);
   }
 
   /**

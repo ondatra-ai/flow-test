@@ -20,6 +20,6 @@ export function parseGitHubIssueUrl(url: string): GitHubIssueArgs {
   return {
     owner,
     repo,
-    issueNumber: parseInt(issueNumber, 10),
+    issue_number: parseInt(issueNumber, 10),
   };
 }
