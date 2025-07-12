@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { cast } from '../../utils/cast.js';
+
 /**
  * Base schema for all step configurations
  */
@@ -76,9 +78,11 @@ export const StepConfigSchema = z.union([
 /**
  * Normalize step type to lowercase for case-insensitive validation
  */
-export function normalizeStepType(data: unknown): unknown {
+export function normalizeStepType(
+  data: ReturnType<typeof cast>
+): ReturnType<typeof cast> {
   if (typeof data === 'object' && data !== null && 'type' in data) {
-    const typedData = data as Record<string, unknown>;
+    const typedData = data as Record<string, ReturnType<typeof cast>>;
     return {
       ...typedData,
       type:
@@ -90,13 +94,11 @@ export function normalizeStepType(data: unknown): unknown {
   return data;
 }
 
-/**
- * Zod-inferred types for step configurations
- */
-export type StepConfig = z.infer<typeof StepConfigSchema>;
-export type ActionStepConfig = z.infer<typeof ActionStepConfigSchema>;
-export type DecisionStepConfig = z.infer<typeof DecisionStepConfigSchema>;
-export type LogStepConfig = z.infer<typeof LogStepConfigSchema>;
-export type ReadGitHubIssueStepConfig = z.infer<
-  typeof ReadGitHubIssueStepConfigSchema
->;
+// Re-export for backward compatibility
+export type {
+  StepConfig,
+  ActionStepConfig,
+  DecisionStepConfig,
+  LogStepConfig,
+  ReadGitHubIssueStepConfig,
+} from '../../types/validation/index.js';

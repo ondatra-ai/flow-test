@@ -1,5 +1,7 @@
 import { injectable } from 'tsyringe';
 
+import type { Logger, LogMetadata } from '../interfaces/utils/index.js';
+
 /**
  * Log levels for the application
  */
@@ -10,15 +12,8 @@ export enum LogLevel {
   DEBUG = 'debug',
 }
 
-/**
- * Logger interface for consistent logging across the application
- */
-export interface Logger {
-  error(message: string, meta?: Record<string, unknown>): void;
-  warn(message: string, meta?: Record<string, unknown>): void;
-  info(message: string, meta?: Record<string, unknown>): void;
-  debug(message: string, meta?: Record<string, unknown>): void;
-}
+// Re-export for backward compatibility
+export type { Logger } from '../interfaces/utils/index.js';
 
 /**
  * Simple console logger implementation
@@ -27,23 +22,23 @@ export interface Logger {
 export class ConsoleLogger implements Logger {
   constructor(private readonly level: LogLevel = LogLevel.INFO) {}
 
-  public error(message: string, meta?: Record<string, unknown>): void {
+  public error(message: string, meta?: LogMetadata): void {
     this.log(LogLevel.ERROR, message, meta);
   }
 
-  public warn(message: string, meta?: Record<string, unknown>): void {
+  public warn(message: string, meta?: LogMetadata): void {
     if (this.shouldLog(LogLevel.WARN)) {
       this.log(LogLevel.WARN, message, meta);
     }
   }
 
-  public info(message: string, meta?: Record<string, unknown>): void {
+  public info(message: string, meta?: LogMetadata): void {
     if (this.shouldLog(LogLevel.INFO)) {
       this.log(LogLevel.INFO, message, meta);
     }
   }
 
-  public debug(message: string, meta?: Record<string, unknown>): void {
+  public debug(message: string, meta?: LogMetadata): void {
     if (this.shouldLog(LogLevel.DEBUG)) {
       this.log(LogLevel.DEBUG, message, meta);
     }
@@ -59,11 +54,7 @@ export class ConsoleLogger implements Logger {
     return levels.indexOf(level) <= levels.indexOf(this.level);
   }
 
-  private log(
-    level: LogLevel,
-    message: string,
-    meta?: Record<string, unknown>
-  ): void {
+  private log(level: LogLevel, message: string, meta?: LogMetadata): void {
     const timestamp = new Date().toISOString();
     const metaString = meta ? ` ${JSON.stringify(meta)}` : '';
     if (level === LogLevel.ERROR) {

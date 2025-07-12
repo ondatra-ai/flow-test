@@ -6,6 +6,7 @@ import { program } from 'commander';
 import { setupCliProgram, registerCommands } from './cli/setup.js';
 import { initializeContainer, container } from './config/container.js';
 import { SERVICES } from './config/tokens.js';
+import { cast } from './utils/cast.js';
 import type { Logger } from './utils/logger.js';
 
 // Configure dependency injection container
@@ -22,10 +23,12 @@ async function main(): Promise<void> {
   await program.parseAsync(process.argv);
 }
 
-main().catch((error: unknown) => {
+main().catch(error => {
+  const typedError = cast<Error>(error);
   const logger = container.resolve<Logger>(SERVICES.Logger);
   logger.error('Failed to start application:', {
-    error: error instanceof Error ? error.message : String(error),
+    error:
+      typedError instanceof Error ? typedError.message : String(typedError),
   });
   process.exit(1);
 });

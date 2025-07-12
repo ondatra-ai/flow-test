@@ -3,6 +3,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 import { Context } from '../../../../src/flow/context.js';
 import { ReadGitHubIssueStep } from '../../../../src/flow/types/read-github-issue-step.js';
+import { cast } from '../../../../src/utils/cast.js';
 import type { GitHubClient } from '../../../../src/utils/github-client.js';
 import type { Logger } from '../../../../src/utils/logger.js';
 import type { ReadGitHubIssueStepConfig } from '../../../../src/validation/schemas/step.schema.js';
@@ -39,16 +40,16 @@ vi.mock('../../../../src/utils/github-client.js', () => ({
 
 // Test helper functions
 function createMockLogger(): Logger {
-  return {
+  return cast<Logger>({
     info: vi.fn(),
     error: vi.fn(),
     warn: vi.fn(),
     debug: vi.fn(),
-  } as unknown as Logger;
+  });
 }
 
 function createMockGitHubClient(): GitHubClient {
-  return {
+  return cast<GitHubClient>({
     getIssueWithComments: vi.fn().mockResolvedValue({
       issue: {
         number: 123,
@@ -64,7 +65,7 @@ function createMockGitHubClient(): GitHubClient {
         { id: 2, body: 'Comment 2', user: { login: 'user2' } },
       ],
     }),
-  } as unknown as GitHubClient;
+  });
 }
 
 describe('ReadGitHubIssueStep - Execute', () => {
@@ -150,7 +151,7 @@ describe('ReadGitHubIssueStep - Execute', () => {
     const config: ReadGitHubIssueStepConfig = {
       type: 'read-github-issue',
       id: 'test-step',
-      issueUrl: undefined as unknown as string, // Missing URL
+      issueUrl: cast<string>(undefined), // Missing URL
       includeComments: true,
       nextStepId: {},
     };
@@ -194,9 +195,9 @@ describe('ReadGitHubIssueStep - Execute', () => {
 
   it('should handle GitHub API errors', async () => {
     // Override the mock to throw an error
-    const errorMockClient = {
+    const errorMockClient = cast<GitHubClient>({
       getIssueWithComments: vi.fn().mockRejectedValue(new Error('API Error')),
-    } as unknown as GitHubClient;
+    });
 
     const config: ReadGitHubIssueStepConfig = {
       type: 'read-github-issue',
@@ -238,7 +239,7 @@ describe('ReadGitHubIssueStep - Execute', () => {
 
   it('should handle empty body gracefully', async () => {
     // Create a mock client with null body
-    const emptyBodyMockClient = {
+    const emptyBodyMockClient = cast<GitHubClient>({
       getIssueWithComments: vi.fn().mockResolvedValue({
         issue: {
           number: 123,
@@ -251,7 +252,7 @@ describe('ReadGitHubIssueStep - Execute', () => {
         },
         comments: [],
       }),
-    } as unknown as GitHubClient;
+    });
 
     const config: ReadGitHubIssueStepConfig = {
       type: 'read-github-issue',

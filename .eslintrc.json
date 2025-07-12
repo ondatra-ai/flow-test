@@ -65,6 +65,21 @@
           "caseInsensitive": true
         }
       }
+    ],
+    "no-restricted-syntax": [
+      "error",
+      {
+        "selector": "TSUnknownKeyword",
+        "message": "The 'unknown' type is forbidden here. Use cast utilities from '@/utils/cast' instead."
+      },
+      {
+        "selector": "TSTypeAliasDeclaration",
+        "message": "Type definitions must be in src/types/ folder"
+      },
+      {
+        "selector": "TSInterfaceDeclaration",
+        "message": "Interface definitions must be in src/interfaces/ folder"
+      }
     ]
   },
   "ignorePatterns": [
@@ -96,7 +111,79 @@
         "max-nested-callbacks": ["error", 5],
         "@typescript-eslint/explicit-function-return-type": "off",
         "@typescript-eslint/require-await": "off",
-        "@typescript-eslint/unbound-method": "off"
+        "@typescript-eslint/unbound-method": "off",
+        "no-restricted-syntax": [
+          "error",
+          {
+            "selector": "TSAsExpression > TSUnknownKeyword",
+            "message": "Use cast<T>() from '@/utils/cast' instead of 'as unknown as T'"
+          },
+          {
+            "selector": "TSInterfaceDeclaration",
+            "message": "Interfaces should be in src/interfaces/, not src/types/"
+          }
+        ]
+      }
+    },
+    {
+      "files": ["src/types/**/*.ts"],
+      "rules": {
+        "no-restricted-syntax": [
+          "error",
+          {
+            "selector": "TSInterfaceDeclaration",
+            "message": "Interfaces should be in src/interfaces/, not src/types/"
+          },
+          {
+            "selector": "TSUnknownKeyword",
+            "message": "The 'unknown' type is forbidden here. Use cast utilities from '@/utils/cast' instead."
+          }
+        ]
+      }
+    },
+    {
+      "files": ["src/interfaces/**/*.ts"],
+      "rules": {
+        "no-restricted-syntax": [
+          "error",
+          {
+            "selector": "TSTypeAliasDeclaration",
+            "message": "Types should be in src/types/, not src/interfaces/"
+          },
+          {
+            "selector": "TSUnknownKeyword",
+            "message": "The 'unknown' type is forbidden here. Use cast utilities from '@/utils/cast' instead."
+          }
+        ]
+      }
+    },
+    {
+      "files": ["src/utils/cast.ts"],
+      "rules": {
+        "no-restricted-syntax": [
+          "error",
+          {
+            "selector": "TSTypeAliasDeclaration",
+            "message": "Type definitions must be in src/types/ folder"
+          },
+          {
+            "selector": "TSInterfaceDeclaration",
+            "message": "Interface definitions must be in src/interfaces/ folder"
+          }
+        ]
+      }
+    },
+    {
+      "files": ["scripts/**/*.ts"],
+      "rules": {
+        "no-console": "off",
+        "no-restricted-syntax": [
+          "error",
+          {
+            "selector": "TSInterfaceDeclaration",
+            "message": "Interface definitions must be in src/interfaces/ folder"
+          }
+        ]
       }
     }
   ]

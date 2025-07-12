@@ -1,7 +1,9 @@
+import type { SessionStatus } from '../../types/flow/index.js';
 import { IContext, Context } from '../context.js';
 import { IFlow } from '../flow.js';
 
-export type SessionStatus = 'initialized' | 'running' | 'completed' | 'error';
+// Re-export for backward compatibility
+export type { SessionStatus } from '../../types/flow/index.js';
 
 // Session entity - Primary focus for flow execution
 export class Session {

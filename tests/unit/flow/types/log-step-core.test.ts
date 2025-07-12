@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { Context, IContext } from '../../../../src/flow/context.js';
 import { LogStep } from '../../../../src/flow/types/log-step.js';
+import { cast } from '../../../../src/utils/cast.js';
 import { Logger } from '../../../../src/utils/logger.js';
 import { type LogStepConfig } from '../../../../src/validation/index.js';
 
@@ -10,12 +11,12 @@ describe('LogStep', () => {
   let context: IContext;
 
   beforeEach(() => {
-    mockLogger = {
+    mockLogger = cast<Logger>({
       info: vi.fn(),
       warn: vi.fn(),
       error: vi.fn(),
       debug: vi.fn(),
-    } as unknown as Logger;
+    });
 
     context = new Context();
   });

@@ -1,5 +1,7 @@
 import { ZodError } from 'zod';
 
+import { cast } from '../utils/cast.js';
+
 import {
   FlowDefinitionSchema,
   type FlowDefinition,
@@ -26,7 +28,7 @@ function formatValidationError(error: ZodError): string {
 /**
  * Validate flow data against schema
  */
-export function validateFlow(data: unknown): FlowDefinition {
+export function validateFlow(data: ReturnType<typeof cast>): FlowDefinition {
   try {
     const normalizedData = normalizeStepData(data);
     return FlowDefinitionSchema.parse(normalizedData);
@@ -41,13 +43,15 @@ export function validateFlow(data: unknown): FlowDefinition {
 /**
  * Normalize step data for case-insensitive validation
  */
-function normalizeStepData(data: unknown): unknown {
+function normalizeStepData(
+  data: ReturnType<typeof cast>
+): ReturnType<typeof cast> {
   if (typeof data === 'object' && data !== null) {
     if (Array.isArray(data)) {
       return data.map(normalizeStepData);
     }
 
-    const typedData = data as Record<string, unknown>;
+    const typedData = data as Record<string, ReturnType<typeof cast>>;
     if (!typedData || typeof typedData !== 'object') {
       throw new Error('Invalid data: expected object');
     }
@@ -55,7 +59,8 @@ function normalizeStepData(data: unknown): unknown {
     const normalized = { ...typedData };
 
     if ('steps' in normalized && Array.isArray(normalized.steps)) {
-      normalized.steps = normalized.steps.map(step => {
+      const steps = cast<ReturnType<typeof cast>[]>(normalized.steps);
+      normalized.steps = steps.map((step: ReturnType<typeof cast>) => {
         if (typeof step !== 'object' || step === null) {
           throw new Error('Invalid step: expected object');
         }
@@ -72,7 +77,7 @@ function normalizeStepData(data: unknown): unknown {
 /**
  * Validate step data against schema
  */
-export function validateStep(data: unknown): StepConfig {
+export function validateStep(data: ReturnType<typeof cast>): StepConfig {
   try {
     const normalizedData = normalizeStepType(data);
     return StepConfigSchema.parse(normalizedData);

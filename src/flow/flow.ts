@@ -1,13 +1,10 @@
-import { IContext } from './context.js';
-import { IStep } from './step.js';
+import type { IFlow } from '../interfaces/flow/index.js';
 
-// Flow interface - Defines Flow contract
-export interface IFlow {
-  getId(): string;
-  getFirstStepId(): string;
-  getSteps(): IStep[];
-  execute(stepId: string, context: IContext): Promise<string | null>;
-}
+import type { IContext } from './context.js';
+import type { IStep } from './step.js';
+
+// Re-export for backward compatibility
+export type { IFlow } from '../interfaces/flow/index.js';
 
 // Flow entity - Simple data structure for directed graph of steps
 export class Flow implements IFlow {

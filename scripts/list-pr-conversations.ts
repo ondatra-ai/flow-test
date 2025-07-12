@@ -3,7 +3,7 @@
 
 import { execSync } from 'child_process';
 
-interface Comment {
+type Comment = {
   file: string | null;
   line: number | null;
   author: string;
@@ -13,15 +13,15 @@ interface Comment {
   resolved: boolean;
   diffHunk: string;
   url: string;
-}
+};
 
-interface Conversation {
+type Conversation = {
   id: string;
   isResolved: boolean;
   comments: Comment[];
-}
+};
 
-interface CommentNode {
+type CommentNode = {
   path: string | null;
   line: number | null;
   body: string;
@@ -32,17 +32,17 @@ interface CommentNode {
   author: {
     login: string;
   };
-}
+};
 
-interface ThreadNode {
+type ThreadNode = {
   id: string;
   isResolved: boolean;
   comments: {
     nodes: CommentNode[];
   };
-}
+};
 
-interface GraphQLResponse {
+type GraphQLResponse = {
   data: {
     repository: {
       pullRequest: {
@@ -52,7 +52,7 @@ interface GraphQLResponse {
       };
     };
   };
-}
+};
 
 function getPRNumber(): string {
   const args = process.argv.slice(2);

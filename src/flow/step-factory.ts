@@ -1,11 +1,12 @@
 import { injectable, inject } from 'tsyringe';
 
 import { SERVICES } from '../config/tokens.js';
+import type { StepConfig } from '../types/validation/index.js';
 import { GitHubClient } from '../utils/github-client.js';
 import { Logger } from '../utils/logger.js';
 import { validateStep } from '../validation/index.js';
 
-import { Step } from './step.js';
+import type { IStep } from './step.js';
 import { ActionStep } from './types/action-step.js';
 import { DecisionStep } from './types/decision-step.js';
 import { LogStep } from './types/log-step.js';
@@ -24,7 +25,7 @@ export class StepFactory {
   /**
    * Create a step instance based on step data
    */
-  createStep(stepData: unknown): Step {
+  createStep(stepData: StepConfig): IStep {
     // Validate step data using Zod schema
     const validatedConfig = validateStep(stepData);
 

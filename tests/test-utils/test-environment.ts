@@ -2,19 +2,12 @@ import { spawn, ChildProcess, SpawnOptionsWithoutStdio } from 'child_process';
 import { existsSync, mkdirSync, writeFileSync, rmSync } from 'fs';
 import { resolve } from 'path';
 
-export interface CommandResult {
-  stdout: string;
-  stderr: string;
-  exitCode: number;
-}
+import type {
+  CommandResult,
+  RunCommandOptions,
+} from '../../src/types/utils/index.js';
 
 // Chat session interface removed - not needed for current testing
-
-export interface RunCommandOptions {
-  timeout?: number;
-  killSignal?: NodeJS.Signals;
-  workingDirectory?: string;
-}
 
 /**
  * Test environment utility for e2e testing of the CLI application

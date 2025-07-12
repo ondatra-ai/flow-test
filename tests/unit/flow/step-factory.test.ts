@@ -5,6 +5,7 @@ import { StepFactory } from '../../../src/flow/step-factory.js';
 import { ActionStep } from '../../../src/flow/types/action-step.js';
 import { DecisionStep } from '../../../src/flow/types/decision-step.js';
 import { LogStep } from '../../../src/flow/types/log-step.js';
+import { cast } from '../../../src/utils/cast.js';
 import { GitHubClient } from '../../../src/utils/github-client.js';
 import { Logger } from '../../../src/utils/logger.js';
 import { type StepConfig } from '../../../src/validation/index.js';
@@ -15,16 +16,16 @@ describe('StepFactory', () => {
   let mockGitHubClient: GitHubClient;
 
   beforeEach(() => {
-    mockLogger = {
+    mockLogger = cast<Logger>({
       info: vi.fn(),
       warn: vi.fn(),
       error: vi.fn(),
       debug: vi.fn(),
-    } as unknown as Logger;
+    });
 
-    mockGitHubClient = {
+    mockGitHubClient = cast<GitHubClient>({
       getIssueWithComments: vi.fn(),
-    } as unknown as GitHubClient;
+    });
 
     stepFactory = new StepFactory(mockLogger, mockGitHubClient);
   });
@@ -83,14 +84,14 @@ describe('StepFactory', () => {
     });
 
     it('should handle case-insensitive step types', () => {
-      const stepData = {
+      const stepData = cast<StepConfig>({
         id: 'action-step',
         type: 'ACTION',
         operation: 'setContext',
         key: 'testKey',
         value: 'testValue',
         nextStepId: { default: 'next-step' },
-      };
+      });
 
       const step = stepFactory.createStep(stepData);
 
@@ -99,11 +100,11 @@ describe('StepFactory', () => {
     });
 
     it('should throw error for invalid step data', () => {
-      const invalidStepData = {
+      const invalidStepData = cast<StepConfig>({
         id: 'invalid-step',
         type: 'invalid',
         nextStepId: { default: 'next-step' },
-      };
+      });
 
       expect(() => stepFactory.createStep(invalidStepData)).toThrow(
         /Validation failed/
@@ -111,9 +112,9 @@ describe('StepFactory', () => {
     });
 
     it('should throw error for missing required fields', () => {
-      const invalidStepData = {
+      const invalidStepData = cast<StepConfig>({
         type: 'action',
-      };
+      });
 
       expect(() => stepFactory.createStep(invalidStepData)).toThrow(
         /Validation failed/

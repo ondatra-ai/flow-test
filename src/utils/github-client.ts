@@ -1,25 +1,12 @@
 import { Octokit } from '@octokit/rest';
 import { injectable } from 'tsyringe';
 
-export type GitHubIssue = {
-  title: string;
-  body: string;
-  state: string;
-  created_at: string;
-  updated_at: string;
-  user: {
-    login: string;
-  };
-  comments: number;
-};
+import type { GitHubIssue, GitHubComment } from '../types/github/index.js';
 
-export type GitHubComment = {
-  body: string;
-  user: {
-    login: string;
-  };
-  created_at: string;
-};
+import { cast } from './cast.js';
+
+// Re-export for backward compatibility
+export type { GitHubIssue, GitHubComment } from '../types/github/index.js';
 
 /**
  * GitHub API client for fetching issue and comment data
@@ -79,7 +66,7 @@ export class GitHubClient {
   }
 
   private async handleGitHubApiError(
-    error: unknown,
+    error: ReturnType<typeof cast>,
     owner: string,
     repo: string,
     issueNumber: number

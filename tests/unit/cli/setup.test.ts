@@ -1,11 +1,13 @@
 import type { Command } from 'commander';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
+import { cast } from '../../../src/utils/cast.js';
+
 describe('CLI Setup', () => {
   let mockProgram: Command;
 
   beforeEach(() => {
-    mockProgram = {
+    mockProgram = cast<Command>({
       name: vi.fn().mockReturnThis(),
       description: vi.fn().mockReturnThis(),
       version: vi.fn().mockReturnThis(),
@@ -13,7 +15,7 @@ describe('CLI Setup', () => {
       argument: vi.fn().mockReturnThis(),
       option: vi.fn().mockReturnThis(),
       action: vi.fn().mockReturnThis(),
-    } as unknown as Command;
+    });
     vi.clearAllMocks();
   });
 

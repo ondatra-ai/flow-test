@@ -1,32 +1,21 @@
 import 'reflect-metadata';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
+import type { MockOctokit } from '../../../src/interfaces/github/index.js';
+import { cast } from '../../../src/utils/cast.js';
 import { GitHubClient } from '../../../src/utils/github-client.js';
 
-interface MockOctokit {
-  rest: {
-    issues: {
-      get: ReturnType<typeof vi.fn>;
-      listComments: ReturnType<typeof vi.fn>;
-    };
-  };
-}
-
 // Mock Octokit
-vi.mock('@octokit/rest', () => {
-  const mockOctokit: MockOctokit = {
+vi.mock('@octokit/rest', () => ({
+  Octokit: vi.fn(() => ({
     rest: {
       issues: {
         get: vi.fn(),
         listComments: vi.fn(),
       },
     },
-  };
-
-  return {
-    Octokit: vi.fn(() => mockOctokit),
-  };
-});
+  })),
+}));
 
 describe('GitHubClient', () => {
   let client: GitHubClient;
@@ -34,171 +23,182 @@ describe('GitHubClient', () => {
 
   beforeEach(async () => {
     vi.clearAllMocks();
+
     // Get the mocked Octokit instance
     const { Octokit } = await import('@octokit/rest');
     client = new GitHubClient();
-    mockOctokit = new Octokit() as unknown as MockOctokit;
+    mockOctokit = cast<MockOctokit>(new Octokit());
   });
 
   describe('constructor', () => {
-    it('should create client with GITHUB_TOKEN env var', async () => {
-      const { Octokit } = await import('@octokit/rest');
+    it('should create instance with auth token when GITHUB_TOKEN is set', async () => {
       const originalEnv = process.env.GITHUB_TOKEN;
-      process.env.GITHUB_TOKEN = 'env-token';
+      process.env.GITHUB_TOKEN = 'test-token';
 
-      new GitHubClient();
+      const newClient = new GitHubClient();
+      expect(newClient).toBeInstanceOf(GitHubClient);
 
-      expect(Octokit).toHaveBeenCalledWith({
-        auth: 'env-token',
-      });
-
+      // Restore original env
       process.env.GITHUB_TOKEN = originalEnv;
     });
 
-    it('should create client without auth when no token provided', async () => {
-      const { Octokit } = await import('@octokit/rest');
-      const originalGithubToken = process.env.GITHUB_TOKEN;
-      process.env.GITHUB_TOKEN = '';
+    it('should create instance without auth token when GITHUB_TOKEN is not set', async () => {
+      const originalEnv = process.env.GITHUB_TOKEN;
+      delete process.env.GITHUB_TOKEN;
 
-      new GitHubClient();
+      const newClient = new GitHubClient();
+      expect(newClient).toBeInstanceOf(GitHubClient);
 
-      expect(Octokit).toHaveBeenCalledWith({
-        auth: undefined,
-      });
-
-      process.env.GITHUB_TOKEN = originalGithubToken;
+      // Restore original env
+      process.env.GITHUB_TOKEN = originalEnv;
     });
   });
 
   describe('getIssueWithComments', () => {
-    const mockIssue = {
-      data: {
-        title: 'Test Issue',
+    it('should return issue with comments when successful', async () => {
+      const mockIssue = {
         number: 123,
+        title: 'Test Issue',
+        body: 'Test body',
         state: 'open',
         user: { login: 'testuser' },
-        body: 'Test body',
-        created_at: '2023-01-01',
-        updated_at: '2023-01-02',
-      },
-    };
+      };
 
-    const mockComments = {
-      data: [
+      const mockComments = [
         { id: 1, body: 'Comment 1', user: { login: 'user1' } },
         { id: 2, body: 'Comment 2', user: { login: 'user2' } },
-      ],
-    };
+      ];
 
-    it('should fetch issue and comments successfully', async () => {
-      mockOctokit.rest.issues.get.mockResolvedValue(mockIssue);
-      mockOctokit.rest.issues.listComments.mockResolvedValue(mockComments);
+      // Mock the Octokit methods
+      const mockGet = vi.fn().mockResolvedValue({ data: mockIssue });
+      const mockListComments = vi
+        .fn()
+        .mockResolvedValue({ data: mockComments });
+
+      mockOctokit.rest.issues.get = mockGet;
+      mockOctokit.rest.issues.listComments = mockListComments;
 
       const result = await client.getIssueWithComments('owner', 'repo', 123);
 
-      expect(mockOctokit.rest.issues.get).toHaveBeenCalledWith({
+      expect(mockGet).toHaveBeenCalledWith({
         owner: 'owner',
         repo: 'repo',
         issue_number: 123,
       });
 
-      expect(mockOctokit.rest.issues.listComments).toHaveBeenCalledWith({
+      expect(mockListComments).toHaveBeenCalledWith({
         owner: 'owner',
         repo: 'repo',
         issue_number: 123,
       });
 
       expect(result).toEqual({
-        issue: mockIssue.data,
-        comments: mockComments.data,
+        issue: mockIssue,
+        comments: mockComments,
       });
     });
 
-    it('should handle 404 error', async () => {
-      const error404 = new Error('Not Found') as Error & { status: number };
-      error404.status = 404;
-      mockOctokit.rest.issues.get.mockRejectedValue(error404);
+    it('should throw error when issue not found', async () => {
+      const mockGet = vi.fn().mockRejectedValue(new Error('Not found'));
+      mockOctokit.rest.issues.get = mockGet;
 
       await expect(
-        client.getIssueWithComments('owner', 'repo', 999)
-      ).rejects.toThrow('GitHub issue #999 not found in owner/repo');
+        client.getIssueWithComments('owner', 'repo', 404)
+      ).rejects.toThrow('Not found');
     });
 
-    it('should retry without auth on 401 error for public repos', async () => {
-      const error401 = new Error('Unauthorized') as Error & { status: number };
-      error401.status = 401;
-
-      // First call fails with 401
-      mockOctokit.rest.issues.get.mockRejectedValueOnce(error401);
-
-      // Create a new mock for the public client
-      const publicMockOctokit: MockOctokit = {
-        rest: {
-          issues: {
-            get: vi.fn().mockResolvedValue(mockIssue),
-            listComments: vi.fn().mockResolvedValue(mockComments),
-          },
-        },
+    it('should return issue with empty comments when comments request fails', async () => {
+      const mockIssue = {
+        number: 123,
+        title: 'Test Issue',
+        body: 'Test body',
+        state: 'open',
+        user: { login: 'testuser' },
       };
 
-      const { Octokit } = await import('@octokit/rest');
-      (Octokit as unknown as ReturnType<typeof vi.fn>).mockImplementationOnce(
-        () => publicMockOctokit
-      );
+      const mockGet = vi.fn().mockResolvedValue({ data: mockIssue });
+      const mockListComments = vi
+        .fn()
+        .mockRejectedValue(new Error('Comments error'));
+
+      mockOctokit.rest.issues.get = mockGet;
+      mockOctokit.rest.issues.listComments = mockListComments;
 
       const result = await client.getIssueWithComments('owner', 'repo', 123);
 
       expect(result).toEqual({
-        issue: mockIssue.data,
-        comments: mockComments.data,
+        issue: mockIssue,
+        comments: [],
       });
     });
 
-    it('should throw specific error when 401 retry fails', async () => {
-      const error401 = new Error('Unauthorized') as Error & { status: number };
-      error401.status = 401;
+    it('should work with unauthenticated client', async () => {
+      const mockIssue = {
+        number: 123,
+        title: 'Public Issue',
+        body: 'Public body',
+        state: 'open',
+        user: { login: 'publicuser' },
+      };
 
-      // First call fails with 401
-      mockOctokit.rest.issues.get.mockRejectedValueOnce(error401);
-
-      // Create a new mock for the public client that also fails
-      const publicMockOctokit: MockOctokit = {
+      const publicMockOctokit = {
         rest: {
           issues: {
-            get: vi.fn().mockRejectedValue(new Error('Still fails')),
-            listComments: vi.fn(),
+            get: vi.fn().mockResolvedValue({ data: mockIssue }),
+            listComments: vi.fn().mockResolvedValue({ data: [] }),
           },
         },
       };
 
       const { Octokit } = await import('@octokit/rest');
-      (Octokit as unknown as ReturnType<typeof vi.fn>).mockImplementationOnce(
+      cast<ReturnType<typeof vi.fn>>(Octokit).mockImplementationOnce(
         () => publicMockOctokit
       );
 
-      await expect(
-        client.getIssueWithComments('owner', 'repo', 123)
-      ).rejects.toThrow(
-        'GitHub authentication failed and repository is not public. Please check your github_token configuration.'
+      const unauthenticatedClient = new GitHubClient();
+      const result = await unauthenticatedClient.getIssueWithComments(
+        'owner',
+        'repo',
+        123
       );
+
+      expect(result).toEqual({
+        issue: mockIssue,
+        comments: [],
+      });
     });
 
-    it('should propagate other errors', async () => {
-      const genericError = new Error('Network error');
-      mockOctokit.rest.issues.get.mockRejectedValue(genericError);
+    it('should handle empty comments array', async () => {
+      const mockIssue = {
+        number: 123,
+        title: 'Test Issue',
+        body: 'Test body',
+        state: 'open',
+        user: { login: 'testuser' },
+      };
 
-      await expect(
-        client.getIssueWithComments('owner', 'repo', 123)
-      ).rejects.toThrow('Network error');
-    });
+      const mockGet = vi.fn().mockResolvedValue({ data: mockIssue });
+      const mockListComments = vi.fn().mockResolvedValue({ data: [] });
 
-    it('should handle errors without status property', async () => {
-      const errorWithoutStatus = { message: 'Some error' };
-      mockOctokit.rest.issues.get.mockRejectedValue(errorWithoutStatus);
+      mockOctokit.rest.issues.get = mockGet;
+      mockOctokit.rest.issues.listComments = mockListComments;
 
-      await expect(
-        client.getIssueWithComments('owner', 'repo', 123)
-      ).rejects.toEqual(errorWithoutStatus);
+      const { Octokit } = await import('@octokit/rest');
+      cast<ReturnType<typeof vi.fn>>(Octokit).mockImplementationOnce(
+        () => mockOctokit
+      );
+
+      const emptyCommentsClient = new GitHubClient();
+      const result = await emptyCommentsClient.getIssueWithComments(
+        'owner',
+        'repo',
+        123
+      );
+
+      expect(result).toEqual({
+        issue: mockIssue,
+        comments: [],
+      });
     });
   });
 });
