@@ -57,20 +57,14 @@ describe('GitHubClient', () => {
         data: mockComments,
       });
 
-      const result = await client.getIssueWithComments(
-        'owner',
-        'repo',
-        123
-      );
+      const result = await client.getIssueWithComments('owner', 'repo', 123);
 
       expect(result.issue).toEqual(mockIssue);
       expect(result.comments).toEqual(mockComments);
     });
 
     it('should handle issue fetch error', async () => {
-      mockOctokit.rest.issues.get.mockRejectedValue(
-        new Error('Not found')
-      );
+      mockOctokit.rest.issues.get.mockRejectedValue(new Error('Not found'));
 
       await expect(
         client.getIssueWithComments('owner', 'repo', 123)
