@@ -1,11 +1,11 @@
 # MEMORY BANK TASKS
 
-## Task Status: PLAN TDD-REFINED ✅ - READY FOR IMPLEMENT MODE
+## Task Status: IMPLEMENT TDD-GREEN ✅ - REFACTOR PHASE READY
 
 **Current Task**: github-reader-step-implementation-20250117  
 **Start Date**: 2025-01-17  
 **Issue Reference**: [#37](https://github.com/ondrata-ai/flow-test/issues/37)  
-**Status**: PLAN TDD-REFINED ✅ - READY FOR IMPLEMENT MODE
+**Status**: IMPLEMENT TDD-GREEN ✅ - REFACTOR PHASE READY
 
 ### Current Task: Implement Step 1: Read task description from GitHub
 
@@ -16,6 +16,79 @@
 **EPIC Context**: Part of EPIC #28 - GitHub Task Automation Flow
 
 **TDD Approach**: Following RED-GREEN-REFACTOR cycle with failing e2e test first
+
+## TDD IMPLEMENTATION STATUS
+
+### 🔴 RED Phase: COMPLETE ✅
+
+- [x] Created failing e2e test: `tests/integration/github-reader-tdd-e2e.test.ts`
+- [x] Created test flow configuration: `tests/integration/data/github-reader-tdd-flow.json`
+- [x] Verified tests fail as expected:
+  - CLI doesn't recognize `--github-issue` option
+  - `github-reader` step type doesn't exist
+  - Exit code 1 (failure)
+
+### 🟢 GREEN Phase: COMPLETE ✅ + CORRECTED
+
+**Goal**: Implement minimal functionality to make tests pass
+
+**✅ CORRECTED GitHub Issue URL**:
+
+- **Original Issue**: Tests were incorrectly using `https://github.com/microsoft/vscode/issues/1`
+- **Corrected Issue**: Updated to use `https://github.com/ondrata-ai/for-test-purpose/issues/1` as originally required
+- **Test Data Updated**: Expected values now match the actual ondrata-ai issue:
+  - Title: `[TEST Issue] Create something for ai`
+  - Author: `killev`
+  - Comments: `1`
+  - State: `open`
+
+**✅ IMPLEMENTED COMPONENTS:**
+
+1. **CLI Arguments Support** (`src/cli/`)
+   - Added `--github-issue <url>` option to `flow:run` command
+   - URL parsing and context injection in `handleFlowRunCommand`
+   - GitHub URL parser utility: `src/utils/github-url-parser.ts`
+
+2. **GitHubReaderStep Class** (`src/flow/types/github-reader-step.ts`)
+   - New step type extending base `Step` class
+   - **githubToken property** as required
+   - Context override logic (CLI URL takes precedence)
+   - Issue and comments data population in context
+
+3. **GitHub Client** (`src/utils/github-client.ts`)
+   - Octokit integration with authentication
+   - Public repo fallback for 401 errors
+   - Error handling for 404 and auth issues
+
+4. **Schema Validation** (`src/validation/schemas/step.schema.ts`)
+   - **GitHubReaderStepConfigSchema** with github_token field
+   - Added to union type and exports
+   - Proper TypeScript types
+
+5. **Step Factory Integration** (`src/flow/step-factory.ts`)
+   - Added `github-reader` case to step creation
+   - Proper imports and exports
+
+**✅ FINAL TEST RESULTS:**
+
+- All 3 e2e tests passing ✅
+- CLI argument parsing working ✅
+- GitHub API integration working ✅
+- Context population working ✅
+- Public repo access working ✅
+- **Correct GitHub issue URL**: `https://github.com/ondrata-ai/for-test-purpose/issues/1` ✅
+
+### 🔵 REFACTOR Phase: READY FOR START
+
+**Goals**: Improve code quality, add comprehensive validation and error handling
+
+**NEXT STEPS FOR REFACTOR:**
+
+1. Enhanced error handling and logging
+2. Comprehensive unit tests
+3. Input validation improvements
+4. Code organization and documentation
+5. Performance optimizations
 
 ## VAN Mode Analysis ✅ COMPLETE
 

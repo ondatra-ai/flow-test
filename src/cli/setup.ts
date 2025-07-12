@@ -38,10 +38,17 @@ export function registerCommands(program: Command): void {
     .description('Execute a flow by name')
     .argument('<flowName>', 'Name of the flow to execute')
     .argument('[parameters...]', 'Additional parameters to pass to the flow')
-    .action(async (flowName: string, parameters: string[]) => {
-      const { handleFlowRunCommand } = await import('./handlers.js');
-      await handleFlowRunCommand(flowName, parameters);
-    });
+    .option('--github-issue <url>', 'GitHub issue URL to process')
+    .action(
+      async (
+        flowName: string,
+        parameters: string[],
+        options: { githubIssue?: string }
+      ) => {
+        const { handleFlowRunCommand } = await import('./handlers.js');
+        await handleFlowRunCommand(flowName, parameters, options);
+      }
+    );
 
   program.action(async () => {
     const { handleDefaultAction } = await import('./handlers.js');

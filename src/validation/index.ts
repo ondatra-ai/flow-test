@@ -12,4 +12,5 @@ export type {
   ActionStepConfig,
   DecisionStepConfig,
   LogStepConfig,
+  ReadGitHubIssueStepConfig,
 } from './schemas/step.schema.js';

@@ -8,6 +8,7 @@ import { Step } from './step.js';
 import { ActionStep } from './types/action-step.js';
 import { DecisionStep } from './types/decision-step.js';
 import { LogStep } from './types/log-step.js';
+import { ReadGitHubIssueStep } from './types/read-github-issue-step.js';
 
 /**
  * Factory for creating typed step instances
@@ -33,6 +34,9 @@ export class StepFactory {
 
       case 'log':
         return new LogStep(this.logger, validatedConfig);
+
+      case 'read-github-issue':
+        return new ReadGitHubIssueStep(this.logger, validatedConfig);
 
       default:
         // This should never happen since validateStep ensures valid types
