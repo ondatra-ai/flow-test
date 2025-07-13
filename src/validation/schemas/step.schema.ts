@@ -14,7 +14,6 @@ const StepConfigBaseSchema = z.object({
 const ReadGitHubIssueStepConfigSchema = StepConfigBaseSchema.extend({
   type: z.literal('read-github-issue'),
   issueUrl: z.string().url('Issue URL must be a valid URL'),
-  includeComments: z.boolean().optional().default(true),
   github_token: z.string().optional(),
 });
 

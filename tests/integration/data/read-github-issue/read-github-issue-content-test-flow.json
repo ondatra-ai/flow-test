@@ -8,7 +8,6 @@
       "id": "read-github-issue",
       "type": "read-github-issue",
       "issueUrl": "https://github.com/ondatra-ai/for-test-purpose/issues/1",
-      "includeComments": true,
       "github_token": "{{env.GITHUB_TOKEN}}",
       "nextStepId": {}
     }

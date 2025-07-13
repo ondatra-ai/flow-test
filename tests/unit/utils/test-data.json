@@ -9,7 +9,6 @@
         "id": "step1",
         "type": "read-github-issue",
         "issueUrl": "https://github.com/owner/repo/issues/1",
-        "includeComments": true,
         "nextStepId": {
           "default": "step2"
         }
@@ -18,7 +17,6 @@
         "id": "step2",
         "type": "read-github-issue",
         "issueUrl": "https://github.com/owner/repo/issues/2",
-        "includeComments": false,
         "nextStepId": {}
       }
     ]
@@ -31,7 +29,6 @@
         "id": "router",
         "type": "read-github-issue",
         "issueUrl": "https://github.com/owner/repo/issues/1",
-        "includeComments": true,
         "nextStepId": {
           "bug": "bug-step",
           "feature": "feature-step",
@@ -42,21 +39,18 @@
         "id": "bug-step",
         "type": "read-github-issue",
         "issueUrl": "https://github.com/owner/repo/issues/2",
-        "includeComments": true,
         "nextStepId": {}
       },
       {
         "id": "feature-step",
         "type": "read-github-issue",
         "issueUrl": "https://github.com/owner/repo/issues/3",
-        "includeComments": false,
         "nextStepId": {}
       },
       {
         "id": "end-step",
         "type": "read-github-issue",
         "issueUrl": "https://github.com/owner/repo/issues/4",
-        "includeComments": true,
         "nextStepId": {}
       }
     ]

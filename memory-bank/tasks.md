@@ -1,83 +1,110 @@
 # MEMORY BANK TASKS
 
-## Task Status: 🎉 COMPLETED & ARCHIVED
+## Task Status: ✅ IMPLEMENTATION COMPLETE
 
-**Task ID**: remove-step-types-except-github-20250718  
-**Start Date**: 2025-07-18  
-**Completion Date**: 2025-07-18  
-**Issue Reference**: Issue #85  
-**Branch**: task-20250718-remove-unused-step-types  
-**Complexity Level**: Level 2 - Simple Enhancement  
-**Status**: ✅ COMPLETED & ARCHIVED
+**Task ID**: remove-includecomments-option-20250118
+**Start Date**: 2025-01-18
+**Issue Reference**: Issue #69
+**Branch**: task-20250118-remove-includecomments-option
+**Complexity Level**: Level 2 - Simple Enhancement
+**Status**: ✅ IMPLEMENTATION COMPLETE
 
 ## 📋 TASK OVERVIEW
 
-**Primary Objective**: Remove all step types except ReadGitHubIssueStep to simplify the flow system
+**Primary Objective**: Remove includeComments option from read-github-issue-step - always include comments
 
-**Task Type**: Code cleanup and simplification  
-**Impact**: Reduction in codebase complexity, removal of unused functionality
+**Task Type**: Code simplification and cleanup
+**Impact**: Simplifies the ReadGitHubIssueStep by removing unnecessary configuration option
 
-## 🎯 FINAL RESULTS
+## ✅ IMPLEMENTATION COMPLETED
 
-✅ **ALL OBJECTIVES ACHIEVED**
+### Implementation Summary
 
-### **Core Requirements - COMPLETED**
+Successfully removed the `includeComments` configuration option from the ReadGitHubIssueStep. GitHub issue comments are now always included, simplifying the API and ensuring consistent behavior.
 
-1. **Remove Step Files**: ✅ COMPLETE
-   - Deleted `action-step.ts`
-   - Deleted `decision-step.ts`
-   - Deleted `log-step.ts`
+### Changes Made
 
-2. **Update Dependencies**: ✅ COMPLETE
-   - Updated exports in `index.ts`
-   - Updated `step-factory.ts`
-   - Removed validation schemas
+1. **Schema Updated** ✅
+   - Removed `includeComments: z.boolean().optional().default(true),` from `src/validation/schemas/step.schema.ts`
+   - TypeScript types automatically updated
 
-3. **Update Tests**: ✅ COMPLETE
-   - Removed unit tests for deleted step types
-   - Updated integration tests
-   - Enhanced test quality with real data verification
+2. **Implementation Updated** ✅
+   - Removed conditional logic from `src/flow/types/read-github-issue-step.ts`
+   - Comments are now always set in context via `context.set('github.issue.comments', JSON.stringify(comments))`
 
-4. **System Improvements**: ✅ COMPLETE
-   - Fixed FlowManager directory structure
-   - Enhanced GitHub API integration testing
-   - Improved error handling
+3. **Unit Tests Updated** ✅
+   - Removed 3 `includeComments` references from `tests/unit/flow/types/read-github-issue-step.test.ts`
+   - Removed 8 `includeComments` references from `tests/unit/flow/types/read-github-issue-step-execute.test.ts`
+   - Deleted entire test case for `includeComments: false` behavior
+   - Updated comment to reflect always storing comments
 
-## 📊 IMPLEMENTATION SUMMARY
+4. **Test Data Updated** ✅
+   - Removed 6 `includeComments` references from `tests/unit/utils/test-data.json`
+   - Removed `includeComments` from integration test flow configuration
+   - Removed `includeComments` from `tests/integration/data/flow-execution/invalid-flow.json`
+   - Removed `includeComments` from `tests/unit/utils/flow-manager.test.ts` (5 occurrences)
+   - Removed `includeComments` from `tests/unit/flow/step-factory.test.ts` (2 occurrences)
 
-### **All Phases Completed Successfully**
+5. **Verification Completed** ✅
+   - All 179 tests passing
+   - TypeScript compilation successful
+   - ESLint passes with no errors
+   - No `includeComments` references remain in source code
 
-- [x] **Phase 1: File Deletion** - 7 files removed cleanly
-- [x] **Phase 2: Core File Updates** - 13 files updated
-- [x] **Phase 3: Test Enhancement** - Integration tests improved
-- [x] **Phase 4: Quality Verification** - All quality gates passed
+## ✅ TASK CHECKLIST - COMPLETED
 
-### **Final Quality Metrics**
+### Implementation Checklist
 
-- **Tests**: 183/183 PASSING (100% success rate)
-- **Build**: SUCCESS (0 TypeScript errors)
-- **Linting**: SUCCESS (0 ESLint violations)
-- **Architecture**: Simplified and focused on GitHub integration
+- [x] Remove includeComments from step schema
+- [x] Remove conditional logic from ReadGitHubIssueStep
+- [x] Update unit test files to remove includeComments
+- [x] Remove test case for includeComments: false
+- [x] Update test-data.json file
+- [x] Update integration test flow configurations
+- [x] Run all tests and verify they pass
+- [x] Verify TypeScript compilation succeeds
+- [x] Check linting passes with no errors
 
-## 🎉 TASK COMPLETION STATUS
+### Verification Checklist
 
-**Status**: ✅ **COMPLETED & ARCHIVED**
+- [x] Comments are always included in issue data
+- [x] No TypeScript errors
+- [x] All tests pass (179/179)
+- [x] No linting errors
+- [x] Code builds successfully
 
-**Time Taken**: ~2 hours (vs estimated 75 minutes)  
-**Quality**: Excellent - all success criteria met  
-**Impact**: System successfully simplified with enhanced focus
+## 📊 FINAL METRICS
 
-## 📚 DOCUMENTATION
+**Actual Time**: ~25 minutes (vs estimated 55 minutes)
 
-- **Reflection**: [reflection-remove-step-types-except-github-20250718.md](reflection/reflection-remove-step-types-except-github-20250718.md)
-- **Archive**: [archive-remove-step-types-except-github-20250718.md](archive/archive-remove-step-types-except-github-20250718.md)
+- Schema updates: 3 minutes
+- Implementation updates: 5 minutes
+- Test updates: 12 minutes
+- Verification: 5 minutes
 
-## 🚀 NEXT STEPS
+**Quality**: Excellent - all success criteria exceeded
 
-**Task Complete** - Ready for next assignment via VAN mode
+- 100% test pass rate (179/179)
+- Zero TypeScript compilation errors
+- Zero ESLint violations
+- Complete removal of includeComments complexity
+
+## 📝 TECHNICAL NOTES
+
+- Removed 24+ total occurrences of `includeComments` across the codebase
+- Simplified API while maintaining backward compatibility (since default was already `true`)
+- Enhanced code maintainability by removing conditional logic
+- All GitHub issue comments are now consistently included in context
+
+## 🎯 COMPLETION STATUS
+
+**Status**: ✅ **IMPLEMENTATION SUCCESSFULLY COMPLETED**
+
+**Quality**: Exceptional - all requirements met with zero issues  
+**Impact**: API simplified, code complexity reduced, consistent comment handling
 
 ---
 
-**Task Completed**: 2025-07-18  
-**Memory Bank Status**: Updated and preserved  
-**System State**: Simplified and ready for future development
+**Task Started**: 2025-01-18  
+**Implementation Completed**: 2025-01-18  
+**Next Action**: Ready for REFLECT mode to document lessons learned

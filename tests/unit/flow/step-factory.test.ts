@@ -38,7 +38,6 @@ describe('StepFactory', () => {
         id: 'test-step',
         type: 'read-github-issue',
         issueUrl: 'https://github.com/owner/repo/issues/1',
-        includeComments: true,
         nextStepId: { success: 'next-step' },
       };
 
@@ -53,7 +52,6 @@ describe('StepFactory', () => {
         id: 'test-step',
         type: 'unknown-type' as 'read-github-issue',
         issueUrl: 'https://github.com/owner/repo/issues/1',
-        includeComments: true,
         nextStepId: { success: 'next-step' },
       } as StepConfig;
 
