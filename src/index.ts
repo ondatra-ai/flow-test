@@ -6,7 +6,7 @@ import { program } from 'commander';
 import { setupCliProgram, registerCommands } from './cli/setup.js';
 import { initializeContainer, container } from './config/container.js';
 import { SERVICES } from './config/tokens.js';
-import { cast } from './utils/cast.js';
+import { cast, castError } from './utils/cast.js';
 import type { Logger } from './utils/logger.js';
 
 // Configure dependency injection container
@@ -26,9 +26,6 @@ async function main(): Promise<void> {
 main().catch(error => {
   const typedError = cast<Error>(error);
   const logger = container.resolve<Logger>(SERVICES.Logger);
-  logger.error('Failed to start application:', {
-    error:
-      typedError instanceof Error ? typedError.message : String(typedError),
-  });
+  logger.error('Failed to start application:', castError(typedError));
   process.exit(1);
 });

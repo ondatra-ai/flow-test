@@ -81,11 +81,14 @@ describe('CLI E2E Tests - flow:run command', () => {
         'Starting TestApp version 1.2.3',
         // TODO: Fix LogStep interpolation - shows template not values
         'LogStep: Error {{context.errorCode}} in {{context.appName}}',
-        // undefined context shows UNDEFINED
-        'User {{UNDEFINED:user}} logged in to TestApp',
         'LogStep: Debug: appName={{context.appName}}, ' +
           'version={{context.version}}, errorCode={{context.errorCode}}',
       ]);
+
+      // Verify warn level LogStep output in stderr
+      expect(result.stderr).toContain(
+        'User {{UNDEFINED:user}} logged in to TestApp'
+      );
 
       // Verify decision steps
       expect(result.stdout).expectOutputToContain([

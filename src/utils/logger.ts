@@ -22,8 +22,13 @@ export type { Logger } from '../interfaces/utils/index.js';
 export class ConsoleLogger implements Logger {
   constructor(private readonly level: LogLevel = LogLevel.INFO) {}
 
-  public error(message: string, meta?: LogMetadata): void {
-    this.log(LogLevel.ERROR, message, meta);
+  public error(message: string, error: Error, meta?: LogMetadata): void {
+    const errorMeta = {
+      error: error.message,
+      stack: error.stack,
+      ...meta,
+    };
+    this.log(LogLevel.ERROR, message, errorMeta);
   }
 
   public warn(message: string, meta?: LogMetadata): void {

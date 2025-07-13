@@ -1,11 +1,39 @@
 import { container } from '../config/container.js';
 import { SERVICES } from '../config/tokens.js';
 import { Session } from '../flow/session/session.js';
-import { cast } from '../utils/cast.js';
+import type { IContext } from '../interfaces/flow/index.js';
+import { cast, castError } from '../utils/cast.js';
 import { FlowManager } from '../utils/flow-manager.js';
 import { parseGitHubIssueUrl } from '../utils/github-url-parser.js';
 import type { Logger } from '../utils/logger.js';
 import { generateTests } from '../utils/test-generator.js';
+
+/**
+ * Handle GitHub issue URL option and populate context
+ */
+function handleGitHubIssueOption(
+  githubIssue: string,
+  context: IContext,
+  logger: Logger
+): void {
+  try {
+    const { owner, repo, issue_number } = parseGitHubIssueUrl(githubIssue);
+    context.set('github.issue.url', githubIssue);
+    context.set('github.issue.owner', owner);
+    context.set('github.issue.repo', repo);
+    context.set('github.issue.number', issue_number.toString());
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error
+        ? error.message
+        : 'Unknown error parsing GitHub URL';
+    logger.error(
+      `Failed to parse GitHub issue URL: ${errorMessage}`,
+      castError(error)
+    );
+    throw error;
+  }
+}
 
 /**
  * Handle the chat command
@@ -24,9 +52,7 @@ export async function handleTestsGenerateCommand(): Promise<void> {
   try {
     await generateTests();
   } catch (error) {
-    logger.error('Command failed:', {
-      error: error instanceof Error ? error.message : String(error),
-    });
+    logger.error('Command failed:', castError(error));
     throw error;
   }
 }
@@ -58,22 +84,7 @@ export async function handleFlowRunCommand(
 
     // Handle GitHub issue URL if provided
     if (options?.githubIssue) {
-      try {
-        const { owner, repo, issue_number } = parseGitHubIssueUrl(
-          options.githubIssue
-        );
-        context.set('github.issue.url', options.githubIssue);
-        context.set('github.issue.owner', owner);
-        context.set('github.issue.repo', repo);
-        context.set('github.issue.number', issue_number.toString());
-      } catch (error) {
-        const errorMessage =
-          error instanceof Error
-            ? error.message
-            : 'Unknown error parsing GitHub URL';
-        logger.error(`Failed to parse GitHub issue URL: ${errorMessage}`);
-        throw error;
-      }
+      handleGitHubIssueOption(options.githubIssue, context, logger);
     }
 
     // Execute flow
@@ -90,7 +101,7 @@ export async function handleFlowRunCommand(
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : cast<string>(error);
-    logger.error(`Flow execution failed: ${errorMessage}`);
+    logger.error(`Flow execution failed: ${errorMessage}`, castError(error));
     throw error;
   }
 }

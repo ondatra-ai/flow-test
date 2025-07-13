@@ -1,3 +1,4 @@
+import { castError } from '../../utils/cast.js';
 import { Logger } from '../../utils/logger.js';
 import { type DecisionStepConfig } from '../../validation/index.js';
 import { IContext } from '../context.js';
@@ -59,9 +60,8 @@ export class DecisionStep extends Step implements IStep {
 
       return Promise.resolve(nextStepId);
     } catch (error) {
-      this.logger.error(`DecisionStep failed`, {
+      this.logger.error(`DecisionStep failed`, castError(error), {
         condition: this.config.condition,
-        error: error instanceof Error ? error.message : String(error),
       });
       return Promise.reject(
         error instanceof Error ? error : new Error(String(error))

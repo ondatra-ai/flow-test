@@ -38,9 +38,7 @@ export class FlowManager {
         .filter(file => file.endsWith('.json'))
         .map(file => path.basename(file, '.json'));
     } catch (error) {
-      this.logger.error('Failed to list flows', {
-        error: castError(error).message,
-      });
+      this.logger.error('Failed to list flows', castError(error));
       throw new Error('Unable to access flows directory');
     }
   }
@@ -82,9 +80,8 @@ export class FlowManager {
     try {
       return this.stepFactory.createStep(stepData);
     } catch (error) {
-      this.logger.error('Failed to create step', {
+      this.logger.error('Failed to create step', castError(error), {
         stepData: JSON.stringify(stepData),
-        error: error instanceof Error ? error.message : String(error),
       });
       throw error;
     }

@@ -164,8 +164,9 @@ describe('ReadGitHubIssueStep - Execute', () => {
 
     expect(vi.mocked(mockLogger.error)).toHaveBeenCalledWith(
       'ReadGitHubIssueStep failed',
+      expect.any(Error),
       expect.objectContaining({
-        error: 'Invalid GitHub issue URL',
+        issueUrl: undefined,
       })
     );
   });
@@ -187,8 +188,9 @@ describe('ReadGitHubIssueStep - Execute', () => {
 
     expect(vi.mocked(mockLogger.error)).toHaveBeenCalledWith(
       'ReadGitHubIssueStep failed',
+      expect.any(Error),
       expect.objectContaining({
-        error: 'Invalid GitHub issue URL',
+        issueUrl: 'https://invalid-url',
       })
     );
   });
@@ -213,8 +215,9 @@ describe('ReadGitHubIssueStep - Execute', () => {
 
     expect(vi.mocked(mockLogger.error)).toHaveBeenCalledWith(
       'ReadGitHubIssueStep failed',
+      expect.any(Error),
       expect.objectContaining({
-        error: 'API Error',
+        issueUrl: 'https://github.com/owner/repo/issues/123',
       })
     );
   });

@@ -1,7 +1,7 @@
 import { inject, injectable } from 'tsyringe';
 
 import { SERVICES } from '../../config/tokens.js';
-import { cast } from '../../utils/cast.js';
+import { castError } from '../../utils/cast.js';
 import {
   GitHubClient,
   type GitHubIssue,
@@ -69,9 +69,8 @@ export class ReadGitHubIssueStep extends Step implements IStep {
 
       return super.execute(context);
     } catch (error) {
-      this.logger.error(`ReadGitHubIssueStep failed`, {
+      this.logger.error(`ReadGitHubIssueStep failed`, castError(error), {
         issueUrl: this.config.issueUrl,
-        error: error instanceof Error ? error.message : cast<string>(error),
       });
       throw error;
     }

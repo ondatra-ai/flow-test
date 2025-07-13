@@ -1,3 +1,4 @@
+import { castError } from '../../utils/cast.js';
 import { Logger } from '../../utils/logger.js';
 import { type LogStepConfig } from '../../validation/index.js';
 import { IContext } from '../context.js';
@@ -21,8 +22,8 @@ export class LogStep extends Step implements IStep {
     this.logger.info(`Executing LogStep: ${this.config.message}`);
 
     try {
-      // Log the message at the specified level
-      this.logAtLevel(this.config.message, context);
+      // Output the user message at the specified level
+      this.outputUserMessage(this.config.message, context);
 
       this.logger.debug(`LogStep completed successfully`, {
         message: this.config.message,
@@ -32,35 +33,44 @@ export class LogStep extends Step implements IStep {
       // Use parent's routing logic
       return super.execute(context);
     } catch (error) {
-      this.logger.error(`LogStep failed`, {
+      this.logger.error(`LogStep failed`, castError(error), {
         message: this.config.message,
         level: this.config.level,
-        error: error instanceof Error ? error.message : String(error),
       });
       throw error;
     }
   }
 
   /**
-   * Log message at the specified level
+   * Output user message at the specified level
+   * Uses direct console output since this is user-defined output,
+   * not application logging
    */
-  private logAtLevel(message: string, context: IContext): void {
+  private outputUserMessage(message: string, context: IContext): void {
     // Replace context placeholders in the message
     const resolvedMessage = this.resolveContextPlaceholders(message, context);
 
-    // Log at the specified level
+    // Output at the specified level using direct console methods
+    const timestamp = new Date().toISOString();
+    const level = this.config.level.toUpperCase();
+    const formattedMessage = `[${timestamp}] ${level}: ${resolvedMessage}`;
+
     switch (this.config.level) {
       case 'error':
-        this.logger.error(resolvedMessage);
+        // eslint-disable-next-line no-console
+        console.error(formattedMessage);
         break;
       case 'warn':
-        this.logger.warn(resolvedMessage);
+        // eslint-disable-next-line no-console
+        console.warn(formattedMessage);
         break;
       case 'info':
-        this.logger.info(resolvedMessage);
+        // eslint-disable-next-line no-console
+        console.info(formattedMessage);
         break;
       case 'debug':
-        this.logger.debug(resolvedMessage);
+        // eslint-disable-next-line no-console
+        console.debug(formattedMessage);
         break;
       default: {
         const exhaustiveCheck: never = this.config.level;

@@ -23,9 +23,18 @@ graph TD
     %% Add Critical Memory Bank Checkpoint
     PlatformCP --> MemoryBankCheck{"Memory Bank<br>Exists?"}
     MemoryBankCheck -->|"No"| CreateMemoryBank["CREATE MEMORY BANK<br>[CRITICAL STEP]"]
-    MemoryBankCheck -->|"Yes"| BasicFileVerify["BASIC FILE VERIFICATION"]
+    MemoryBankCheck -->|"Yes"| BranchCreation["🌿 CREATE TASK BRANCH<br>[NEW FEATURE]"]
     CreateMemoryBank --> MemoryBankCP["⛔ MEMORY BANK VERIFICATION [REQUIRED]"]
-    MemoryBankCP --> BasicFileVerify
+    MemoryBankCP --> BranchCreation
+    
+    %% Branch Creation Process
+    BranchCreation --> GitCheck["Check Git Repository<br>Status"]
+    GitCheck --> GitStatus{"Git Repository<br>Available?"}
+    GitStatus -->|"No"| GitError["⚠️ ERROR: No Git Repository<br>Initialize git repo first"]
+    GitStatus -->|"Yes"| TaskBranchCreate["Create Task Branch<br>Load: van-branch-creation.mdc"]
+    TaskBranchCreate --> BranchCP["⛔ BRANCH CREATION CHECKPOINT"]
+    GitError --> AbortVAN["ABORT VAN MODE<br>Fix Git Setup First"]
+    BranchCP --> BasicFileVerify["BASIC FILE VERIFICATION"]
     
     %% Basic File Verification with checkpoint
     BasicFileVerify --> BatchCheck["Batch Check Essential Components"]
@@ -60,6 +69,11 @@ graph TD
     style MemoryBankCP fill:#ff0000,stroke:#990000,color:white,stroke-width:3px
     style MemoryBankCheck fill:#ff0000,stroke:#990000,color:white,stroke-width:3px
     style CreateMemoryBank fill:#ff0000,stroke:#990000,color:white,stroke-width:3px
+    style BranchCreation fill:#10b981,stroke:#059669,color:white,stroke-width:2px
+    style BranchCP fill:#f55,stroke:#d44,color:white
+    style GitError fill:#ff0000,stroke:#990000,color:white
+    style AbortVAN fill:#ff0000,stroke:#990000,color:white,stroke-width:3px
+    style TaskBranchCreate fill:#10b981,stroke:#059669,color:white
     style BasicFileCP fill:#f55,stroke:#d44,color:white
     style ComplexityCP fill:#f55,stroke:#d44,color:white
     style CRITICALGATE fill:#ff0000,stroke:#990000,color:white,stroke-width:3px
@@ -96,6 +110,37 @@ graph TD
     
     style PD fill:#4da6ff,stroke:#0066cc,color:white
     style PlatformComplete fill:#10b981,stroke:#059669,color:white
+```
+
+## 🌿 BRANCH CREATION PROCESS
+
+```mermaid
+graph TD
+    BC["Branch Creation"] --> GitRepoCheck["Check Git Repository<br>Availability"]
+    GitRepoCheck --> GitAvailable{"Git Repository<br>Available?"}
+    
+    GitAvailable -->|"No"| GitInitPrompt["Prompt User to<br>Initialize Git Repository"]
+    GitAvailable -->|"Yes"| GetCurrentBranch["Get Current<br>Branch Information"]
+    
+    GetCurrentBranch --> BranchCheck{"On Main/Master<br>Branch?"}
+    BranchCheck -->|"No"| BranchWarning["Display Warning<br>& Confirm Proceed"]
+    BranchCheck -->|"Yes"| GatherTaskInfo["Gather Task<br>Information"]
+    
+    BranchWarning --> UserConfirm{"User Confirms<br>Proceed?"}
+    UserConfirm -->|"No"| SwitchMain["Switch to Main Branch"]
+    UserConfirm -->|"Yes"| GatherTaskInfo
+    SwitchMain --> GatherTaskInfo
+    
+    GatherTaskInfo --> CreateBranch["Create Task Branch<br>task-YYYYMMDD-description"]
+    CreateBranch --> UpdateMemoryBank["Update Memory Bank<br>with Branch Info"]
+    UpdateMemoryBank --> BranchComplete["Branch Creation<br>Complete ✅"]
+    
+    GitInitPrompt --> AbortVAN["ABORT VAN MODE<br>Fix Git Setup First"]
+    
+    style BC fill:#10b981,stroke:#059669,color:white
+    style BranchComplete fill:#10b981,stroke:#059669,color:white
+    style AbortVAN fill:#ff0000,stroke:#990000,color:white
+    style BranchWarning fill:#ffa500,stroke:#cc8400,color:white
 ```
 
 ## 📁 FILE VERIFICATION PROCESS
@@ -315,6 +360,18 @@ Each major checkpoint in VAN mode uses this format:
 
 → If all YES: Ready for next section
 → If any NO: Fix missing items before proceeding
+```
+
+### Branch Creation Checkpoint
+```
+✓ SECTION CHECKPOINT: BRANCH CREATION
+- Git repository available? [YES/NO]
+- Current branch identified? [YES/NO]
+- Task branch created successfully? [YES/NO]
+- Memory Bank updated with branch info? [YES/NO]
+
+→ If all YES: Ready for Basic File Verification
+→ If any NO: Fix git setup and branch creation before proceeding
 ```
 
 ## 🚀 VAN MODE ACTIVATION

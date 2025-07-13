@@ -3,6 +3,7 @@ import { join } from 'path';
 
 import { container, SERVICES } from '../config/container.js';
 
+import { castError } from './cast.js';
 import type { Logger } from './logger.js';
 import {
   getTestTemplate,
@@ -162,9 +163,7 @@ export async function generateTests(): Promise<void> {
 
     logger.info('E2E test structure generated successfully');
   } catch (error) {
-    logger.error('Failed to generate tests:', {
-      error: error instanceof Error ? error.message : String(error),
-    });
+    logger.error('Failed to generate tests:', castError(error));
     throw error;
   }
 }

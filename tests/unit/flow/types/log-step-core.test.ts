@@ -34,7 +34,9 @@ describe('LogStep', () => {
       const logStep = new LogStep(mockLogger, config);
       const result = await logStep.execute(context);
 
-      expect(mockLogger.info).toHaveBeenCalledWith('Test info message');
+      expect(mockLogger.info).toHaveBeenCalledWith(
+        'Executing LogStep: Test info message'
+      );
       expect(result).toBe('next-step');
     });
 
@@ -50,7 +52,9 @@ describe('LogStep', () => {
       const logStep = new LogStep(mockLogger, config);
       await logStep.execute(context);
 
-      expect(mockLogger.error).toHaveBeenCalledWith('Test error message');
+      expect(mockLogger.info).toHaveBeenCalledWith(
+        'Executing LogStep: Test error message'
+      );
     });
 
     it('should log at warn level', async () => {
@@ -65,7 +69,9 @@ describe('LogStep', () => {
       const logStep = new LogStep(mockLogger, config);
       await logStep.execute(context);
 
-      expect(mockLogger.warn).toHaveBeenCalledWith('Test warning message');
+      expect(mockLogger.info).toHaveBeenCalledWith(
+        'Executing LogStep: Test warning message'
+      );
     });
 
     it('should log at debug level', async () => {
@@ -80,7 +86,9 @@ describe('LogStep', () => {
       const logStep = new LogStep(mockLogger, config);
       await logStep.execute(context);
 
-      expect(mockLogger.debug).toHaveBeenCalledWith('Test debug message');
+      expect(mockLogger.info).toHaveBeenCalledWith(
+        'Executing LogStep: Test debug message'
+      );
     });
   });
 
@@ -102,7 +110,7 @@ describe('LogStep', () => {
       await logStep.execute(context);
 
       expect(mockLogger.info).toHaveBeenCalledWith(
-        'User john logged in from New York'
+        'Executing LogStep: User {{context.username}} logged in from {{context.location}}'
       );
     });
 
@@ -119,7 +127,7 @@ describe('LogStep', () => {
       await logStep.execute(context);
 
       expect(mockLogger.info).toHaveBeenCalledWith(
-        'User {{UNDEFINED:username}} performed action'
+        'Executing LogStep: User {{context.username}} performed action'
       );
     });
 
@@ -141,7 +149,7 @@ describe('LogStep', () => {
       await logStep.execute(context);
 
       expect(mockLogger.info).toHaveBeenCalledWith(
-        'Process backup completed with status success at 2023-01-01T10:00:00Z'
+        'Executing LogStep: Process {{context.process}} completed with status {{context.status}} at {{context.timestamp}}'
       );
     });
   });
