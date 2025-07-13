@@ -26,14 +26,6 @@ export function registerCommands(program: Command): void {
     });
 
   program
-    .command('tests:generate')
-    .description('Generate e2e test structure')
-    .action(async () => {
-      const { handleTestsGenerateCommand } = await import('./handlers.js');
-      await handleTestsGenerateCommand();
-    });
-
-  program
     .command('flow:run')
     .description('Execute a flow by name')
     .argument('<flowName>', 'Name of the flow to execute')

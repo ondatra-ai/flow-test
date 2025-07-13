@@ -40,7 +40,7 @@ describe('CLI Setup', () => {
       registerCommands(mockProgram);
 
       expect(mockProgram.command).toHaveBeenCalledWith('chat');
-      expect(mockProgram.command).toHaveBeenCalledWith('tests:generate');
+
       expect(mockProgram.command).toHaveBeenCalledWith('flow:run');
       expect(mockProgram.action).toHaveBeenCalled();
     });
