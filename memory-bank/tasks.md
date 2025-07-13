@@ -1,90 +1,71 @@
 # MEMORY BANK TASKS
 
-## Task Status: �� COMPLETED & ARCHIVED
+## Task Status: ⏳ PLAN MODE - AWAITING USER INPUT
 
-**Task ID**: remove-includecomments-option-20250118
-**Start Date**: 2025-01-18
-**Completion Date**: 2025-01-18
-**Issue Reference**: Issue #69
-**Branch**: task-20250118-remove-includecomments-option
-**Pull Request**: #89
+**Task ID**: improve-naming-consistency-20250119
+**Start Date**: 2025-01-19
+**Issue Reference**: Issue #90
+**Branch**: TBD
+**Pull Request**: TBD
 **Complexity Level**: Level 2 - Simple Enhancement
-**Status**: ✅ COMPLETED & ARCHIVED
+**Status**: ⏳ PLAN Mode - Questions for User
 
 ## 📋 TASK OVERVIEW
 
-**Primary Objective**: Remove includeComments option from read-github-issue-step - always include comments
+**Primary Objective**: Improve naming consistency across schema definitions
 
-**Task Type**: Code simplification and cleanup
-**Impact**: Simplifies the ReadGitHubIssueStep by removing unnecessary configuration option
+**Task Type**: Refactoring - Breaking Change
+**Impact**: Standardizes naming conventions across Flow and Step schemas
 
-## 🎯 FINAL RESULTS
+## 🎯 PLANNING COMPLETE - AWAITING ANSWERS
 
-✅ **ALL OBJECTIVES ACHIEVED**
+### Implementation Plan Ready
 
-### **Core Requirements - COMPLETED**
+- ✅ Detailed steps created
+- ✅ Time estimates provided
+- ✅ Challenges identified
+- ✅ Technology validated
+- ⏳ **7 critical questions need answers**
 
-1. **Schema Updated**: ✅ COMPLETE
-   - Removed `includeComments` property from step schema
-   - TypeScript types automatically updated
+### Selected Approach
 
-2. **Implementation Updated**: ✅ COMPLETE
-   - Removed conditional logic from ReadGitHubIssueStep
-   - Comments always included in context
+**Pattern**: Use "Config" suffix for all schemas
 
-3. **Tests Updated**: ✅ COMPLETE
-   - Updated all unit test files to remove includeComments references
-   - Removed test case for includeComments: false behavior
-   - All 179 tests passing
+- FlowDefinitionSchema → FlowConfigSchema
+- FlowDefinition → FlowConfig
 
-4. **Data Cleanup**: ✅ COMPLETE
-   - Updated test data and integration test configurations
-   - Removed all references across 24+ locations
+## 📊 IMPLEMENTATION PHASES
 
-5. **Verification**: ✅ COMPLETE
-   - TypeScript compilation successful
-   - ESLint passes with no errors
-   - Build successful
+1. **Phase 1**: Schema Renaming (30 min)
+2. **Phase 2**: Import Updates (45 min)
+3. **Phase 3**: Documentation (15 min)
+4. **Phase 4**: Testing & Verification (30 min)
 
-## 📊 IMPLEMENTATION SUMMARY
+**Total Estimate**: 2 hours
 
-### **All Phases Completed Successfully**
+## ❓ QUESTIONS PENDING
 
-- [x] **Phase 1: Schema Updates** - Property removed cleanly
-- [x] **Phase 2: Core Implementation** - Conditional logic simplified
-- [x] **Phase 3: Test Updates** - All references removed and tests updated
-- [x] **Phase 4: Data Cleanup** - Test data and configurations cleaned
-- [x] **Phase 5: Quality Verification** - All quality gates passed
-- [x] **Phase 6: Reflection** - Comprehensive lessons learned documented
-- [x] **Phase 7: Archiving** - Complete documentation archived
+1. Breaking change version strategy?
+2. Migration helpers needed?
+3. Backward compatibility approach?
+4. Documentation scope?
+5. Release communication plan?
+6. Testing priorities?
+7. Review process requirements?
 
-### **Final Quality Metrics**
+## 📝 NEXT STEPS
 
-- **Tests**: 179/179 PASSING (100% success rate)
-- **Build**: SUCCESS (0 TypeScript errors)
-- **Linting**: SUCCESS (0 ESLint violations)
-- **Code Complexity**: Reduced by removing conditional logic
-- **API Simplicity**: Enhanced by removing unnecessary configuration
+**User Action Required**: Answer 7 questions in plan-naming-consistency.md
 
-## 🎉 TASK COMPLETION STATUS
+Once answers provided:
 
-**Status**: ✅ **COMPLETED & ARCHIVED**
-
-**Time Taken**: ~25 minutes (vs estimated 55 minutes)  
-**Quality**: Exceptional - all success criteria exceeded  
-**Impact**: API simplified, code complexity reduced, consistent comment handling
-
-## 📚 DOCUMENTATION
-
-- **Reflection**: [reflection-remove-includecomments-option-20250118.md](reflection/reflection-remove-includecomments-option-20250118.md)
-- **Archive**: [archive-remove-includecomments-option-20250118.md](archive/archive-remove-includecomments-option-20250118.md)
-
-## 🚀 NEXT STEPS
-
-**Task Complete** - Ready for next assignment via VAN mode
+1. Update plan with decisions
+2. Create branch
+3. Begin implementation
+4. Follow agreed migration strategy
 
 ---
 
-**Task Completed**: 2025-01-18  
-**Memory Bank Status**: Updated and preserved  
-**System State**: Simplified and ready for future development
+**Planning Completed**: 2025-01-19
+**Memory Bank Status**: Plan Complete - Awaiting User Input
+**Next Action**: User must answer questions before IMPLEMENT mode

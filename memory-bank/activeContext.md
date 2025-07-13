@@ -2,42 +2,66 @@
 
 ## Current Focus
 
-**Status**: ✅ Ready for New Task Assignment
+**Status**: ⏳ PLAN Mode Complete - Awaiting User Decisions
+**Mode**: PLAN → Blocked on User Input
 
-## Recent Completion
+## Current Task
 
-**Last Completed Task**: Task 19 - Remove includeComments Option from ReadGitHubIssueStep
-**Completion Date**: 2025-01-18
-**Status**: ✅ COMPLETED & ARCHIVED
+**Task ID**: improve-naming-consistency-20250119
+**Issue**: #90 - Improve naming consistency across schema definitions
+**Type**: Level 2 - Simple Enhancement (Refactoring)
+**Phase**: Planning Complete - Questions Pending
 
-### Final Results
+### Plan Summary
 
-- Successfully removed includeComments configuration option
-- API simplified and code complexity reduced
-- All 179 tests passing, zero errors or violations
-- Complete documentation archived
+**Implementation Ready**:
 
-## Next Task Planning
+- 4 phases defined
+- 2 hour estimate
+- Clear rename strategy
+- Testing approach set
 
-**Status**: Awaiting task assignment
-**Recommended Mode**: VAN (Initialization) mode for next task analysis
+**Blocking Questions** (7 total):
 
-## Current System State
+1. Version strategy for breaking change
+2. Migration helper requirements
+3. Backward compatibility needs
+4. Documentation update scope
+5. Release communication plan
+6. Testing priorities
+7. Review process requirements
 
-- ✅ Codebase clean and simplified
-- ✅ All tests passing (179/179)
-- ✅ No TypeScript compilation errors
-- ✅ No ESLint violations
-- ✅ Memory Bank updated and preserved
-- ✅ Ready for next development cycle
+## System State
 
-## Available Actions
+- ✅ VAN mode complete
+- ✅ PLAN mode complete
+- ✅ Implementation steps defined
+- ✅ Technology validation done
+- ⏳ Awaiting user decisions
+- ⏳ Cannot proceed without answers
 
-- Start new task via VAN mode
-- Review completed task archives
-- Continue with other enhancement work
+## Next Actions
+
+**Immediate**: User must answer 7 questions
+
+**After answers**:
+
+- Update plan with decisions
+- Create feature branch
+- Execute implementation
+- Follow migration strategy
+
+## File References
+
+- Planning document: memory-bank/plan-naming-consistency.md
+- Questions section: Bottom of planning document
 
 ---
 
-**Last Updated**: 2025-01-18
-**Memory Bank Status**: Reset and ready for new task
+**Last Updated**: 2025-01-19
+**Memory Bank Status**: Plan Complete - User Input Required
+**Blocked By**: 7 unanswered questions
+
+## Branch Status
+
+✅ Feature branch created: task-20250119-improve-naming-consistency

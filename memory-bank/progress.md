@@ -864,3 +864,11 @@
 - Strategic focus on GitHub integration with streamlined architecture
 
 **Lessons Applied**: Systematic simplification improves maintainability. Real-world data verification provides better test confidence than synthetic data. Quality gates should be continuous throughout implementation.
+
+### Task 21: Improve Naming Consistency 🔄 ACTIVE
+
+- **Date**: 2025-01-19
+- **Type**: Level 2 (Simple Enhancement)
+- **Status**: IN PROGRESS - PLAN Mode Complete (Awaiting User Input)
+- **Issue**: #90
+- **Summary**: Standardizing naming conventions across Flow and Step schema definitions to improve codebase consistency
