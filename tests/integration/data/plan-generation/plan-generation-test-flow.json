@@ -1,0 +1,25 @@
+{
+  "id": "plan-generation-test-flow",
+  "name": "Plan Generation E2E Test",
+  "description": "Tests the plan generation from GitHub issue",
+  "initialStepId": "read-issue",
+  "steps": [
+    {
+      "id": "read-issue",
+      "type": "read-github-issue",
+      "issueUrl": "https://github.com/ondatra-ai/for-test-purpose/issues/1",
+      "github_token": "{{env.GITHUB_TOKEN}}",
+      "nextStepId": {
+        "default": "generate-plan"
+      }
+    },
+    {
+      "id": "generate-plan",
+      "type": "plan-generation",
+      "llm_provider": "claude",
+      "model": "claude-sonnet-4-20250514",
+      "prompt_template": "Generate a detailed execution plan for: {{github.issue.title}}\n\nDescription: {{github.issue.body}}\n\nPlease provide a structured plan with clear steps.",
+      "nextStepId": {}
+    }
+  ]
+} 

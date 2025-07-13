@@ -21,13 +21,13 @@ import { SERVICES } from './tokens.js';
 function registerLLMProvider<T extends ILLMProvider>(
   token: symbol,
   ProviderClass: new (apiKey: string, helper: IProviderHelper) => T,
-  envVar: string
+  envVarName: string
 ): void {
   container.register<ILLMProvider>(token, {
     useFactory: () => {
-      const apiKey = process.env[envVar];
+      const apiKey = process.env[envVarName];
       if (!apiKey) {
-        throw new Error(`${envVar} environment variable is required`);
+        throw new Error(`${envVarName} environment variable is required`);
       }
       const helper = container.resolve<IProviderHelper>(
         SERVICES.ProviderHelper
