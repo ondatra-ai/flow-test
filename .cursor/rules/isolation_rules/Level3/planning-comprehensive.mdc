@@ -54,6 +54,12 @@ graph TD
 ```markdown
 # Feature Planning Document
 
+### Contracts and interface update (`src/types/**`, or `src/interfaces`)
+- [Interface change 1 with code] 
+- [Interface change 2 with code]
+- [Type change 1 with code]
+- [Type change 2 with code]
+
 ## Requirements Analysis
 - Core Requirements:
   - [ ] Requirement 1

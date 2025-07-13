@@ -135,7 +135,7 @@ read_file({
 
 ## PLANNING APPROACH
 
-Create a detailed implementation plan based on the complexity level determined during initialization. Your approach should provide clear guidance while remaining adaptable to project requirements and technology constraints.
+Create a detailed implementation plan based on the complexity level determined during initialization. Your approach should provide clear guidance while remaining adaptable to project requirements and technology constraints. Pay attention to types and interfaces that need to be changed.
 
 ### Level 2: Simple Enhancement Planning
 

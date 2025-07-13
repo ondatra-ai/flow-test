@@ -32,6 +32,13 @@ Level 2 tasks require a more structured tracking approach than Level 1, but don'
 ### Description
 [Brief description of the enhancement]
 
+
+### Contracts and interface update (`src/types/**`, or `src/interfaces`)
+- [Interface change 1 with code] 
+- [Interface change 2 with code]
+- [Type change 1 with code]
+- [Type change 2 with code]
+
 ### Requirements
 - [Requirement 1]
 - [Requirement 2]
