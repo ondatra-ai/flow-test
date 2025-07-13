@@ -40,6 +40,7 @@ function registerLLMProvider<T extends ILLMProvider>(
 /**
  * Initialize the dependency injection container
  */
+// eslint-disable-next-line max-lines-per-function
 export function initializeContainer(): DependencyContainer {
   // Register core services
   container.register<Logger>(SERVICES.Logger, {

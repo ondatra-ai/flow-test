@@ -36,6 +36,20 @@ function handleGitHubIssueOption(
 }
 
 /**
+ * Setup flow parameters and context
+ */
+function setupFlowContext(
+  parameters: string[],
+  flowName: string,
+  context: IContext
+): void {
+  parameters.forEach((param, index) => {
+    context.set(`param${index}`, param);
+  });
+  context.set('flowName', flowName);
+}
+
+/**
  * Handle the chat command
  */
 export function handleChatCommand(): void {
@@ -60,6 +74,7 @@ export async function handleTestsGenerateCommand(): Promise<void> {
 /**
  * Handle the flow:run command
  */
+// eslint-disable-next-line max-lines-per-function
 export async function handleFlowRunCommand(
   flowName: string,
   parameters: string[],
@@ -77,10 +92,7 @@ export async function handleFlowRunCommand(
     const context = session.getContext();
 
     // Inject parameters into context
-    parameters.forEach((param, index) => {
-      context.set(`param${index}`, param);
-    });
-    context.set('flowName', flowName);
+    setupFlowContext(parameters, flowName, context);
 
     // Handle GitHub issue URL if provided
     if (options?.githubIssue) {

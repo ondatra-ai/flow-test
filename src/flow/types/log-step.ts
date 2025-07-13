@@ -50,27 +50,24 @@ export class LogStep extends Step implements IStep {
     // Replace context placeholders in the message
     const resolvedMessage = this.resolveContextPlaceholders(message, context);
 
-    // Output at the specified level using direct console methods
+    // Output user message directly to appropriate stream
+    // This is user-defined output, not application logging
     const timestamp = new Date().toISOString();
     const level = this.config.level.toUpperCase();
-    const formattedMessage = `[${timestamp}] ${level}: ${resolvedMessage}`;
+    const formattedMessage = `[${timestamp}] ${level}: ${resolvedMessage}\n`;
 
     switch (this.config.level) {
       case 'error':
-        // eslint-disable-next-line no-console
-        console.error(formattedMessage);
+        process.stderr.write(formattedMessage);
         break;
       case 'warn':
-        // eslint-disable-next-line no-console
-        console.warn(formattedMessage);
+        process.stderr.write(formattedMessage);
         break;
       case 'info':
-        // eslint-disable-next-line no-console
-        console.info(formattedMessage);
+        process.stdout.write(formattedMessage);
         break;
       case 'debug':
-        // eslint-disable-next-line no-console
-        console.debug(formattedMessage);
+        process.stdout.write(formattedMessage);
         break;
       default: {
         const exhaustiveCheck: never = this.config.level;
