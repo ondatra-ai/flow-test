@@ -99,7 +99,6 @@ export class TestEnvironment {
     } = options;
 
     return new Promise((resolve, reject) => {
-      console.log('process.env.CLAUDE_API_KEY', process.env.CLAUDE_API_KEY);
       const spawnOptions: SpawnOptionsWithoutStdio = {
         stdio: ['pipe', 'pipe', 'pipe'],
         env: { ...process.env }, // Ensure environment is properly inherited

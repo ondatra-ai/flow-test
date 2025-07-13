@@ -88,6 +88,7 @@ jobs:
         run: npm run test:e2e
         env:
           CLAUDE_API_KEY: ${{ secrets.CLAUDE_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   sonarqube:
     runs-on: ubuntu-latest
