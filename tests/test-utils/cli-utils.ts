@@ -42,11 +42,12 @@ export async function runFlowCommand(
   testEnv: TestEnvironment,
   tempTestDir: string,
   flowName: string,
-  parameters: string[] = []
+  parameters: string[] = [],
+  timeout: number = 10000
 ): Promise<CommandResult> {
   return runCliCommand(testEnv, ['flow:run', flowName, ...parameters], {
     workingDirectory: tempTestDir,
-    timeout: 10000,
+    timeout,
   });
 }
 
@@ -55,11 +56,12 @@ export async function runFlowCommand(
  */
 export async function runTestsGenerateCommand(
   testEnv: TestEnvironment,
-  tempTestDir: string
+  tempTestDir: string,
+  timeout: number = 10000
 ): Promise<CommandResult> {
   return runCliCommand(testEnv, ['tests:generate'], {
     workingDirectory: tempTestDir,
-    timeout: 10000,
+    timeout,
     expectSuccess: true,
   });
 }

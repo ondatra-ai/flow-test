@@ -64,7 +64,7 @@ export class PlanGenerationStep extends Step implements IStep {
   }
 
   private async generatePlan(title: string, body: string): Promise<string> {
-    const prompt =
+    let prompt =
       this.config.prompt_template ||
       `Generate a detailed execution plan for the following GitHub issue:
 
@@ -79,6 +79,13 @@ Please provide a structured plan with:
 5. Timeline
 
 Format the response as markdown.`;
+
+    // If using a custom prompt template, substitute template variables
+    if (this.config.prompt_template) {
+      prompt = prompt
+        .replace(/\{\{github\.issue\.title\}\}/g, title)
+        .replace(/\{\{github\.issue\.body\}\}/g, body);
+    }
 
     const request = {
       prompt,

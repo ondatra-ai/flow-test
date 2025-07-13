@@ -5,6 +5,7 @@ export default defineConfig({
     globals: true,
     environment: 'node',
     setupFiles: ['./tests/test-setup.ts'],
+    testTimeout: 60000, // 60 seconds for test timeout
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html', 'lcov'],

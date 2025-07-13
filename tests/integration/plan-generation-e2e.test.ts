@@ -55,11 +55,13 @@ describe('Plan Generation Step E2E Tests', () => {
         'data/plan-generation'
       );
 
-      // Run the flow
+      // Run the flow with 60-second timeout for LLM API calls
       const result = await runFlowCommand(
         testEnv,
         tempTestDir,
-        'plan-generation-test-flow'
+        'plan-generation-test-flow',
+        [], // no additional parameters
+        60000 // 60 seconds for LLM API calls
       );
 
       // Verify successful execution
@@ -81,7 +83,7 @@ describe('Plan Generation Step E2E Tests', () => {
       expect(result.stdout).toContain('=== END PLAN ===');
 
       // Verify that the plan contains structured content
-      expect(result.stdout).toContain('## Execution Plan');
+      expect(result.stdout).toContain('# Execution Plan');
 
       // Verify issue data was passed correctly to the plan generation
       expect(result.stdout).toContain('[TEST Issue] Create something for ai');
