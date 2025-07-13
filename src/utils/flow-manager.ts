@@ -7,9 +7,9 @@ import { SERVICES } from '../config/tokens.js';
 import { Flow, type IFlow } from '../flow/flow.js';
 import { StepFactory } from '../flow/step-factory.js';
 import { type IStep } from '../flow/step.js';
-import type { StepConfig } from '../types/validation/index.js';
-import type { FlowDefinition } from '../validation/index.js';
-import { FlowDefinitionSchema } from '../validation/schemas/flow.schema.js';
+import type { ReadGitHubIssueStepConfig } from '../types/validation/index.js';
+import type { FlowConfig } from '../validation/index.js';
+import { FlowConfigSchema } from '../validation/schemas/flow.schema.js';
 
 import { castJson, castError } from './cast.js';
 import { Logger } from './logger.js';
@@ -51,7 +51,7 @@ export class FlowManager {
 
     try {
       const jsonData = await fs.readFile(filePath, 'utf-8');
-      const flowData = castJson(FlowDefinitionSchema, jsonData);
+      const flowData = castJson(FlowConfigSchema, jsonData);
       return this.convertToFlow(flowData);
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
@@ -65,9 +65,9 @@ export class FlowManager {
   }
 
   /**
-   * Convert validated FlowDefinition to Flow object
+   * Convert validated FlowConfig to Flow object
    */
-  public convertToFlow(flowData: FlowDefinition): Flow {
+  public convertToFlow(flowData: FlowConfig): Flow {
     const steps = flowData.steps.map(stepData => this.createStep(stepData));
 
     return new Flow(flowData.id, steps, flowData.initialStepId);
@@ -76,7 +76,7 @@ export class FlowManager {
   /**
    * Create a step from validated step data
    */
-  private createStep(stepData: StepConfig): IStep {
+  private createStep(stepData: ReadGitHubIssueStepConfig): IStep {
     try {
       return this.stepFactory.createStep(stepData);
     } catch (error) {
