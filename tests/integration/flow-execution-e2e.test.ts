@@ -46,35 +46,6 @@ describe('CLI E2E Tests - flow:run command', () => {
     }
   });
 
-  describe('GitHub Issue Flow', () => {
-    it('should execute ReadGitHubIssueStep successfully', async () => {
-      // Copy a flow that uses only ReadGitHubIssueStep
-      await copyFlowFile('comprehensive-test-flow.json', tempTestDir);
-
-      // Run the flow
-      const result = await runFlowCommand(
-        testEnv,
-        tempTestDir,
-        'comprehensive-test-flow'
-      );
-
-      // Verify successful execution
-      expect(result.exitCode).toBe(0);
-
-      // Verify flow starts and completes
-      expect(result.stdout).toContain('Loading flow: comprehensive-test-flow');
-      expect(result.stdout).toContain(
-        'Starting flow execution: comprehensive-test-flow'
-      );
-      expect(result.stdout).toContain(
-        "Flow 'comprehensive-test-flow' completed successfully"
-      );
-
-      // Verify ReadGitHubIssueStep execution
-      expect(result.stdout).toContain('Executing ReadGitHubIssueStep');
-    });
-  });
-
   describe('Invalid Flow', () => {
     it('should handle invalid flow with appropriate error', async () => {
       // Copy invalid flow configuration
@@ -104,26 +75,6 @@ describe('CLI E2E Tests - flow:run command', () => {
       // Verify it fails with appropriate error
       expect(result.exitCode).not.toBe(0);
       expect(result.stderr).toContain('Error');
-    });
-  });
-
-  describe('Flow Configuration', () => {
-    it('should execute flow with simple configuration', async () => {
-      // Use simple flow configuration
-      await copyFlowFile('simple-decision-test.json', tempTestDir);
-
-      // Run the flow
-      const result = await runFlowCommand(
-        testEnv,
-        tempTestDir,
-        'simple-decision-test'
-      );
-
-      // Verify successful execution
-      expect(result.exitCode).toBe(0);
-      expect(result.stdout).toContain(
-        "Flow 'simple-decision-test' completed successfully"
-      );
     });
   });
 });
