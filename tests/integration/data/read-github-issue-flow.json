@@ -10,16 +10,7 @@
       "issueUrl": "https://github.com/microsoft/vscode/issues/1",
       "includeComments": true,
       "github_token": "{{env.GITHUB_TOKEN}}",
-      "nextStepId": {
-        "default": "display-issue-info"
-      }
-    },
-    {
-      "id": "display-issue-info",
-      "type": "log",
-      "message": "Issue: {{context.github.issue.title}} by {{context.github.issue.author}} - Comments: {{context.github.issue.comments_count}}",
-      "level": "info",
       "nextStepId": {}
     }
   ]
-} 
+}

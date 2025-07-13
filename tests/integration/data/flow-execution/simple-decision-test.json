@@ -1,44 +1,15 @@
 {
   "id": "simple-decision-test",
-  "name": "Simple Decision Test",
-  "description": "Simple test for decision step functionality",
-  "initialStepId": "set-priority",
+  "name": "Simple GitHub Issue Test",
+  "description": "Simple ReadGitHubIssueStep test",
+  "initialStepId": "read-issue",
   "steps": [
     {
-      "id": "set-priority",
-      "type": "action",
-      "operation": "setContext",
-      "key": "priority",
-      "value": "high",
-      "nextStepId": {
-        "default": "check-priority"
-      }
-    },
-    {
-      "id": "check-priority",
-      "type": "decision",
-      "condition": "equals",
-      "contextKey": "priority",
-      "trueValue": "high",
-      "falseValue": "low",
-      "nextStepId": {
-        "true": "high-priority-path",
-        "false": "low-priority-path"
-      }
-    },
-    {
-      "id": "high-priority-path",
-      "type": "log",
-      "message": "High priority path taken",
-      "level": "info",
-      "nextStepId": {}
-    },
-    {
-      "id": "low-priority-path", 
-      "type": "log",
-      "message": "Low priority path taken",
-      "level": "info",
+      "id": "read-issue",
+      "type": "read-github-issue",
+      "issueUrl": "https://github.com/ondatra-ai/flow-test/issues/1",
+      "includeComments": false,
       "nextStepId": {}
     }
   ]
-} 
+}

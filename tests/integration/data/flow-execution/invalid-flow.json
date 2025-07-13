@@ -2,31 +2,14 @@
   "id": "invalid-flow",
   "name": "Invalid Flow Test",
   "description": "Tests error handling for invalid step configurations",
+  "initialStepId": "invalid-step",
   "steps": [
     {
-      "id": "missing-operation",
-      "type": "action",
-      "key": "test",
-      "value": "value",
-      "nextStepId": {
-        "default": "invalid-decision"
-      }
-    },
-    {
-      "id": "invalid-decision",
-      "type": "decision",
-      "condition": "invalid javascript {{",
-      "contextKey": "result",
-      "nextStepId": {
-        "default": "invalid-log"
-      }
-    },
-    {
-      "id": "invalid-log",
-      "type": "log",
-      "message": "Test message",
-      "level": "invalid-level",
+      "id": "invalid-step",
+      "type": "read-github-issue",
+      "issueUrl": "invalid-url-not-github",
+      "includeComments": true,
       "nextStepId": {}
     }
   ]
-} 
+}
