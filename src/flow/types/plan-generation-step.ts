@@ -2,7 +2,6 @@ import { inject, injectable } from 'tsyringe';
 
 import { SERVICES } from '../../config/tokens.js';
 import { type ILLMProvider } from '../../interfaces/providers/index.js';
-import { castError } from '../../utils/cast.js';
 import { Logger } from '../../utils/logger.js';
 import { type PlanGenerationStepConfig } from '../../validation/index.js';
 import { IContext } from '../context.js';
@@ -34,33 +33,26 @@ export class PlanGenerationStep extends Step implements IStep {
   public async execute(context: IContext): Promise<string | null> {
     this.logger.info(`Executing PlanGenerationStep: ${this.config.id}`);
 
-    try {
-      // Get issue data from context (set by ReadGitHubIssueStep)
-      const issueTitle = context.get('github.issue.title') || 'Unknown Issue';
-      const issueBody = context.get('github.issue.body') || '';
-      const issueNumber = context.get('github.issue.number') || '';
+    // Get issue data from context (set by ReadGitHubIssueStep)
+    const issueTitle = context.get('github.issue.title') || 'Unknown Issue';
+    const issueBody = context.get('github.issue.body') || '';
+    const issueNumber = context.get('github.issue.number') || '';
 
-      this.logger.info(
-        `Generating plan for issue #${issueNumber}: "${issueTitle}"`
-      );
+    this.logger.info(
+      `Generating plan for issue #${issueNumber}: "${issueTitle}"`
+    );
 
-      // Generate plan using LLM provider
-      const plan = await this.generatePlan(issueTitle, issueBody);
+    // Generate plan using LLM provider
+    const plan = await this.generatePlan(issueTitle, issueBody);
 
-      // Output the plan to console with clear markers
-      this.logger.info('=== GENERATED PLAN ===');
-      this.logger.info(plan);
-      this.logger.info('=== END PLAN ===');
+    // Output the plan to console with clear markers
+    this.logger.info('=== GENERATED PLAN ===');
+    this.logger.info(plan);
+    this.logger.info('=== END PLAN ===');
 
-      this.logger.info('Plan generation completed successfully');
+    this.logger.info('Plan generation completed successfully');
 
-      return super.execute(context);
-    } catch (error) {
-      this.logger.error(`PlanGenerationStep failed`, castError(error), {
-        stepId: this.config.id,
-      });
-      throw error;
-    }
+    return super.execute(context);
   }
 
   private async generatePlan(title: string, body: string): Promise<string> {

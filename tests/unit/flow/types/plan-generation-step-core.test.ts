@@ -246,11 +246,8 @@ describe('PlanGenerationStep - Core Functionality', () => {
         'LLM provider failed'
       );
 
-      expect(mockLoggerError).toHaveBeenCalledWith(
-        'PlanGenerationStep failed',
-        mockError,
-        { stepId: 'test-plan-generation' }
-      );
+      // Error should bubble up without intermediate logging
+      expect(mockLoggerError).not.toHaveBeenCalled();
     });
   });
 

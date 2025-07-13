@@ -77,13 +77,6 @@ export class FlowManager {
    * Create a step from validated step data
    */
   private createStep(stepData: StepConfig): IStep {
-    try {
-      return this.stepFactory.createStep(stepData);
-    } catch (error) {
-      this.logger.error('Failed to create step', castError(error), {
-        stepData: JSON.stringify(stepData),
-      });
-      throw error;
-    }
+    return this.stepFactory.createStep(stepData);
   }
 }
