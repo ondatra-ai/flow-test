@@ -21,6 +21,63 @@ import type { PlanGenerationStepConfig } from '../../../../src/validation/index.
 describe('PlanGenerationStep - Template Handling', () => {
   let mockConfig: PlanGenerationStepConfig;
 
+  // Helper function to create test mocks
+  function createTestMocks(
+    contextMockBehavior?: (mockGet: ReturnType<typeof vi.fn>) => void
+  ) {
+    const mockContextGet = vi.fn();
+
+    // Apply custom behavior if provided, otherwise use default
+    if (contextMockBehavior) {
+      contextMockBehavior(mockContextGet);
+    } else {
+      // Default behavior for most tests
+      mockContextGet
+        .mockReturnValueOnce('Issue Title') // github.issue.title
+        .mockReturnValueOnce('Issue Body') // github.issue.body
+        .mockReturnValueOnce('456') // github.issue.number
+        .mockReturnValue(undefined); // All other calls
+    }
+
+    const mockContextSet = vi.fn();
+    const mockContext = cast<IContext>({
+      get: mockContextGet,
+      set: mockContextSet,
+    });
+
+    const mockGenerate = vi.fn().mockResolvedValue('Generated plan');
+    const mockGetProviderName = vi.fn();
+    const mockLLMProvider = cast<ILLMProvider>({
+      generate: mockGenerate,
+      getProviderName: mockGetProviderName,
+    });
+
+    const mockLoggerInfo = vi.fn();
+    const mockLoggerError = vi.fn();
+    const mockLoggerWarn = vi.fn();
+    const mockLoggerDebug = vi.fn();
+    const mockLogger = cast<Logger>({
+      info: mockLoggerInfo,
+      error: mockLoggerError,
+      warn: mockLoggerWarn,
+      debug: mockLoggerDebug,
+    });
+
+    return {
+      mockContext,
+      mockLLMProvider,
+      mockLogger,
+      mockGenerate,
+      mockContextGet,
+      mockContextSet,
+      mockLoggerInfo,
+      mockLoggerError,
+      mockLoggerWarn,
+      mockLoggerDebug,
+      mockGetProviderName,
+    };
+  }
+
   beforeEach(() => {
     vi.clearAllMocks();
 
@@ -37,36 +94,8 @@ describe('PlanGenerationStep - Template Handling', () => {
 
   describe('prompt template handling', () => {
     it('should use default prompt template when none provided', async () => {
-      // Create fresh mocks for isolated testing
-      const mockContextGet = vi
-        .fn()
-        .mockReturnValueOnce('Issue Title') // github.issue.title
-        .mockReturnValueOnce('Issue Body') // github.issue.body
-        .mockReturnValueOnce('456') // github.issue.number
-        .mockReturnValue(undefined); // All other calls
-      const mockContextSet = vi.fn();
-      const mockContext = cast<IContext>({
-        get: mockContextGet,
-        set: mockContextSet,
-      });
-
-      const mockGenerate = vi.fn().mockResolvedValue('Generated plan');
-      const mockGetProviderName = vi.fn();
-      const mockLLMProvider = cast<ILLMProvider>({
-        generate: mockGenerate,
-        getProviderName: mockGetProviderName,
-      });
-
-      const mockLoggerInfo = vi.fn();
-      const mockLoggerError = vi.fn();
-      const mockLoggerWarn = vi.fn();
-      const mockLoggerDebug = vi.fn();
-      const mockLogger = cast<Logger>({
-        info: mockLoggerInfo,
-        error: mockLoggerError,
-        warn: mockLoggerWarn,
-        debug: mockLoggerDebug,
-      });
+      const { mockContext, mockLLMProvider, mockLogger, mockGenerate } =
+        createTestMocks();
 
       const step = new PlanGenerationStep(
         mockLogger,
@@ -87,36 +116,8 @@ describe('PlanGenerationStep - Template Handling', () => {
     });
 
     it('should substitute template variables in custom prompt', async () => {
-      // Create fresh mocks for isolated testing
-      const mockContextGet = vi
-        .fn()
-        .mockReturnValueOnce('Issue Title') // github.issue.title
-        .mockReturnValueOnce('Issue Body') // github.issue.body
-        .mockReturnValueOnce('456') // github.issue.number
-        .mockReturnValue(undefined); // All other calls
-      const mockContextSet = vi.fn();
-      const mockContext = cast<IContext>({
-        get: mockContextGet,
-        set: mockContextSet,
-      });
-
-      const mockGenerate = vi.fn().mockResolvedValue('Generated plan');
-      const mockGetProviderName = vi.fn();
-      const mockLLMProvider = cast<ILLMProvider>({
-        generate: mockGenerate,
-        getProviderName: mockGetProviderName,
-      });
-
-      const mockLoggerInfo = vi.fn();
-      const mockLoggerError = vi.fn();
-      const mockLoggerWarn = vi.fn();
-      const mockLoggerDebug = vi.fn();
-      const mockLogger = cast<Logger>({
-        info: mockLoggerInfo,
-        error: mockLoggerError,
-        warn: mockLoggerWarn,
-        debug: mockLoggerDebug,
-      });
+      const { mockContext, mockLLMProvider, mockLogger, mockGenerate } =
+        createTestMocks();
 
       const configWithTemplate: PlanGenerationStepConfig = {
         ...mockConfig,
@@ -139,36 +140,8 @@ describe('PlanGenerationStep - Template Handling', () => {
     });
 
     it('should handle custom prompt template without variable substitution', async () => {
-      // Create fresh mocks for isolated testing
-      const mockContextGet = vi
-        .fn()
-        .mockReturnValueOnce('Issue Title') // github.issue.title
-        .mockReturnValueOnce('Issue Body') // github.issue.body
-        .mockReturnValueOnce('456') // github.issue.number
-        .mockReturnValue(undefined); // All other calls
-      const mockContextSet = vi.fn();
-      const mockContext = cast<IContext>({
-        get: mockContextGet,
-        set: mockContextSet,
-      });
-
-      const mockGenerate = vi.fn().mockResolvedValue('Generated plan');
-      const mockGetProviderName = vi.fn();
-      const mockLLMProvider = cast<ILLMProvider>({
-        generate: mockGenerate,
-        getProviderName: mockGetProviderName,
-      });
-
-      const mockLoggerInfo = vi.fn();
-      const mockLoggerError = vi.fn();
-      const mockLoggerWarn = vi.fn();
-      const mockLoggerDebug = vi.fn();
-      const mockLogger = cast<Logger>({
-        info: mockLoggerInfo,
-        error: mockLoggerError,
-        warn: mockLoggerWarn,
-        debug: mockLoggerDebug,
-      });
+      const { mockContext, mockLLMProvider, mockLogger, mockGenerate } =
+        createTestMocks();
 
       const configWithTemplate: PlanGenerationStepConfig = {
         ...mockConfig,
@@ -190,36 +163,17 @@ describe('PlanGenerationStep - Template Handling', () => {
     });
 
     it('should handle empty issue title and body in template substitution', async () => {
-      // Create fresh mocks for this test
-      const mockContextGet = vi
-        .fn()
-        .mockReturnValueOnce(null) // null title (will become 'Unknown Issue')
-        .mockReturnValueOnce(null) // null body (will become '')
-        .mockReturnValueOnce('789') // issue number
-        .mockReturnValue(undefined); // All other context.get calls
-      const mockContextSet = vi.fn();
-      const mockContext = cast<IContext>({
-        get: mockContextGet,
-        set: mockContextSet,
-      });
+      // Custom context behavior for this test
+      const customBehavior = (mockGet: ReturnType<typeof vi.fn>) => {
+        mockGet
+          .mockReturnValueOnce(null) // null title (will become 'Unknown Issue')
+          .mockReturnValueOnce(null) // null body (will become '')
+          .mockReturnValueOnce('789') // issue number
+          .mockReturnValue(undefined); // All other context.get calls
+      };
 
-      const mockGenerate = vi.fn().mockResolvedValue('Generated plan');
-      const mockGetProviderName = vi.fn();
-      const mockLLMProvider = cast<ILLMProvider>({
-        generate: mockGenerate,
-        getProviderName: mockGetProviderName,
-      });
-
-      const mockLoggerInfo = vi.fn();
-      const mockLoggerError = vi.fn();
-      const mockLoggerWarn = vi.fn();
-      const mockLoggerDebug = vi.fn();
-      const mockLogger = cast<Logger>({
-        info: mockLoggerInfo,
-        error: mockLoggerError,
-        warn: mockLoggerWarn,
-        debug: mockLoggerDebug,
-      });
+      const { mockContext, mockLLMProvider, mockLogger, mockGenerate } =
+        createTestMocks(customBehavior);
 
       const configWithTemplate: PlanGenerationStepConfig = {
         ...mockConfig,
