@@ -51,9 +51,11 @@ describe('StepFactory', () => {
     it('should throw error for unknown step type', () => {
       const stepConfig = {
         id: 'test-step',
-        type: 'unknown-type',
+        type: 'unknown-type' as 'read-github-issue',
+        issueUrl: 'https://github.com/owner/repo/issues/1',
+        includeComments: true,
         nextStepId: { success: 'next-step' },
-      } as { id: string; type: string; nextStepId: Record<string, string> };
+      } as StepConfig;
 
       expect(() => stepFactory.createStep(stepConfig)).toThrow(
         'Unknown step type'

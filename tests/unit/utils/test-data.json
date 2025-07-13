@@ -7,18 +7,18 @@
     "steps": [
       {
         "id": "step1",
-        "type": "log",
-        "message": "First step",
-        "level": "info",
+        "type": "read-github-issue",
+        "issueUrl": "https://github.com/owner/repo/issues/1",
+        "includeComments": true,
         "nextStepId": {
           "default": "step2"
         }
       },
       {
         "id": "step2",
-        "type": "log",
-        "message": "Second step",
-        "level": "info",
+        "type": "read-github-issue",
+        "issueUrl": "https://github.com/owner/repo/issues/2",
+        "includeComments": false,
         "nextStepId": {}
       }
     ]
@@ -29,11 +29,9 @@
     "steps": [
       {
         "id": "router",
-        "type": "decision",
-        "condition": "context.workflow === \"bug\"",
-        "contextKey": "route",
-        "trueValue": "true",
-        "falseValue": "false",
+        "type": "read-github-issue",
+        "issueUrl": "https://github.com/owner/repo/issues/1",
+        "includeComments": true,
         "nextStepId": {
           "bug": "bug-step",
           "feature": "feature-step",
@@ -42,23 +40,23 @@
       },
       {
         "id": "bug-step",
-        "type": "log",
-        "message": "Bug step",
-        "level": "info",
+        "type": "read-github-issue",
+        "issueUrl": "https://github.com/owner/repo/issues/2",
+        "includeComments": true,
         "nextStepId": {}
       },
       {
         "id": "feature-step",
-        "type": "log",
-        "message": "Feature step",
-        "level": "info",
+        "type": "read-github-issue",
+        "issueUrl": "https://github.com/owner/repo/issues/3",
+        "includeComments": false,
         "nextStepId": {}
       },
       {
         "id": "end-step",
-        "type": "log",
-        "message": "End step",
-        "level": "info",
+        "type": "read-github-issue",
+        "issueUrl": "https://github.com/owner/repo/issues/4",
+        "includeComments": true,
         "nextStepId": {}
       }
     ]
