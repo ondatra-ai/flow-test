@@ -770,11 +770,13 @@ For situations requiring a more compact architectural planning approach:
 ```markdown
 ## Level 4 Architecture Planning: [System Name]
 
-### Contracts and interface update (`src/types/**`, or `src/interfaces`)
+### Contracts, scheme and interface update (`src/types/**`, or `src/interfaces`)
 - [Interface change 1 with code] 
 - [Interface change 2 with code]
 - [Type change 1 with code]
 - [Type change 2 with code]
+- [Schema change 1 with code]
+- [Schema change 2 with code]
 
 ### System Context
 - **Purpose**: [Brief description of system purpose]
