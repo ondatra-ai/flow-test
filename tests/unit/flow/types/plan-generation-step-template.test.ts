@@ -6,6 +6,7 @@ import {
   it,
   vi,
   type MockedFunction,
+  type Mock,
 } from 'vitest';
 
 import type { IContext } from '../../../../src/flow/context.js';
@@ -22,9 +23,7 @@ describe('PlanGenerationStep - Template Handling', () => {
   let mockConfig: PlanGenerationStepConfig;
 
   // Helper function to create test mocks
-  function createTestMocks(
-    contextMockBehavior?: (mockGet: ReturnType<typeof vi.fn>) => void
-  ) {
+  function createTestMocks(contextMockBehavior?: (mockGet: Mock) => void) {
     const mockContextGet = vi.fn();
 
     // Apply custom behavior if provided, otherwise use default
@@ -164,7 +163,7 @@ describe('PlanGenerationStep - Template Handling', () => {
 
     it('should handle empty issue title and body in template substitution', async () => {
       // Custom context behavior for this test
-      const customBehavior = (mockGet: ReturnType<typeof vi.fn>) => {
+      const customBehavior = (mockGet: Mock) => {
         mockGet
           .mockReturnValueOnce(null) // null title (will become 'Unknown Issue')
           .mockReturnValueOnce(null) // null body (will become '')

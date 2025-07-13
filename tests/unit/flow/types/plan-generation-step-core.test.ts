@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import 'reflect-metadata';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 
 import type { IContext } from '../../../../src/flow/context.js';
 import { PlanGenerationStep } from '../../../../src/flow/types/plan-generation-step.js';
@@ -45,9 +45,7 @@ describe('PlanGenerationStep - Core Functionality', () => {
   let mockConfig: PlanGenerationStepConfig;
 
   // Helper function to create fresh test mocks for isolated testing
-  function createFreshTestMocks(
-    contextMockBehavior?: (mockGet: ReturnType<typeof vi.fn>) => void
-  ) {
+  function createFreshTestMocks(contextMockBehavior?: (mockGet: Mock) => void) {
     const freshContextGet = vi.fn();
 
     if (contextMockBehavior) {
