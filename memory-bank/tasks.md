@@ -37,6 +37,13 @@
 - FlowDefinitionSchema → FlowConfigSchema
 - FlowDefinition → FlowConfig
 
+### Pre-Phase: File Name Verification (5 minutes)
+
+1. Verify file naming consistency
+   - [ ] Check if any files need renaming to match new convention
+   - [ ] Ensure schema files follow consistent pattern
+   - [ ] Update any file names if needed
+
 ### Phase 0: Documentation (10 minutes)
 
 1. Update memory-bank/techContext.md
@@ -74,7 +81,7 @@
 3. Run integration tests
 4. Fix any broken imports
 
-**Total Estimated Time**: 40 minutes
+**Total Estimated Time**: 45 minutes
 
 ## ⚠️ CHALLENGES & MITIGATIONS
 
@@ -107,3 +114,26 @@
 **Planning Completed**: 2025-01-19
 **Memory Bank Status**: Plan Finalized
 **Next Mode**: IMPLEMENT
+
+## 📁 FILE NAMING PATTERNS TO VERIFY
+
+During Pre-Phase, check for:
+
+1. **Schema Files**:
+   - Current: flow.schema.ts, step.schema.ts ✓
+   - Pattern: [entity].schema.ts (lowercase, no 'Config' or 'Definition')
+
+2. **Type Files**:
+   - Current: schemas.types.ts ✓
+   - Pattern: [purpose].types.ts
+
+3. **Test Files**:
+   - Pattern: [entity].test.ts or [entity].spec.ts
+   - Should match source file names
+
+4. **No files should contain**:
+   - 'definition' in filename
+   - 'Definition' in filename
+   - These are reserved for type/schema names only
+
+Note: Current file names are already following good patterns - just verify consistency.
