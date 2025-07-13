@@ -190,6 +190,81 @@ describe('LogStep', () => {
     });
   });
 
+  describe('error handling', () => {
+    it('should handle errors during execution and log them properly', async () => {
+      const config: LogStepConfig = {
+        id: 'test-log',
+        type: 'log',
+        message: 'Test message',
+        level: 'info',
+        nextStepId: { default: 'next-step' },
+      };
+
+      // Create a logger that throws an error on log call
+      const errorLogger = cast<Logger>({
+        info: vi.fn(),
+        warn: vi.fn(),
+        error: vi.fn(),
+        debug: vi.fn(),
+        log: vi.fn().mockImplementation(() => {
+          throw new Error('Logger failed');
+        }),
+      });
+
+      const logStep = new LogStep(errorLogger, config);
+
+      // Expect the error to be thrown and properly logged
+      await expect(logStep.execute(context)).rejects.toThrow('Logger failed');
+
+      // Check that the error was logged with proper context
+      expect(errorLogger.error).toHaveBeenCalledWith(
+        'LogStep failed',
+        expect.any(Error),
+        {
+          message: 'Test message',
+          level: 'info',
+        }
+      );
+    });
+
+    it('should handle errors with different log levels', async () => {
+      const config: LogStepConfig = {
+        id: 'test-log',
+        type: 'log',
+        message: 'Error test message',
+        level: 'error',
+        nextStepId: { default: 'next-step' },
+      };
+
+      // Create a logger that throws an error on log call
+      const errorLogger = cast<Logger>({
+        info: vi.fn(),
+        warn: vi.fn(),
+        error: vi.fn(),
+        debug: vi.fn(),
+        log: vi.fn().mockImplementation(() => {
+          throw new Error('Logger system failure');
+        }),
+      });
+
+      const logStep = new LogStep(errorLogger, config);
+
+      await expect(logStep.execute(context)).rejects.toThrow(
+        'Logger system failure'
+      );
+
+      // Check that the error was logged with error level context
+      expect(errorLogger.error).toHaveBeenCalledWith(
+        'LogStep failed',
+        expect.any(Error),
+        {
+          message: 'Error test message',
+          level: 'error',
+        }
+      );
+    });
+  });
+
   describe('getConfig', () => {
     it('should return step configuration', () => {
       const config: LogStepConfig = {
