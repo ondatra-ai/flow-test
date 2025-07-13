@@ -120,7 +120,14 @@ describe('StepFactory', () => {
       } as ReadGitHubIssueStepConfig;
 
       expect(() => stepFactory.createStep(stepConfig)).toThrow(
-        'Unknown step type'
+        `Unexpected step type: "unknown-type". Full step config: {
+  "id": "test-step",
+  "type": "unknown-type",
+  "issueUrl": "https://github.com/owner/repo/issues/1",
+  "nextStepId": {
+    "success": "next-step"
+  }
+}`
       );
     });
   });

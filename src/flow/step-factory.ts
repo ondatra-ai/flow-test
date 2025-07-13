@@ -11,6 +11,17 @@ import { PlanGenerationStep } from './types/plan-generation-step.js';
 import { ReadGitHubIssueStep } from './types/read-github-issue-step.js';
 
 /**
+ * Helper function to ensure exhaustive type checking
+ */
+function assertNever(x: StepConfig): never {
+  const stepType = x.type as string;
+  const configJson = JSON.stringify(x, null, 2);
+  throw new Error(
+    `Unexpected step type: "${stepType}". Full step config: ${configJson}`
+  );
+}
+
+/**
  * Factory for creating typed step instances
  */
 @injectable()
@@ -20,9 +31,6 @@ export class StepFactory {
     @inject(SERVICES.GitHubClient) private readonly githubClient: GitHubClient
   ) {}
 
-  /**
-   * Create a step instance based on step data
-   */
   createStep(stepData: StepConfig): IStep {
     // Create appropriate step instance based on type
     switch (stepData.type) {
@@ -39,8 +47,7 @@ export class StepFactory {
       }
 
       default:
-        // This should never happen since Zod schema ensures valid types
-        throw new Error(`Unknown step type: ${JSON.stringify(stepData)}`);
+        return assertNever(stepData);
     }
   }
 
@@ -58,7 +65,8 @@ export class StepFactory {
       case 'gemini':
         return container.resolve<ILLMProvider>(SERVICES.GeminiProvider);
       default:
-        throw new Error(`Unsupported LLM provider: ${providerName as string}`);
+        // This should never happen, but keeping for TypeScript exhaustiveness
+        throw new Error(`Unknown LLM provider: ${providerName as string}`);
     }
   }
 }
