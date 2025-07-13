@@ -1,6 +1,6 @@
 import { promises as fs } from 'fs';
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest';
 
 // Mock dependencies
 vi.mock('fs', () => ({
@@ -31,9 +31,9 @@ vi.mock('../../../src/utils/test-templates.js', () => ({
 }));
 
 type MockFs = {
-  readFile: ReturnType<typeof vi.fn>;
-  writeFile: ReturnType<typeof vi.fn>;
-  mkdir: ReturnType<typeof vi.fn>;
+  readFile: Mock;
+  writeFile: Mock;
+  mkdir: Mock;
 };
 
 describe('Test Generator', () => {

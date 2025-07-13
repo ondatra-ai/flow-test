@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import 'reflect-metadata';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 
 import type { IContext } from '../../../../src/flow/context.js';
 import { PlanGenerationStep } from '../../../../src/flow/types/plan-generation-step.js';
@@ -43,6 +43,56 @@ const mockContext = cast<IContext>({
 describe('PlanGenerationStep - Core Functionality', () => {
   let planGenerationStep: PlanGenerationStep;
   let mockConfig: PlanGenerationStepConfig;
+
+  // Helper function to create fresh test mocks for isolated testing
+  function createFreshTestMocks(contextMockBehavior?: (mockGet: Mock) => void) {
+    const freshContextGet = vi.fn();
+
+    if (contextMockBehavior) {
+      contextMockBehavior(freshContextGet);
+    } else {
+      // Default behavior - return undefined for all calls
+      freshContextGet.mockReturnValue(undefined);
+    }
+
+    const freshContextSet = vi.fn();
+    const freshContext = cast<IContext>({
+      get: freshContextGet,
+      set: freshContextSet,
+    });
+
+    const freshGenerate = vi.fn().mockResolvedValue('Generated plan');
+    const freshGetProviderName = vi.fn();
+    const freshLLMProvider = cast<ILLMProvider>({
+      generate: freshGenerate,
+      getProviderName: freshGetProviderName,
+    });
+
+    const freshLoggerInfo = vi.fn();
+    const freshLoggerError = vi.fn();
+    const freshLoggerWarn = vi.fn();
+    const freshLoggerDebug = vi.fn();
+    const freshLogger = cast<Logger>({
+      info: freshLoggerInfo,
+      error: freshLoggerError,
+      warn: freshLoggerWarn,
+      debug: freshLoggerDebug,
+    });
+
+    return {
+      freshContext,
+      freshLLMProvider,
+      freshLogger,
+      freshGenerate,
+      freshContextGet,
+      freshContextSet,
+      freshLoggerInfo,
+      freshLoggerError,
+      freshLoggerWarn,
+      freshLoggerDebug,
+      freshGetProviderName,
+    };
+  }
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -119,31 +169,13 @@ describe('PlanGenerationStep - Core Functionality', () => {
     });
 
     it('should handle missing context data with defaults', async () => {
-      // Create fresh mocks for this test
-      const freshContextGet = vi.fn().mockReturnValue(undefined);
-      const freshContextSet = vi.fn();
-      const freshContext = cast<IContext>({
-        get: freshContextGet,
-        set: freshContextSet,
-      });
-
-      const freshGenerate = vi.fn().mockResolvedValue('Generated plan');
-      const freshGetProviderName = vi.fn();
-      const freshLLMProvider = cast<ILLMProvider>({
-        generate: freshGenerate,
-        getProviderName: freshGetProviderName,
-      });
-
-      const freshLoggerInfo = vi.fn();
-      const freshLoggerError = vi.fn();
-      const freshLoggerWarn = vi.fn();
-      const freshLoggerDebug = vi.fn();
-      const freshLogger = cast<Logger>({
-        info: freshLoggerInfo,
-        error: freshLoggerError,
-        warn: freshLoggerWarn,
-        debug: freshLoggerDebug,
-      });
+      const {
+        freshContext,
+        freshLLMProvider,
+        freshLogger,
+        freshGenerate,
+        freshLoggerInfo,
+      } = createFreshTestMocks();
 
       const freshStep = new PlanGenerationStep(
         freshLogger,
