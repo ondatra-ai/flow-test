@@ -62,6 +62,13 @@ export class ReadGitHubIssueStep extends Step implements IStep {
 
       this.populateContext(context, issue, comments, issueUrl, issue_number);
 
+      // Log issue content for verification
+      this.logger.info(`Issue Title: "${issue.title}"`);
+      this.logger.info(`Issue Author: "${issue.user.login}"`);
+      this.logger.info(`Issue State: "${issue.state}"`);
+      this.logger.info(`Issue Body: "${issue.body || ''}"`);
+      this.logger.info(`Issue Comments: ${comments.length}`);
+
       this.logger.info(
         `Successfully loaded GitHub issue #${issue_number} from ` +
           `${owner}/${repo}`

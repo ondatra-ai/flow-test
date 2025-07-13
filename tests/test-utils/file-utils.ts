@@ -88,7 +88,7 @@ export async function copyFlowFiles(
  */
 export async function setupFlowsDirectory(tempTestDir: string): Promise<void> {
   const flowsDir = join(tempTestDir, '.flows');
-  const serversDir = join(flowsDir, 'servers');
+  const serversDir = join(tempTestDir, '.flows', 'servers');
 
   await fs.mkdir(flowsDir, { recursive: true });
   await fs.mkdir(serversDir, { recursive: true });

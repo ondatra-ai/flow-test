@@ -1,0 +1,16 @@
+{
+  "id": "read-github-issue-content-test-flow",
+  "name": "Read GitHub Issue Content Test Flow",
+  "description": "Test flow for reading GitHub issues and verifying content is populated correctly",
+  "initialStepId": "read-github-issue",
+  "steps": [
+    {
+      "id": "read-github-issue",
+      "type": "read-github-issue",
+      "issueUrl": "https://github.com/ondatra-ai/for-test-purpose/issues/1",
+      "includeComments": true,
+      "github_token": "{{env.GITHUB_TOKEN}}",
+      "nextStepId": {}
+    }
+  ]
+} 

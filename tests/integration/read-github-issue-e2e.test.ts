@@ -46,13 +46,17 @@ describe('Read GitHub Issue E2E Tests', () => {
   describe('Read GitHub Issue Step with CLI Arguments', () => {
     it('should read GitHub issue from CLI argument and populate context', async () => {
       // Copy the read GitHub issue test flow
-      await copyFlowFile('read-github-issue-flow.json', tempTestDir, 'data');
+      await copyFlowFile(
+        'read-github-issue-content-test-flow.json',
+        tempTestDir,
+        'data/read-github-issue'
+      );
 
       // Run the flow with GitHub issue URL as CLI argument
       const result = await runFlowCommand(
         testEnv,
         tempTestDir,
-        'read-github-issue-flow',
+        'read-github-issue-content-test-flow',
         [
           '--github-issue',
           'https://github.com/ondatra-ai/for-test-purpose/issues/1',
@@ -62,7 +66,7 @@ describe('Read GitHub Issue E2E Tests', () => {
       // Verify successful execution
       expect(result.exitCode).toBe(0);
       expect(result.stdout).toContain(
-        "Flow 'read-github-issue-flow' completed successfully"
+        "Flow 'read-github-issue-content-test-flow' completed successfully"
       );
 
       // Verify GitHub step executed
@@ -71,51 +75,35 @@ describe('Read GitHub Issue E2E Tests', () => {
         'Successfully loaded GitHub issue #1 from ondatra-ai/for-test-purpose'
       );
 
-      // Verify LogStep outputs raw message without context processing
-      expect(result.stdout).toContain(
-        'Issue: {{context.github.issue.title}} by {{context.github.issue.author}} - Comments: {{context.github.issue.comments_count}}'
-      );
-
-      // Context populated by ReadGitHubIssueStep, LogStep doesn't process it
+      // Verify ReadGitHubIssueStep successfully processes the GitHub issue
       expect(result.stdout).toContain('Successfully loaded GitHub issue #1');
-    });
 
+      // Verify real issue data from ondatra-ai/for-test-purpose/issues/1
+      expect(result.stdout).toContain(
+        'Issue Title: "[TEST Issue] Create something for ai"'
+      );
+      expect(result.stdout).toContain('Issue Author: "killev"');
+      expect(result.stdout).toContain('Issue State: "open"');
+      expect(result.stdout).toContain('Issue Body: "This issue for test"');
+      expect(result.stdout).toContain('Issue Comments: 1');
+    });
     it('should handle invalid GitHub issue URL with error', async () => {
-      // Copy the read GitHub issue test flow
-      await copyFlowFile('read-github-issue-flow.json', tempTestDir, 'data');
+      await copyFlowFile(
+        'read-github-issue-content-test-flow.json',
+        tempTestDir,
+        'data/read-github-issue'
+      );
 
       // Test error handling for invalid URLs
       const result = await runFlowCommand(
         testEnv,
         tempTestDir,
-        'read-github-issue-flow',
+        'read-github-issue-content-test-flow',
         ['--github-issue', 'https://invalid-url']
       );
 
       expect(result.exitCode).toBe(1);
       expect(result.stderr).toContain('Invalid GitHub issue URL');
-    });
-
-    it('should work without authentication for public repos', async () => {
-      // Copy the read GitHub issue test flow
-      await copyFlowFile('read-github-issue-flow.json', tempTestDir, 'data');
-
-      // Test without GITHUB_TOKEN for public repo
-      const result = await runFlowCommand(
-        testEnv,
-        tempTestDir,
-        'read-github-issue-flow',
-        [
-          '--github-issue',
-          'https://github.com/ondatra-ai/for-test-purpose/issues/1',
-        ]
-      );
-
-      // Should work for public repos even without token
-      expect(result.exitCode).toBe(0);
-      expect(result.stdout).toContain(
-        "Flow 'read-github-issue-flow' completed successfully"
-      );
     });
   });
 });

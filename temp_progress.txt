@@ -1,0 +1,24 @@
+
+### Task 18: Remove All Step Types Except ReadGitHubIssueStep 🚀 IN PROGRESS
+
+- **Date**: 2025-07-18
+- **Type**: Level 2 (Simple Enhancement)
+- **Status**: PLAN MODE COMPLETE - Ready for IMPLEMENT
+- **Issue**: #85
+- **Summary**: Simplifying flow system by removing ActionStep, DecisionStep, and LogStep, keeping only ReadGitHubIssueStep
+
+## Current Status
+
+- ✅ VAN mode analysis complete
+- ✅ All dependencies and impacts identified
+- ✅ PLAN mode complete - detailed implementation checklist created
+- ⏳ Ready to begin implementation
+- ⏳ 7 files to delete, ~13 files to modify
+
+## Next Steps
+
+- Transition to IMPLEMENT mode for systematic execution
+- Begin Phase 1: File deletion
+- Continue through all 4 implementation phases
+- Verify build and tests after completion
+

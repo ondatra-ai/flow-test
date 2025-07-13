@@ -1,7 +1,10 @@
 #!/usr/bin/env node
 import 'reflect-metadata';
-
 import { program } from 'commander';
+import { config } from 'dotenv';
+
+// Load environment variables from .env file
+config();
 
 import { setupCliProgram, registerCommands } from './cli/setup.js';
 import { initializeContainer, container } from './config/container.js';

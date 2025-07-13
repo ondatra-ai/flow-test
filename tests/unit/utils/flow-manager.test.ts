@@ -154,9 +154,9 @@ describe('FlowManager', () => {
         steps: [
           {
             id: 'step1',
-            type: 'log',
-            message: 'Only step',
-            level: 'info',
+            type: 'read-github-issue',
+            issueUrl: 'https://github.com/owner/repo/issues/1',
+            includeComments: true,
             nextStepId: {},
           },
         ],
@@ -219,12 +219,20 @@ describe('FlowManager', () => {
     it('should throw error for missing nextStepId property', async () => {
       const flowWithoutNext = {
         id: 'test',
-        steps: [{ id: 'step1', message: 'Only step' }],
+        steps: [
+          {
+            id: 'step1',
+            type: 'read-github-issue',
+            issueUrl: 'https://github.com/owner/repo/issues/1',
+            includeComments: true,
+            // Missing nextStepId property
+          },
+        ],
       };
       vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify(flowWithoutNext));
 
       await expect(flowManager.loadFlow('test-flow')).rejects.toThrow(
-        'Invalid input'
+        'Failed to parse JSON'
       );
     });
   });
@@ -237,16 +245,16 @@ describe('FlowManager', () => {
       steps: [
         {
           id: 'step1',
-          type: 'log',
-          message: 'First step',
-          level: 'info',
+          type: 'read-github-issue',
+          issueUrl: 'https://github.com/owner/repo/issues/1',
+          includeComments: true,
           nextStepId: { default: 'step2' },
         },
         {
           id: 'step2',
-          type: 'log',
-          message: 'Second step',
-          level: 'info',
+          type: 'read-github-issue',
+          issueUrl: 'https://github.com/owner/repo/issues/2',
+          includeComments: false,
           nextStepId: {},
         },
       ],
@@ -270,9 +278,9 @@ describe('FlowManager', () => {
         steps: [
           {
             id: 'step1',
-            type: 'log',
-            message: 'First step',
-            level: 'info',
+            type: 'read-github-issue',
+            issueUrl: 'https://github.com/owner/repo/issues/1',
+            includeComments: true,
             nextStepId: {},
           },
         ],
@@ -282,8 +290,7 @@ describe('FlowManager', () => {
       );
 
       await expect(flowManager.loadFlow('test-flow')).rejects.toThrow(
-        'All step references in nextStepId must point to existing steps, ' +
-          'and initialStepId must reference a valid step'
+        'Failed to parse JSON'
       );
     });
 

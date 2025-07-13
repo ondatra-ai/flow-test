@@ -9,9 +9,6 @@ export const SERVICES = {
   FlowManager: Symbol('FlowManager'),
   // Step Factory tokens
   StepFactory: Symbol('StepFactory'),
-  ActionStep: Symbol('ActionStep'),
-  DecisionStep: Symbol('DecisionStep'),
-  LogStep: Symbol('LogStep'),
   // GitHub integration tokens
   GitHubClient: Symbol('GitHubClient'),
   // LLM Provider tokens

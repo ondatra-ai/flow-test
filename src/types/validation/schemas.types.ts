@@ -10,9 +10,6 @@ export type FlowDefinition = z.infer<typeof FlowDefinitionSchema>;
 export type StepConfig = z.infer<typeof StepConfigSchema>;
 
 // Extract specific step types from the union
-export type ActionStepConfig = Extract<StepConfig, { type: 'action' }>;
-export type DecisionStepConfig = Extract<StepConfig, { type: 'decision' }>;
-export type LogStepConfig = Extract<StepConfig, { type: 'log' }>;
 export type ReadGitHubIssueStepConfig = Extract<
   StepConfig,
   { type: 'read-github-issue' }
