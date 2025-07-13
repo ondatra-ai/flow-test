@@ -16,6 +16,7 @@ describe('LogStep', () => {
       warn: vi.fn(),
       error: vi.fn(),
       debug: vi.fn(),
+      log: vi.fn(),
     });
 
     context = new Context();
@@ -34,7 +35,9 @@ describe('LogStep', () => {
       const logStep = new LogStep(mockLogger, config);
       const result = await logStep.execute(context);
 
-      expect(mockLogger.info).toHaveBeenCalledWith('Test info message');
+      expect(mockLogger.info).toHaveBeenCalledWith(
+        'Executing LogStep: Test info message'
+      );
       expect(result).toBe('next-step');
     });
 
@@ -50,7 +53,9 @@ describe('LogStep', () => {
       const logStep = new LogStep(mockLogger, config);
       await logStep.execute(context);
 
-      expect(mockLogger.error).toHaveBeenCalledWith('Test error message');
+      expect(mockLogger.info).toHaveBeenCalledWith(
+        'Executing LogStep: Test error message'
+      );
     });
 
     it('should log at warn level', async () => {
@@ -65,7 +70,9 @@ describe('LogStep', () => {
       const logStep = new LogStep(mockLogger, config);
       await logStep.execute(context);
 
-      expect(mockLogger.warn).toHaveBeenCalledWith('Test warning message');
+      expect(mockLogger.info).toHaveBeenCalledWith(
+        'Executing LogStep: Test warning message'
+      );
     });
 
     it('should log at debug level', async () => {
@@ -80,12 +87,14 @@ describe('LogStep', () => {
       const logStep = new LogStep(mockLogger, config);
       await logStep.execute(context);
 
-      expect(mockLogger.debug).toHaveBeenCalledWith('Test debug message');
+      expect(mockLogger.info).toHaveBeenCalledWith(
+        'Executing LogStep: Test debug message'
+      );
     });
   });
 
-  describe('context placeholders', () => {
-    it('should replace context placeholders in message', async () => {
+  describe('raw message output', () => {
+    it('should output raw message without context processing', async () => {
       const config: LogStepConfig = {
         id: 'test-log',
         type: 'log',
@@ -101,12 +110,13 @@ describe('LogStep', () => {
       const logStep = new LogStep(mockLogger, config);
       await logStep.execute(context);
 
-      expect(mockLogger.info).toHaveBeenCalledWith(
-        'User john logged in from New York'
+      // Should output raw message without context placeholder resolution
+      expect(mockLogger.log).toHaveBeenCalledWith(
+        'User {{context.username}} logged in from {{context.location}}'
       );
     });
 
-    it('should keep placeholder unchanged if context key not found', async () => {
+    it('should output raw message even with undefined context keys', async () => {
       const config: LogStepConfig = {
         id: 'test-log',
         type: 'log',
@@ -118,12 +128,13 @@ describe('LogStep', () => {
       const logStep = new LogStep(mockLogger, config);
       await logStep.execute(context);
 
-      expect(mockLogger.info).toHaveBeenCalledWith(
-        'User {{UNDEFINED:username}} performed action'
+      // Should output raw template string without processing
+      expect(mockLogger.log).toHaveBeenCalledWith(
+        'User {{context.username}} performed action'
       );
     });
 
-    it('should handle multiple placeholders', async () => {
+    it('should output raw message with multiple placeholders', async () => {
       const config: LogStepConfig = {
         id: 'test-log',
         type: 'log',
@@ -140,8 +151,9 @@ describe('LogStep', () => {
       const logStep = new LogStep(mockLogger, config);
       await logStep.execute(context);
 
-      expect(mockLogger.info).toHaveBeenCalledWith(
-        'Process backup completed with status success at 2023-01-01T10:00:00Z'
+      // Should output raw template string without context substitution
+      expect(mockLogger.log).toHaveBeenCalledWith(
+        'Process {{context.process}} completed with status {{context.status}} at {{context.timestamp}}'
       );
     });
   });
@@ -175,6 +187,81 @@ describe('LogStep', () => {
       const result = await logStep.execute(context);
 
       expect(result).toBeNull();
+    });
+  });
+
+  describe('error handling', () => {
+    it('should handle errors during execution and log them properly', async () => {
+      const config: LogStepConfig = {
+        id: 'test-log',
+        type: 'log',
+        message: 'Test message',
+        level: 'info',
+        nextStepId: { default: 'next-step' },
+      };
+
+      // Create a logger that throws an error on log call
+      const errorLogger = cast<Logger>({
+        info: vi.fn(),
+        warn: vi.fn(),
+        error: vi.fn(),
+        debug: vi.fn(),
+        log: vi.fn().mockImplementation(() => {
+          throw new Error('Logger failed');
+        }),
+      });
+
+      const logStep = new LogStep(errorLogger, config);
+
+      // Expect the error to be thrown and properly logged
+      await expect(logStep.execute(context)).rejects.toThrow('Logger failed');
+
+      // Check that the error was logged with proper context
+      expect(errorLogger.error).toHaveBeenCalledWith(
+        'LogStep failed',
+        expect.any(Error),
+        {
+          message: 'Test message',
+          level: 'info',
+        }
+      );
+    });
+
+    it('should handle errors with different log levels', async () => {
+      const config: LogStepConfig = {
+        id: 'test-log',
+        type: 'log',
+        message: 'Error test message',
+        level: 'error',
+        nextStepId: { default: 'next-step' },
+      };
+
+      // Create a logger that throws an error on log call
+      const errorLogger = cast<Logger>({
+        info: vi.fn(),
+        warn: vi.fn(),
+        error: vi.fn(),
+        debug: vi.fn(),
+        log: vi.fn().mockImplementation(() => {
+          throw new Error('Logger system failure');
+        }),
+      });
+
+      const logStep = new LogStep(errorLogger, config);
+
+      await expect(logStep.execute(context)).rejects.toThrow(
+        'Logger system failure'
+      );
+
+      // Check that the error was logged with error level context
+      expect(errorLogger.error).toHaveBeenCalledWith(
+        'LogStep failed',
+        expect.any(Error),
+        {
+          message: 'Error test message',
+          level: 'error',
+        }
+      );
     });
   });
 

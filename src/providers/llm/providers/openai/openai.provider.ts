@@ -2,6 +2,7 @@
 
 import OpenAI from 'openai';
 
+import { OpenAIRole } from '../../../../types/providers/openai.types';
 import type { IProviderHelper } from '../../helpers/provider-helper.js';
 import type {
   ILLMProvider,
@@ -10,7 +11,7 @@ import type {
 } from '../../interfaces/provider.js';
 
 export class OpenAIProvider implements ILLMProvider {
-  private client: OpenAI;
+  private readonly client: OpenAI;
   private static readonly ALLOWED_ROLES = [
     'system',
     'user',
@@ -19,7 +20,7 @@ export class OpenAIProvider implements ILLMProvider {
 
   constructor(
     apiKey: string,
-    private helper: IProviderHelper
+    private readonly helper: IProviderHelper
   ) {
     this.client = new OpenAI({ apiKey });
   }
@@ -41,11 +42,11 @@ export class OpenAIProvider implements ILLMProvider {
 
   private validateAndPrepareMessages(
     request: StreamRequest
-  ): Array<{ role: 'system' | 'user' | 'assistant'; content: string }> {
+  ): Array<{ role: OpenAIRole; content: string }> {
     this.guardValidateRoles(request.messages);
 
     const supportedMessages: Array<{
-      role: 'system' | 'user' | 'assistant';
+      role: OpenAIRole;
       content: string;
     }> = [];
 
@@ -70,7 +71,7 @@ export class OpenAIProvider implements ILLMProvider {
 
   private async createStream(
     request: StreamRequest,
-    messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }>
+    messages: Array<{ role: OpenAIRole; content: string }>
   ): Promise<AsyncIterable<OpenAI.Chat.Completions.ChatCompletionChunk>> {
     return await this.client.chat.completions.create({
       messages,

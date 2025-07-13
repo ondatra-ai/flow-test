@@ -1,11 +1,53 @@
 import { container } from '../config/container.js';
 import { SERVICES } from '../config/tokens.js';
 import { Session } from '../flow/session/session.js';
-import { cast } from '../utils/cast.js';
+import type { IContext } from '../interfaces/flow/index.js';
+import { cast, castError } from '../utils/cast.js';
 import { FlowManager } from '../utils/flow-manager.js';
 import { parseGitHubIssueUrl } from '../utils/github-url-parser.js';
 import type { Logger } from '../utils/logger.js';
 import { generateTests } from '../utils/test-generator.js';
+
+/**
+ * Handle GitHub issue URL option and populate context
+ */
+function handleGitHubIssueOption(
+  githubIssue: string,
+  context: IContext,
+  logger: Logger
+): void {
+  try {
+    const { owner, repo, issue_number } = parseGitHubIssueUrl(githubIssue);
+    context.set('github.issue.url', githubIssue);
+    context.set('github.issue.owner', owner);
+    context.set('github.issue.repo', repo);
+    context.set('github.issue.number', issue_number.toString());
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error
+        ? error.message
+        : 'Unknown error parsing GitHub URL';
+    logger.error(
+      `Failed to parse GitHub issue URL: ${errorMessage}`,
+      castError(error)
+    );
+    throw error;
+  }
+}
+
+/**
+ * Setup flow parameters and context
+ */
+function setupFlowContext(
+  parameters: string[],
+  flowName: string,
+  context: IContext
+): void {
+  parameters.forEach((param, index) => {
+    context.set(`param${index}`, param);
+  });
+  context.set('flowName', flowName);
+}
 
 /**
  * Handle the chat command
@@ -13,7 +55,7 @@ import { generateTests } from '../utils/test-generator.js';
 export function handleChatCommand(): void {
   const logger = container.resolve<Logger>(SERVICES.Logger);
   logger.info('Ondatra Code');
-  // TODO: Initialize chat interface
+  logger.info('Chat interface functionality is not yet implemented');
 }
 
 /**
@@ -24,9 +66,7 @@ export async function handleTestsGenerateCommand(): Promise<void> {
   try {
     await generateTests();
   } catch (error) {
-    logger.error('Command failed:', {
-      error: error instanceof Error ? error.message : String(error),
-    });
+    logger.error('Command failed:', castError(error));
     throw error;
   }
 }
@@ -34,6 +74,7 @@ export async function handleTestsGenerateCommand(): Promise<void> {
 /**
  * Handle the flow:run command
  */
+// eslint-disable-next-line max-lines-per-function
 export async function handleFlowRunCommand(
   flowName: string,
   parameters: string[],
@@ -51,29 +92,11 @@ export async function handleFlowRunCommand(
     const context = session.getContext();
 
     // Inject parameters into context
-    parameters.forEach((param, index) => {
-      context.set(`param${index}`, param);
-    });
-    context.set('flowName', flowName);
+    setupFlowContext(parameters, flowName, context);
 
     // Handle GitHub issue URL if provided
     if (options?.githubIssue) {
-      try {
-        const { owner, repo, issue_number } = parseGitHubIssueUrl(
-          options.githubIssue
-        );
-        context.set('github.issue.url', options.githubIssue);
-        context.set('github.issue.owner', owner);
-        context.set('github.issue.repo', repo);
-        context.set('github.issue.number', issue_number.toString());
-      } catch (error) {
-        const errorMessage =
-          error instanceof Error
-            ? error.message
-            : 'Unknown error parsing GitHub URL';
-        logger.error(`Failed to parse GitHub issue URL: ${errorMessage}`);
-        throw error;
-      }
+      handleGitHubIssueOption(options.githubIssue, context, logger);
     }
 
     // Execute flow
@@ -90,7 +113,7 @@ export async function handleFlowRunCommand(
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : cast<string>(error);
-    logger.error(`Flow execution failed: ${errorMessage}`);
+    logger.error(`Flow execution failed: ${errorMessage}`, castError(error));
     throw error;
   }
 }

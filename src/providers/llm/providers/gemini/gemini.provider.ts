@@ -8,7 +8,7 @@ import type {
 } from '../../interfaces/provider.js';
 
 export class GeminiProvider implements ILLMProvider {
-  private client: GoogleGenerativeAI;
+  private readonly client: GoogleGenerativeAI;
   private static readonly ALLOWED_ROLES = [
     'system',
     'user',
@@ -17,7 +17,7 @@ export class GeminiProvider implements ILLMProvider {
 
   constructor(
     apiKey: string,
-    private helper: IProviderHelper
+    private readonly helper: IProviderHelper
   ) {
     this.client = new GoogleGenerativeAI(apiKey);
   }

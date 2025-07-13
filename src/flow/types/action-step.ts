@@ -1,3 +1,4 @@
+import { castError } from '../../utils/cast.js';
 import { Logger } from '../../utils/logger.js';
 import { type ActionStepConfig } from '../../validation/index.js';
 import { IContext } from '../context.js';
@@ -55,10 +56,9 @@ export class ActionStep extends Step implements IStep {
       // Use parent's routing logic
       return super.execute(context);
     } catch (error) {
-      this.logger.error(`ActionStep failed`, {
+      this.logger.error(`ActionStep failed`, castError(error), {
         operation: this.config.operation,
         key: this.config.key,
-        error: error instanceof Error ? error.message : String(error),
       });
       throw error;
     }

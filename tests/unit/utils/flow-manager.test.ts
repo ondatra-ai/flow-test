@@ -113,9 +113,10 @@ describe('FlowManager', () => {
       await expect(flowManager.listFlows()).rejects.toThrow(
         'Unable to access flows directory'
       );
-      expect(mockLogger.error).toHaveBeenCalledWith('Failed to list flows', {
-        error: 'Permission denied',
-      });
+      expect(mockLogger.error).toHaveBeenCalledWith(
+        'Failed to list flows',
+        expect.any(Error)
+      );
     });
   });
 

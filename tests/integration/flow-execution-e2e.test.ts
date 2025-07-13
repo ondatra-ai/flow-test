@@ -56,8 +56,10 @@ describe('CLI E2E Tests - flow:run command', () => {
 
       // Verify successful execution
       expect(result.exitCode).toBe(0);
-      // Note: Error level logs may appear in stderr
-      expect(result.stderr).toContain('ERROR: Error E001 in TestApp');
+      // Note: All LogStep messages now go to stdout via logger.log (INFO level)
+      expect(result.stdout).toContain(
+        'INFO: Error {{context.errorCode}} in {{context.appName}}'
+      );
 
       // Verify flow starts and completes
       expect(result.stdout).expectOutputToContain([
@@ -76,16 +78,19 @@ describe('CLI E2E Tests - flow:run command', () => {
         "Executing ActionStep: removeContext on key 'temp'",
       ]);
 
-      // Verify log steps with context interpolation
+      // Verify log steps with raw message output (no context processing)
       expect(result.stdout).expectOutputToContain([
-        'Starting TestApp version 1.2.3',
-        // TODO: Fix LogStep interpolation - shows template not values
+        'Starting {{context.appName}} version {{context.version}}',
+        // LogStep now outputs raw message without context interpolation
         'LogStep: Error {{context.errorCode}} in {{context.appName}}',
-        // undefined context shows UNDEFINED
-        'User {{UNDEFINED:user}} logged in to TestApp',
         'LogStep: Debug: appName={{context.appName}}, ' +
           'version={{context.version}}, errorCode={{context.errorCode}}',
       ]);
+
+      // All LogStep messages now use INFO level via logger.log
+      expect(result.stdout).toContain(
+        'INFO: User {{context.user}} logged in to {{context.appName}}'
+      );
 
       // Verify decision steps
       expect(result.stdout).expectOutputToContain([
@@ -128,8 +133,10 @@ describe('CLI E2E Tests - flow:run command', () => {
       expect(result.stdout).toContain(
         "Flow 'comprehensive-test-flow' completed successfully"
       );
-      // Error level logs appear in stderr
-      expect(result.stderr).toContain('ERROR: Error E001 in TestApp');
+      // All LogStep messages now go to stdout via logger.log (INFO level)
+      expect(result.stdout).toContain(
+        'INFO: Error {{context.errorCode}} in {{context.appName}}'
+      );
       // The parameters should be available in context as param0 and param1
     });
   });

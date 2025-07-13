@@ -13,7 +13,10 @@ export function parseGitHubIssueUrl(url: string): GitHubIssueArgs {
   const regex = /github\.com\/([^/]+)\/([^/]+)\/issues\/(\d+)/;
   const match = regex.exec(url);
   if (!match) {
-    throw new Error('Invalid GitHub issue URL');
+    throw new Error(
+      `Invalid GitHub issue URL: "${url}". ` +
+        `Expected format: https://github.com/{owner}/{repo}/issues/{number}`
+    );
   }
 
   const [, owner, repo, issueNumber] = match;

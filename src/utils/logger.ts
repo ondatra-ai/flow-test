@@ -22,26 +22,35 @@ export type { Logger } from '../interfaces/utils/index.js';
 export class ConsoleLogger implements Logger {
   constructor(private readonly level: LogLevel = LogLevel.INFO) {}
 
-  public error(message: string, meta?: LogMetadata): void {
-    this.log(LogLevel.ERROR, message, meta);
+  public error(message: string, error: Error, meta?: LogMetadata): void {
+    const errorMeta = {
+      error: error.message,
+      stack: error.stack,
+      ...meta,
+    };
+    this.writeLog(LogLevel.ERROR, message, errorMeta);
   }
 
   public warn(message: string, meta?: LogMetadata): void {
     if (this.shouldLog(LogLevel.WARN)) {
-      this.log(LogLevel.WARN, message, meta);
+      this.writeLog(LogLevel.WARN, message, meta);
     }
   }
 
   public info(message: string, meta?: LogMetadata): void {
     if (this.shouldLog(LogLevel.INFO)) {
-      this.log(LogLevel.INFO, message, meta);
+      this.writeLog(LogLevel.INFO, message, meta);
     }
   }
 
   public debug(message: string, meta?: LogMetadata): void {
     if (this.shouldLog(LogLevel.DEBUG)) {
-      this.log(LogLevel.DEBUG, message, meta);
+      this.writeLog(LogLevel.DEBUG, message, meta);
     }
+  }
+
+  public log(message: string, meta?: LogMetadata): void {
+    this.info(message, meta);
   }
 
   private shouldLog(level: LogLevel): boolean {
@@ -54,7 +63,7 @@ export class ConsoleLogger implements Logger {
     return levels.indexOf(level) <= levels.indexOf(this.level);
   }
 
-  private log(level: LogLevel, message: string, meta?: LogMetadata): void {
+  private writeLog(level: LogLevel, message: string, meta?: LogMetadata): void {
     const timestamp = new Date().toISOString();
     const metaString = meta ? ` ${JSON.stringify(meta)}` : '';
     if (level === LogLevel.ERROR) {

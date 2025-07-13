@@ -12,12 +12,23 @@ describe('ConsoleLogger', () => {
     consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
   });
 
-  it('should log error messages', () => {
+  it('should log error messages with error object', () => {
     const logger = new ConsoleLogger(LogLevel.ERROR);
-    logger.error('Test error message');
+    const testError = new Error('Test error');
+    logger.error('Test error message', testError);
 
     expect(consoleErrorSpy).toHaveBeenCalledWith(
       expect.stringContaining('ERROR: Test error message')
+    );
+  });
+
+  it('should include error details in error log output', () => {
+    const logger = new ConsoleLogger(LogLevel.ERROR);
+    const testError = new Error('Test error details');
+    logger.error('Test error message', testError);
+
+    expect(consoleErrorSpy).toHaveBeenCalledWith(
+      expect.stringContaining('Test error details')
     );
   });
 

@@ -1,12 +1,10 @@
 import 'reflect-metadata';
 
-import { container } from 'tsyringe';
+import { container, DependencyContainer } from 'tsyringe';
 
 import { StepFactory } from '../flow/step-factory.js';
-import {
-  ProviderHelper,
-  type IProviderHelper,
-} from '../providers/llm/helpers/provider-helper.js';
+import type { IProviderHelper } from '../interfaces/providers/index.js';
+import { ProviderHelper } from '../providers/llm/helpers/provider-helper.js';
 import type { ILLMProvider } from '../providers/llm/interfaces/provider.js';
 import { ClaudeProvider } from '../providers/llm/providers/claude/claude.provider.js';
 import { GeminiProvider } from '../providers/llm/providers/gemini/gemini.provider.js';
@@ -15,72 +13,74 @@ import { FlowManager } from '../utils/flow-manager.js';
 import { GitHubClient } from '../utils/github-client.js';
 import { ConsoleLogger, LogLevel, Logger } from '../utils/logger.js';
 
-import { SERVICES, type TokenType } from './tokens.js';
+import { SERVICES } from './tokens.js';
+
+/**
+ * Register LLM provider with environment variable validation
+ */
+function registerLLMProvider<T extends ILLMProvider>(
+  token: symbol,
+  ProviderClass: new (apiKey: string, helper: IProviderHelper) => T,
+  envVar: string
+): void {
+  container.register<ILLMProvider>(token, {
+    useFactory: () => {
+      const apiKey = process.env[envVar];
+      if (!apiKey) {
+        throw new Error(`${envVar} environment variable is required`);
+      }
+      const helper = container.resolve<IProviderHelper>(
+        SERVICES.ProviderHelper
+      );
+      return new ProviderClass(apiKey, helper);
+    },
+  });
+}
 
 /**
  * Initialize the dependency injection container
  */
-export function initializeContainer(): void {
-  // Register Logger
-  if (!container.isRegistered(SERVICES.Logger)) {
-    container.register<Logger>(SERVICES.Logger, {
-      useFactory: () => new ConsoleLogger(LogLevel.INFO),
-    });
+// eslint-disable-next-line max-lines-per-function
+export function initializeContainer(): DependencyContainer {
+  // Register core services
+  container.register<Logger>(SERVICES.Logger, {
+    useFactory: () => new ConsoleLogger(LogLevel.INFO),
+  });
 
-    // Register FlowManager and StepFactory
-    container.registerSingleton<FlowManager>(SERVICES.FlowManager, FlowManager);
-    container.registerSingleton<StepFactory>(SERVICES.StepFactory, StepFactory);
+  container.registerSingleton<IProviderHelper>(
+    SERVICES.ProviderHelper,
+    ProviderHelper
+  );
 
-    // Register GitHub integration
-    container.registerSingleton<GitHubClient>(
-      SERVICES.GitHubClient,
-      GitHubClient
-    );
+  // Register LLM providers
+  registerLLMProvider(
+    SERVICES.ClaudeProvider,
+    ClaudeProvider,
+    'CLAUDE_API_KEY'
+  );
+  registerLLMProvider(
+    SERVICES.OpenAIProvider,
+    OpenAIProvider,
+    'OPENAI_API_KEY'
+  );
+  registerLLMProvider(
+    SERVICES.GeminiProvider,
+    GeminiProvider,
+    'GEMINI_API_KEY'
+  );
 
-    // Register LLM components
-    container.registerSingleton<IProviderHelper>(
-      SERVICES.ProviderHelper,
-      ProviderHelper
-    );
+  // Register other services
+  container.register<GitHubClient>(SERVICES.GitHubClient, {
+    useClass: GitHubClient,
+  });
+  container.register<StepFactory>(SERVICES.StepFactory, {
+    useClass: StepFactory,
+  });
+  container.register<FlowManager>(SERVICES.FlowManager, {
+    useClass: FlowManager,
+  });
 
-    // Register LLM providers with factory functions
-    container.register<ILLMProvider>(SERVICES.ClaudeProvider, {
-      useFactory: c => {
-        const helper = c.resolve<IProviderHelper>(SERVICES.ProviderHelper);
-        const apiKey = process.env.CLAUDE_API_KEY;
-        if (!apiKey) {
-          throw new Error('CLAUDE_API_KEY environment variable is required');
-        }
-        return new ClaudeProvider(apiKey, helper);
-      },
-    });
-
-    container.register<ILLMProvider>(SERVICES.OpenAIProvider, {
-      useFactory: c => {
-        const helper = c.resolve<IProviderHelper>(SERVICES.ProviderHelper);
-        const apiKey = process.env.OPENAI_API_KEY;
-        if (!apiKey) {
-          throw new Error('OPENAI_API_KEY environment variable is required');
-        }
-        return new OpenAIProvider(apiKey, helper);
-      },
-    });
-
-    container.register<ILLMProvider>(SERVICES.GeminiProvider, {
-      useFactory: c => {
-        const helper = c.resolve<IProviderHelper>(SERVICES.ProviderHelper);
-        const apiKey = process.env.GEMINI_API_KEY;
-        if (!apiKey) {
-          throw new Error('GEMINI_API_KEY environment variable is required');
-        }
-        return new GeminiProvider(apiKey, helper);
-      },
-    });
-  }
+  return container;
 }
 
-/**
- * Export pre-configured container
- */
-export { container };
-export { SERVICES, type TokenType };
+export { container, SERVICES };

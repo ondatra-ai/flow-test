@@ -51,6 +51,8 @@ export class Session {
       return true;
     } catch (_error) {
       this.status = 'error';
+      // Error handling: execution failed, status already set to 'error'
+      // Error intentionally not re-thrown as return value indicates failure
       return false;
     }
   }
