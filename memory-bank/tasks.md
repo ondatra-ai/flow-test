@@ -196,3 +196,35 @@ Type 'ARCHIVE NOW' to proceed with archiving process.
 **TASK FULLY COMPLETED** 🎉
 
 The GitHub Plan Generation Step has been successfully implemented, tested, reflected upon, and archived. The Memory Bank is now ready for the next task assignment.
+
+## 🔗 FOLLOW-UP TASKS CREATED
+
+### Related GitHub Issues
+
+- **Issue #96**: [Create GitHub Plan Posting Step (Post-Plan-to-GitHub Step)](https://github.com/ondatra-ai/flow-test/issues/96)
+  - **Type**: Level 2 Simple Enhancement
+  - **Purpose**: Post generated plans back to GitHub as comments/issues
+  - **Dependencies**: Builds on GitHub Plan Generation Step foundation
+  - **Estimated Time**: 6-9 hours
+
+- **Issue #97**: [Enhance Plan Generation with Project Context Analysis](https://github.com/ondrata-ai/flow-test/issues/97)
+  - **Type**: Level 3 Intermediate Feature
+  - **Purpose**: Analyze project structure to generate context-aware plans
+  - **Dependencies**: Enhances existing Plan Generation Step
+  - **Estimated Time**: 12-16 hours
+
+### Epic #28 Progress
+
+With the completion of the GitHub Plan Generation Step and creation of these follow-up tasks, Epic #28 (GitHub Task Automation Flow) now has a clear roadmap:
+
+1. ✅ **GitHub Reader Step** - Read issue data from GitHub
+2. ✅ **Plan Generation Step** - Generate execution plans using LLM
+3. 🎯 **Post Plan to GitHub Step** (#96) - Post plans back to GitHub
+4. 🎯 **Enhanced Context Analysis** (#97) - Project-aware plan generation
+
+### Implementation Sequence Recommendation
+
+1. **Next Priority**: Issue #96 (GitHub Plan Posting) - Completes the basic automation flow
+2. **Future Enhancement**: Issue #97 (Context Analysis) - Adds advanced capabilities
+
+Both issues are well-documented with comprehensive requirements, technical architecture, implementation plans, and acceptance criteria.
