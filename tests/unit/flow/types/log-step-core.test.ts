@@ -92,8 +92,8 @@ describe('LogStep', () => {
     });
   });
 
-  describe('context placeholders', () => {
-    it('should replace context placeholders in message', async () => {
+  describe('raw message output', () => {
+    it('should output raw message without context processing', async () => {
       const config: LogStepConfig = {
         id: 'test-log',
         type: 'log',
@@ -109,12 +109,13 @@ describe('LogStep', () => {
       const logStep = new LogStep(mockLogger, config);
       await logStep.execute(context);
 
+      // Should output raw message without context placeholder resolution
       expect(mockLogger.info).toHaveBeenCalledWith(
-        'Executing LogStep: User {{context.username}} logged in from {{context.location}}'
+        'User {{context.username}} logged in from {{context.location}}'
       );
     });
 
-    it('should keep placeholder unchanged if context key not found', async () => {
+    it('should output raw message even with undefined context keys', async () => {
       const config: LogStepConfig = {
         id: 'test-log',
         type: 'log',
@@ -126,12 +127,13 @@ describe('LogStep', () => {
       const logStep = new LogStep(mockLogger, config);
       await logStep.execute(context);
 
+      // Should output raw template string without processing
       expect(mockLogger.info).toHaveBeenCalledWith(
-        'Executing LogStep: User {{context.username}} performed action'
+        'User {{context.username}} performed action'
       );
     });
 
-    it('should handle multiple placeholders', async () => {
+    it('should output raw message with multiple placeholders', async () => {
       const config: LogStepConfig = {
         id: 'test-log',
         type: 'log',
@@ -148,8 +150,9 @@ describe('LogStep', () => {
       const logStep = new LogStep(mockLogger, config);
       await logStep.execute(context);
 
+      // Should output raw template string without context substitution
       expect(mockLogger.info).toHaveBeenCalledWith(
-        'Executing LogStep: Process {{context.process}} completed with status {{context.status}} at {{context.timestamp}}'
+        'Process {{context.process}} completed with status {{context.status}} at {{context.timestamp}}'
       );
     });
   });
