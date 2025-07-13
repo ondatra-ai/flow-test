@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest';
 
 // Mock dependencies
 vi.mock('../../../src/config/container.js', () => ({
@@ -33,9 +33,7 @@ describe('CLI Handlers', () => {
         info: vi.fn(),
         error: vi.fn(),
       };
-      (container.resolve as ReturnType<typeof vi.fn>).mockReturnValue(
-        mockLogger
-      );
+      (container.resolve as Mock).mockReturnValue(mockLogger);
 
       handleChatCommand();
 
@@ -52,7 +50,7 @@ describe('CLI Handlers', () => {
         '../../../src/cli/handlers.js'
       );
 
-      (generateTests as ReturnType<typeof vi.fn>).mockResolvedValue(undefined);
+      (generateTests as Mock).mockResolvedValue(undefined);
 
       await expect(handleTestsGenerateCommand()).resolves.not.toThrow();
       expect(generateTests).toHaveBeenCalled();
@@ -67,7 +65,7 @@ describe('CLI Handlers', () => {
       );
 
       const error = new Error('Test generation failed');
-      (generateTests as ReturnType<typeof vi.fn>).mockRejectedValue(error);
+      (generateTests as Mock).mockRejectedValue(error);
 
       await expect(handleTestsGenerateCommand()).rejects.toThrow(
         'Test generation failed'
@@ -86,9 +84,7 @@ describe('CLI Handlers', () => {
         info: vi.fn(),
         error: vi.fn(),
       };
-      (container.resolve as ReturnType<typeof vi.fn>).mockReturnValue(
-        mockLogger
-      );
+      (container.resolve as Mock).mockReturnValue(mockLogger);
 
       handleDefaultAction();
 
