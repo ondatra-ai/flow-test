@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { StepConfigSchema } from './step.schema.js';
+import { ReadGitHubIssueStepConfigSchema } from './step.schema.js';
 
 /**
  * Schema for flow configuration validation
@@ -11,7 +11,9 @@ export const FlowConfigSchema = z
     name: z.string().optional(),
     description: z.string().optional(),
     initialStepId: z.string().min(1, 'Initial step ID is required'),
-    steps: z.array(StepConfigSchema).min(1, 'Flow must have at least one step'),
+    steps: z
+      .array(ReadGitHubIssueStepConfigSchema)
+      .min(1, 'Flow must have at least one step'),
   })
   .refine(
     data => {

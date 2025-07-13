@@ -1,7 +1,7 @@
 import { injectable, inject } from 'tsyringe';
 
 import { SERVICES } from '../config/tokens.js';
-import type { StepConfig } from '../types/validation/index.js';
+import type { ReadGitHubIssueStepConfig } from '../types/validation/index.js';
 import { GitHubClient } from '../utils/github-client.js';
 import { Logger } from '../utils/logger.js';
 
@@ -21,7 +21,7 @@ export class StepFactory {
   /**
    * Create a step instance based on step data
    */
-  createStep(stepData: StepConfig): IStep {
+  createStep(stepData: ReadGitHubIssueStepConfig): IStep {
     // Create appropriate step instance based on type
     switch (stepData.type) {
       case 'read-github-issue':

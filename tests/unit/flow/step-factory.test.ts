@@ -6,7 +6,7 @@ import { ReadGitHubIssueStep } from '../../../src/flow/types/read-github-issue-s
 import { cast } from '../../../src/utils/cast.js';
 import { GitHubClient } from '../../../src/utils/github-client.js';
 import { Logger } from '../../../src/utils/logger.js';
-import { type StepConfig } from '../../../src/validation/index.js';
+import { type ReadGitHubIssueStepConfig } from '../../../src/validation/index.js';
 
 describe('StepFactory', () => {
   let stepFactory: StepFactory;
@@ -34,7 +34,7 @@ describe('StepFactory', () => {
 
   describe('createStep', () => {
     it('should create ReadGitHubIssueStep for read-github-issue type', () => {
-      const stepConfig: StepConfig = {
+      const stepConfig: ReadGitHubIssueStepConfig = {
         id: 'test-step',
         type: 'read-github-issue',
         issueUrl: 'https://github.com/owner/repo/issues/1',
@@ -53,7 +53,7 @@ describe('StepFactory', () => {
         type: 'unknown-type' as 'read-github-issue',
         issueUrl: 'https://github.com/owner/repo/issues/1',
         nextStepId: { success: 'next-step' },
-      } as StepConfig;
+      } as ReadGitHubIssueStepConfig;
 
       expect(() => stepFactory.createStep(stepConfig)).toThrow(
         'Unknown step type'
