@@ -23,13 +23,12 @@ function registerLLMProvider<T extends ILLMProvider>(
   ProviderClass: new (apiKey: string, helper: IProviderHelper) => T,
   envVarName: string
 ): void {
-  const apiKey = process.env[envVarName];
-  if (!apiKey) {
-    throw new Error(`${envVarName} environment variable is required`);
-  }
-
   container.register<ILLMProvider>(token, {
     useFactory: () => {
+      const apiKey = process.env[envVarName];
+      if (!apiKey) {
+        throw new Error(`${envVarName} environment variable is required`);
+      }
       const helper = container.resolve<IProviderHelper>(
         SERVICES.ProviderHelper
       );
