@@ -37,12 +37,24 @@
 
 ### Implementation Steps
 
+0. **Document naming convention** in techContext.md
+
 1. **Rename schemas** in validation files
 2. **Update types** in type files
 3. **Fix all imports** throughout codebase
 4. **Run tests** to verify
 
-**Estimated Time**: 30 minutes
+**Estimated Time**: 40 minutes
+
+### Documentation Content for techContext.md
+
+**Schema Naming Conventions Section**:
+
+- Pattern: [Entity]ConfigSchema for Zod schemas
+- Pattern: [Entity]Config for TypeScript types
+- Examples of correct naming
+- Examples of incorrect naming (old pattern)
+- Rationale for "Config" suffix choice
 
 ## 📝 CHECKLIST
 

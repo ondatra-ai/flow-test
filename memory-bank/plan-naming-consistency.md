@@ -168,3 +168,17 @@ Based on your decisions, this is now a straightforward rename operation:
 ✅ Direct rename strategy
 
 **Next Mode**: IMPLEMENT
+
+### Additional Step: Document Naming Convention
+
+#### Phase 0: Documentation (10 minutes)
+
+1. Update memory-bank/techContext.md
+   - [ ] Add "Schema Naming Conventions" section
+   - [ ] Document the decision to use "Config" suffix pattern
+   - [ ] Provide examples of correct naming
+   - [ ] Explain rationale for consistency
+
+This will ensure the naming convention decision is documented for future reference.
+
+**Updated Total Time**: ~40 minutes
