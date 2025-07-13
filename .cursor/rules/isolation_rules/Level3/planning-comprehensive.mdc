@@ -98,6 +98,7 @@ graph TD
 1. Phase 0 (write end-to-end tests):
    - [ ] Test 1
    - [ ] Test 2
+  Test should fail, its fine
 1. Phase 1:
    - [ ] Task 1
    - [ ] Task 2

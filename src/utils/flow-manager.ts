@@ -7,7 +7,7 @@ import { SERVICES } from '../config/tokens.js';
 import { Flow, type IFlow } from '../flow/flow.js';
 import { StepFactory } from '../flow/step-factory.js';
 import { type IStep } from '../flow/step.js';
-import type { ReadGitHubIssueStepConfig } from '../types/validation/index.js';
+import type { StepConfig } from '../types/validation/index.js';
 import type { FlowConfig } from '../validation/index.js';
 import { FlowConfigSchema } from '../validation/schemas/flow.schema.js';
 
@@ -76,7 +76,7 @@ export class FlowManager {
   /**
    * Create a step from validated step data
    */
-  private createStep(stepData: ReadGitHubIssueStepConfig): IStep {
+  private createStep(stepData: StepConfig): IStep {
     try {
       return this.stepFactory.createStep(stepData);
     } catch (error) {

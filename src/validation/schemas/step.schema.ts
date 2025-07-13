@@ -17,5 +17,28 @@ export const ReadGitHubIssueStepConfigSchema = StepConfigBaseSchema.extend({
   github_token: z.string().optional(),
 });
 
+/**
+ * Schema for PlanGenerationStep configuration
+ */
+export const PlanGenerationStepConfigSchema = StepConfigBaseSchema.extend({
+  type: z.literal('plan-generation'),
+  llm_provider: z.enum(['openai', 'claude', 'gemini']),
+  prompt_template: z.string().optional(),
+  model: z.string().optional(),
+  max_tokens: z.number().optional(),
+  temperature: z.number().optional(),
+});
+
+/**
+ * Union schema for all step configurations
+ */
+export const StepConfigSchema = z.discriminatedUnion('type', [
+  ReadGitHubIssueStepConfigSchema,
+  PlanGenerationStepConfigSchema,
+]);
+
 // Re-export for backward compatibility
-export type { ReadGitHubIssueStepConfig } from '../../types/validation/index.js';
+export type {
+  ReadGitHubIssueStepConfig,
+  PlanGenerationStepConfig,
+} from '../../types/validation/index.js';

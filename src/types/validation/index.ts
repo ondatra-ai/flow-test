@@ -1,1 +1,6 @@
-export type { FlowConfig, ReadGitHubIssueStepConfig } from './schemas.types.js';
+export type {
+  FlowConfig,
+  ReadGitHubIssueStepConfig,
+  PlanGenerationStepConfig,
+  StepConfig,
+} from './schemas.types.js';
