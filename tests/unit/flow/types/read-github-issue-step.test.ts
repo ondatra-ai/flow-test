@@ -82,7 +82,6 @@ describe('ReadGitHubIssueStep - Constructor', () => {
       type: 'read-github-issue',
       id: 'test-step',
       issueUrl: 'https://github.com/owner/repo/issues/123',
-      includeComments: true,
       github_token: 'test-token',
       nextStepId: { default: 'next-step' },
     };
@@ -101,7 +100,6 @@ describe('ReadGitHubIssueStep - Constructor', () => {
       type: 'read-github-issue',
       id: 'test-step',
       issueUrl: 'https://github.com/owner/repo/issues/123',
-      includeComments: true,
       nextStepId: {},
     };
 
@@ -120,7 +118,6 @@ describe('ReadGitHubIssueStep - Constructor', () => {
       type: 'read-github-issue',
       id: 'test-step',
       issueUrl: 'https://github.com/owner/repo/issues/123',
-      includeComments: true,
       nextStepId: {},
     };
 

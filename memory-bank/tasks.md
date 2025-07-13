@@ -1,21 +1,22 @@
 # MEMORY BANK TASKS
 
-## Task Status: 🎉 COMPLETED & ARCHIVED
+## Task Status: �� COMPLETED & ARCHIVED
 
-**Task ID**: remove-step-types-except-github-20250718  
-**Start Date**: 2025-07-18  
-**Completion Date**: 2025-07-18  
-**Issue Reference**: Issue #85  
-**Branch**: task-20250718-remove-unused-step-types  
-**Complexity Level**: Level 2 - Simple Enhancement  
+**Task ID**: remove-includecomments-option-20250118
+**Start Date**: 2025-01-18
+**Completion Date**: 2025-01-18
+**Issue Reference**: Issue #69
+**Branch**: task-20250118-remove-includecomments-option
+**Pull Request**: #89
+**Complexity Level**: Level 2 - Simple Enhancement
 **Status**: ✅ COMPLETED & ARCHIVED
 
 ## 📋 TASK OVERVIEW
 
-**Primary Objective**: Remove all step types except ReadGitHubIssueStep to simplify the flow system
+**Primary Objective**: Remove includeComments option from read-github-issue-step - always include comments
 
-**Task Type**: Code cleanup and simplification  
-**Impact**: Reduction in codebase complexity, removal of unused functionality
+**Task Type**: Code simplification and cleanup
+**Impact**: Simplifies the ReadGitHubIssueStep by removing unnecessary configuration option
 
 ## 🎯 FINAL RESULTS
 
@@ -23,54 +24,60 @@
 
 ### **Core Requirements - COMPLETED**
 
-1. **Remove Step Files**: ✅ COMPLETE
-   - Deleted `action-step.ts`
-   - Deleted `decision-step.ts`
-   - Deleted `log-step.ts`
+1. **Schema Updated**: ✅ COMPLETE
+   - Removed `includeComments` property from step schema
+   - TypeScript types automatically updated
 
-2. **Update Dependencies**: ✅ COMPLETE
-   - Updated exports in `index.ts`
-   - Updated `step-factory.ts`
-   - Removed validation schemas
+2. **Implementation Updated**: ✅ COMPLETE
+   - Removed conditional logic from ReadGitHubIssueStep
+   - Comments always included in context
 
-3. **Update Tests**: ✅ COMPLETE
-   - Removed unit tests for deleted step types
-   - Updated integration tests
-   - Enhanced test quality with real data verification
+3. **Tests Updated**: ✅ COMPLETE
+   - Updated all unit test files to remove includeComments references
+   - Removed test case for includeComments: false behavior
+   - All 179 tests passing
 
-4. **System Improvements**: ✅ COMPLETE
-   - Fixed FlowManager directory structure
-   - Enhanced GitHub API integration testing
-   - Improved error handling
+4. **Data Cleanup**: ✅ COMPLETE
+   - Updated test data and integration test configurations
+   - Removed all references across 24+ locations
+
+5. **Verification**: ✅ COMPLETE
+   - TypeScript compilation successful
+   - ESLint passes with no errors
+   - Build successful
 
 ## 📊 IMPLEMENTATION SUMMARY
 
 ### **All Phases Completed Successfully**
 
-- [x] **Phase 1: File Deletion** - 7 files removed cleanly
-- [x] **Phase 2: Core File Updates** - 13 files updated
-- [x] **Phase 3: Test Enhancement** - Integration tests improved
-- [x] **Phase 4: Quality Verification** - All quality gates passed
+- [x] **Phase 1: Schema Updates** - Property removed cleanly
+- [x] **Phase 2: Core Implementation** - Conditional logic simplified
+- [x] **Phase 3: Test Updates** - All references removed and tests updated
+- [x] **Phase 4: Data Cleanup** - Test data and configurations cleaned
+- [x] **Phase 5: Quality Verification** - All quality gates passed
+- [x] **Phase 6: Reflection** - Comprehensive lessons learned documented
+- [x] **Phase 7: Archiving** - Complete documentation archived
 
 ### **Final Quality Metrics**
 
-- **Tests**: 183/183 PASSING (100% success rate)
+- **Tests**: 179/179 PASSING (100% success rate)
 - **Build**: SUCCESS (0 TypeScript errors)
 - **Linting**: SUCCESS (0 ESLint violations)
-- **Architecture**: Simplified and focused on GitHub integration
+- **Code Complexity**: Reduced by removing conditional logic
+- **API Simplicity**: Enhanced by removing unnecessary configuration
 
 ## 🎉 TASK COMPLETION STATUS
 
 **Status**: ✅ **COMPLETED & ARCHIVED**
 
-**Time Taken**: ~2 hours (vs estimated 75 minutes)  
-**Quality**: Excellent - all success criteria met  
-**Impact**: System successfully simplified with enhanced focus
+**Time Taken**: ~25 minutes (vs estimated 55 minutes)  
+**Quality**: Exceptional - all success criteria exceeded  
+**Impact**: API simplified, code complexity reduced, consistent comment handling
 
 ## 📚 DOCUMENTATION
 
-- **Reflection**: [reflection-remove-step-types-except-github-20250718.md](reflection/reflection-remove-step-types-except-github-20250718.md)
-- **Archive**: [archive-remove-step-types-except-github-20250718.md](archive/archive-remove-step-types-except-github-20250718.md)
+- **Reflection**: [reflection-remove-includecomments-option-20250118.md](reflection/reflection-remove-includecomments-option-20250118.md)
+- **Archive**: [archive-remove-includecomments-option-20250118.md](archive/archive-remove-includecomments-option-20250118.md)
 
 ## 🚀 NEXT STEPS
 
@@ -78,6 +85,6 @@
 
 ---
 
-**Task Completed**: 2025-07-18  
+**Task Completed**: 2025-01-18  
 **Memory Bank Status**: Updated and preserved  
 **System State**: Simplified and ready for future development

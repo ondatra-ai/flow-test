@@ -100,9 +100,7 @@ export class ReadGitHubIssueStep extends Step implements IStep {
     context.set('github.issue.created_at', issue.created_at);
     context.set('github.issue.updated_at', issue.updated_at);
 
-    if (this.config.includeComments) {
-      context.set('github.issue.comments', JSON.stringify(comments));
-    }
+    context.set('github.issue.comments', JSON.stringify(comments));
   }
 
   public getConfig(): ReadGitHubIssueStepConfig {

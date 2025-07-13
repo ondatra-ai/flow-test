@@ -85,7 +85,6 @@ describe('ReadGitHubIssueStep - Execute', () => {
       type: 'read-github-issue',
       id: 'test-step',
       issueUrl: 'https://github.com/owner/repo/issues/123',
-      includeComments: true,
       github_token: 'test-token',
       nextStepId: {},
     };
@@ -114,7 +113,7 @@ describe('ReadGitHubIssueStep - Execute', () => {
     );
     expect(context.get('github.issue.comments_count')).toBe('2');
 
-    // When includeComments is true, comments should be stored
+    // Comments should always be stored
     const commentsJson = context.get('github.issue.comments');
     expect(commentsJson).toBeDefined();
     const comments = JSON.parse(commentsJson as string) as Array<{
@@ -134,7 +133,6 @@ describe('ReadGitHubIssueStep - Execute', () => {
       type: 'read-github-issue',
       id: 'test-step',
       issueUrl: 'https://github.com/different/repo/issues/456', // Different URL
-      includeComments: true,
       nextStepId: {},
     };
 
@@ -152,7 +150,6 @@ describe('ReadGitHubIssueStep - Execute', () => {
       type: 'read-github-issue',
       id: 'test-step',
       issueUrl: cast<string>(undefined), // Missing URL
-      includeComments: true,
       nextStepId: {},
     };
 
@@ -176,7 +173,6 @@ describe('ReadGitHubIssueStep - Execute', () => {
       type: 'read-github-issue',
       id: 'test-step',
       issueUrl: 'https://invalid-url',
-      includeComments: true,
       nextStepId: {},
     };
 
@@ -205,7 +201,6 @@ describe('ReadGitHubIssueStep - Execute', () => {
       type: 'read-github-issue',
       id: 'test-step',
       issueUrl: 'https://github.com/owner/repo/issues/123',
-      includeComments: true,
       nextStepId: {},
     };
 
@@ -222,26 +217,7 @@ describe('ReadGitHubIssueStep - Execute', () => {
     );
   });
 
-  it('should exclude comments when includeComments is false', async () => {
-    const config: ReadGitHubIssueStepConfig = {
-      type: 'read-github-issue',
-      id: 'test-step',
-      issueUrl: 'https://github.com/owner/repo/issues/123',
-      includeComments: false,
-      nextStepId: {},
-    };
-
-    const step = new ReadGitHubIssueStep(mockLogger, mockGitHubClient, config);
-    await step.execute(context);
-
-    // Comments count should be set but comments array should not be stored
-    expect(context.get('github.issue.comments_count')).toBe('2');
-    // When includeComments is false, comments should not be stored in context
-    expect(context.get('github.issue.comments')).toBeUndefined();
-  });
-
   it('should handle empty body gracefully', async () => {
-    // Create a mock client with null body
     const emptyBodyMockClient = cast<GitHubClient>({
       getIssueWithComments: vi.fn().mockResolvedValue({
         issue: {
@@ -261,7 +237,6 @@ describe('ReadGitHubIssueStep - Execute', () => {
       type: 'read-github-issue',
       id: 'test-step',
       issueUrl: 'https://github.com/owner/repo/issues/123',
-      includeComments: true,
       nextStepId: {},
     };
 

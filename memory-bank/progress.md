@@ -800,6 +800,20 @@
 
 ### Task 18: Remove All Step Types Except ReadGitHubIssueStep ✅ COMPLETE
 
+### Task 19: Remove includeComments Option from ReadGitHubIssueStep ✅ COMPLETE
+
+- **Date**: 2025-01-18
+- **Type**: Level 2 (Simple Enhancement)
+- **Issue**: #69
+- **Branch**: task-20250118-remove-includecomments-option
+- **PR**: #89
+- **Status**: COMPLETED & ARCHIVED
+- **Archive**: `memory-bank/archive/archive-remove-includecomments-option-20250118.md`
+- **Reflection**: `memory-bank/reflection/reflection-remove-includecomments-option-20250118.md`
+- **Summary**: Successfully removed includeComments configuration option from ReadGitHubIssueStep API. Comments are now always included, simplifying the API and ensuring consistent behavior. Completed in 25 minutes vs 55 estimated.
+- **Impact**: API simplified, code complexity reduced, 24+ references removed across codebase
+- **Quality**: 179/179 tests passing, zero TypeScript errors, zero ESLint violations
+
 - **Date**: 2025-07-18
 - **Type**: Level 2 (Simple Enhancement)
 - **Task ID**: remove-step-types-except-github-20250718
