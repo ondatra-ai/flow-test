@@ -48,14 +48,14 @@ export async function getFileStructure(dirPath: string): Promise<string[]> {
 }
 
 /**
- * Copy a flow file to the test directory's .flows/flows folder
+ * Copy a flow file to the test directory's .flows folder
  */
 export async function copyFlowFile(
   flowFileName: string,
   tempTestDir: string,
   sourceDir = 'data/flow-execution'
 ): Promise<void> {
-  const flowsDir = join(tempTestDir, '.flows', 'flows');
+  const flowsDir = join(tempTestDir, '.flows');
   await fs.mkdir(flowsDir, { recursive: true });
 
   const sourcePath = resolve(
@@ -87,7 +87,7 @@ export async function copyFlowFiles(
  * Create a flows directory structure for testing
  */
 export async function setupFlowsDirectory(tempTestDir: string): Promise<void> {
-  const flowsDir = join(tempTestDir, '.flows', 'flows');
+  const flowsDir = join(tempTestDir, '.flows');
   const serversDir = join(tempTestDir, '.flows', 'servers');
 
   await fs.mkdir(flowsDir, { recursive: true });

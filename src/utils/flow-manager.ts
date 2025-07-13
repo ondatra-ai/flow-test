@@ -25,7 +25,7 @@ export class FlowManager {
     @inject(SERVICES.Logger) private readonly logger: Logger,
     @inject(SERVICES.StepFactory) private readonly stepFactory: StepFactory
   ) {
-    this.flowsDir = path.join('.flows', 'flows');
+    this.flowsDir = path.join('.flows');
   }
 
   /**

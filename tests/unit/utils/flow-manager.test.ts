@@ -92,7 +92,7 @@ describe('FlowManager', () => {
       const result = await flowManager.listFlows();
 
       expect(result).toEqual(['flow1', 'flow2', 'flow3']);
-      expect(fs.readdir).toHaveBeenCalledWith('.flows/flows');
+      expect(fs.readdir).toHaveBeenCalledWith('.flows');
     });
 
     it('should return empty array when no json files exist', async () => {
@@ -131,7 +131,7 @@ describe('FlowManager', () => {
       expect(result).toBeInstanceOf(Flow);
       expect(result.getId()).toBe('test-flow');
       expect(fs.readFile).toHaveBeenCalledWith(
-        '.flows/flows/test-flow.json',
+        '.flows/test-flow.json',
         'utf-8'
       );
     });
