@@ -62,6 +62,10 @@ graph TD
 - [Schema change 1 with code]
 - [Schema change 2 with code]
 
+**Mandatory** ### **Functional changes** (add here e2e test cases that covers new functionlity, explicitely say than no functional tests expected to be changed)
+- [Test1 with code]
+- [Test2 with code]
+
 ## Requirements Analysis
 - Core Requirements:
   - [ ] Requirement 1
@@ -91,6 +95,9 @@ graph TD
   - [ ] Algorithm 2
 
 ## Implementation Strategy
+1. Phase 0 (write end-to-end tests):
+   - [ ] Test 1
+   - [ ] Test 2
 1. Phase 1:
    - [ ] Task 1
    - [ ] Task 2

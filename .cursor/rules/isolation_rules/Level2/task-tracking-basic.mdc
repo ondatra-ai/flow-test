@@ -41,6 +41,9 @@ Level 2 tasks require a more structured tracking approach than Level 1, but don'
 - [Schema change 1 with code]
 - [Schema change 2 with code]
 
+**Mandatory** ### **Functional changes** (add here e2e test cases that covers new functionlity, explicitely say than no functional tests expected to be changed)
+- [Test1 with code]
+- [Test2 with code]
 
 ### Requirements
 - [Requirement 1]
