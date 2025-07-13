@@ -21,14 +21,15 @@ import { SERVICES } from './tokens.js';
 function registerLLMProvider<T extends ILLMProvider>(
   token: symbol,
   ProviderClass: new (apiKey: string, helper: IProviderHelper) => T,
-  envVar: string
+  apiKey: string | undefined,
+  envVarName: string
 ): void {
+  if (!apiKey) {
+    throw new Error(`${envVarName} environment variable is required`);
+  }
+
   container.register<ILLMProvider>(token, {
     useFactory: () => {
-      const apiKey = process.env[envVar];
-      if (!apiKey) {
-        throw new Error(`${envVar} environment variable is required`);
-      }
       const helper = container.resolve<IProviderHelper>(
         SERVICES.ProviderHelper
       );
@@ -56,16 +57,19 @@ export function initializeContainer(): DependencyContainer {
   registerLLMProvider(
     SERVICES.ClaudeProvider,
     ClaudeProvider,
+    process.env.CLAUDE_API_KEY,
     'CLAUDE_API_KEY'
   );
   registerLLMProvider(
     SERVICES.OpenAIProvider,
     OpenAIProvider,
+    process.env.OPENAI_API_KEY,
     'OPENAI_API_KEY'
   );
   registerLLMProvider(
     SERVICES.GeminiProvider,
     GeminiProvider,
+    process.env.GEMINI_API_KEY,
     'GEMINI_API_KEY'
   );
 
