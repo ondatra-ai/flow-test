@@ -3,9 +3,9 @@ import { z } from 'zod';
 import { StepConfigSchema } from './step.schema.js';
 
 /**
- * Schema for flow definition validation
+ * Schema for flow configuration validation
  */
-export const FlowDefinitionSchema = z
+export const FlowConfigSchema = z
   .object({
     id: z.string().min(1, 'Flow ID is required'),
     name: z.string().optional(),
@@ -52,4 +52,4 @@ export const FlowDefinitionSchema = z
   );
 
 // Re-export for backward compatibility
-export type { FlowDefinition } from '../../types/validation/index.js';
+export type { FlowConfig } from '../../types/validation/index.js';

@@ -1,5 +1,5 @@
 export type {
-  FlowDefinition,
+  FlowConfig,
   StepConfig,
   ReadGitHubIssueStepConfig,
 } from './schemas.types.js';
