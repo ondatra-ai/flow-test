@@ -8,7 +8,7 @@ import type {
 } from '../../interfaces/provider.js';
 
 export class ClaudeProvider implements ILLMProvider {
-  private client: Anthropic;
+  private readonly client: Anthropic;
   private static readonly ALLOWED_ROLES = [
     'system',
     'user',
@@ -17,7 +17,7 @@ export class ClaudeProvider implements ILLMProvider {
 
   constructor(
     apiKey: string,
-    private helper: IProviderHelper
+    private readonly helper: IProviderHelper
   ) {
     this.client = new Anthropic({ apiKey });
   }

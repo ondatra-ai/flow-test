@@ -50,9 +50,7 @@ export class ConsoleLogger implements Logger {
   }
 
   public log(message: string, meta?: LogMetadata): void {
-    if (this.shouldLog(LogLevel.INFO)) {
-      this.writeLog(LogLevel.INFO, message, meta);
-    }
+    this.info(message, meta);
   }
 
   private shouldLog(level: LogLevel): boolean {

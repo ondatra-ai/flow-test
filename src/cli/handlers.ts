@@ -55,7 +55,7 @@ function setupFlowContext(
 export function handleChatCommand(): void {
   const logger = container.resolve<Logger>(SERVICES.Logger);
   logger.info('Ondatra Code');
-  // TODO: Initialize chat interface
+  logger.info('Chat interface functionality is not yet implemented');
 }
 
 /**
