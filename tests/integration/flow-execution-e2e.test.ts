@@ -47,7 +47,7 @@ describe('CLI E2E Tests - flow:run command', () => {
   });
 
   describe('GitHub Issue Flow', () => {
-    it('should execute ReadGitHubIssueStep (success or rate limit)', async () => {
+    it('should execute ReadGitHubIssueStep successfully', async () => {
       // Copy a flow that uses only ReadGitHubIssueStep
       await copyFlowFile('comprehensive-test-flow.json', tempTestDir);
 
@@ -58,26 +58,20 @@ describe('CLI E2E Tests - flow:run command', () => {
         'comprehensive-test-flow'
       );
 
-      // Verify flow starts properly
+      // Verify successful execution
+      expect(result.exitCode).toBe(0);
+
+      // Verify flow starts and completes
       expect(result.stdout).toContain('Loading flow: comprehensive-test-flow');
       expect(result.stdout).toContain(
         'Starting flow execution: comprehensive-test-flow'
       );
-      expect(result.stdout).toContain('Executing ReadGitHubIssueStep');
+      expect(result.stdout).toContain(
+        "Flow 'comprehensive-test-flow' completed successfully"
+      );
 
-      // The flow may succeed (if auth available) or fail due to rate limiting
-      // Both are valid outcomes for integration tests
-      if (result.exitCode === 0) {
-        // Successful execution
-        expect(result.stdout).toContain(
-          "Flow 'comprehensive-test-flow' completed successfully"
-        );
-      } else {
-        // Expected failure due to GitHub API rate limiting or authentication
-        expect(result.stderr || result.stdout).toMatch(
-          /rate limit|authentication|API/i
-        );
-      }
+      // Verify ReadGitHubIssueStep execution
+      expect(result.stdout).toContain('Executing ReadGitHubIssueStep');
     });
   });
 
@@ -114,7 +108,7 @@ describe('CLI E2E Tests - flow:run command', () => {
   });
 
   describe('Flow Configuration', () => {
-    it('should execute flow with simple configuration (success or rate limit)', async () => {
+    it('should execute flow with simple configuration', async () => {
       // Use simple flow configuration
       await copyFlowFile('simple-decision-test.json', tempTestDir);
 
@@ -125,25 +119,11 @@ describe('CLI E2E Tests - flow:run command', () => {
         'simple-decision-test'
       );
 
-      // Verify flow loading and execution starts
-      expect(result.stdout).toContain('Loading flow: simple-decision-test');
+      // Verify successful execution
+      expect(result.exitCode).toBe(0);
       expect(result.stdout).toContain(
-        'Starting flow execution: simple-decision-test'
+        "Flow 'simple-decision-test' completed successfully"
       );
-
-      // The flow may succeed (if auth available) or fail due to rate limiting
-      // Both are valid outcomes for integration tests
-      if (result.exitCode === 0) {
-        // Successful execution
-        expect(result.stdout).toContain(
-          "Flow 'simple-decision-test' completed successfully"
-        );
-      } else {
-        // Expected failure due to GitHub API rate limiting or authentication
-        expect(result.stderr || result.stdout).toMatch(
-          /rate limit|authentication|API/i
-        );
-      }
     });
   });
 });

@@ -44,7 +44,7 @@ describe('Read GitHub Issue E2E Tests', () => {
   });
 
   describe('Read GitHub Issue Step with CLI Arguments', () => {
-    it('should read GitHub issue from CLI argument and populate context (success or rate limit)', async () => {
+    it('should read GitHub issue from CLI argument and populate context', async () => {
       // Copy the read GitHub issue test flow
       await copyFlowFile('read-github-issue-flow.json', tempTestDir, 'data');
 
@@ -59,31 +59,23 @@ describe('Read GitHub Issue E2E Tests', () => {
         ]
       );
 
-      // Verify flow starts properly
-      expect(result.stdout).toContain('Loading flow: read-github-issue-flow');
+      // Verify successful execution
+      expect(result.exitCode).toBe(0);
       expect(result.stdout).toContain(
-        'Starting flow execution: read-github-issue-flow'
+        "Flow 'read-github-issue-flow' completed successfully"
       );
-      expect(result.stdout).toContain('ReadGitHubIssueStep: Reading issue #1');
 
-      // The flow may succeed (if auth available) or fail due to rate limiting
-      // Both are valid outcomes for integration tests
-      if (result.exitCode === 0) {
-        // Successful execution
-        expect(result.stdout).toContain(
-          "Flow 'read-github-issue-flow' completed successfully"
-        );
-        expect(result.stdout).toContain('Successfully loaded GitHub issue #1');
-      } else {
-        // Expected failure due to GitHub API rate limiting or authentication
-        expect(result.stderr || result.stdout).toMatch(
-          /rate limit|authentication|API/i
-        );
-      }
+      // Verify GitHub step executed
+      expect(result.stdout).toContain('ReadGitHubIssueStep: Reading issue #1');
+      expect(result.stdout).toContain(
+        'Successfully loaded GitHub issue #1 from ondatra-ai/for-test-purpose'
+      );
+
+      // Verify ReadGitHubIssueStep successfully processes the GitHub issue
+      expect(result.stdout).toContain('Successfully loaded GitHub issue #1');
     });
 
     it('should handle invalid GitHub issue URL with error', async () => {
-      // Copy the read GitHub issue test flow
       await copyFlowFile('read-github-issue-flow.json', tempTestDir, 'data');
 
       // Test error handling for invalid URLs
@@ -98,7 +90,7 @@ describe('Read GitHub Issue E2E Tests', () => {
       expect(result.stderr).toContain('Invalid GitHub issue URL');
     });
 
-    it('should work without authentication for public repos (success or rate limit)', async () => {
+    it('should work without authentication for public repos', async () => {
       // Copy the read GitHub issue test flow
       await copyFlowFile('read-github-issue-flow.json', tempTestDir, 'data');
 
@@ -113,25 +105,11 @@ describe('Read GitHub Issue E2E Tests', () => {
         ]
       );
 
-      // Verify flow starts properly
-      expect(result.stdout).toContain('Loading flow: read-github-issue-flow');
+      // Should work for public repos even without token
+      expect(result.exitCode).toBe(0);
       expect(result.stdout).toContain(
-        'Starting flow execution: read-github-issue-flow'
+        "Flow 'read-github-issue-flow' completed successfully"
       );
-
-      // The flow may succeed (for public repos) or fail due to rate limiting
-      // Both are valid outcomes for integration tests
-      if (result.exitCode === 0) {
-        // Successful execution
-        expect(result.stdout).toContain(
-          "Flow 'read-github-issue-flow' completed successfully"
-        );
-      } else {
-        // Expected failure due to GitHub API rate limiting
-        expect(result.stderr || result.stdout).toMatch(
-          /rate limit|authentication|API/i
-        );
-      }
     });
   });
 });
