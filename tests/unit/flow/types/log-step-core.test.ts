@@ -16,6 +16,7 @@ describe('LogStep', () => {
       warn: vi.fn(),
       error: vi.fn(),
       debug: vi.fn(),
+      log: vi.fn(),
     });
 
     context = new Context();
@@ -110,7 +111,7 @@ describe('LogStep', () => {
       await logStep.execute(context);
 
       // Should output raw message without context placeholder resolution
-      expect(mockLogger.info).toHaveBeenCalledWith(
+      expect(mockLogger.log).toHaveBeenCalledWith(
         'User {{context.username}} logged in from {{context.location}}'
       );
     });
@@ -128,7 +129,7 @@ describe('LogStep', () => {
       await logStep.execute(context);
 
       // Should output raw template string without processing
-      expect(mockLogger.info).toHaveBeenCalledWith(
+      expect(mockLogger.log).toHaveBeenCalledWith(
         'User {{context.username}} performed action'
       );
     });
@@ -151,7 +152,7 @@ describe('LogStep', () => {
       await logStep.execute(context);
 
       // Should output raw template string without context substitution
-      expect(mockLogger.info).toHaveBeenCalledWith(
+      expect(mockLogger.log).toHaveBeenCalledWith(
         'Process {{context.process}} completed with status {{context.status}} at {{context.timestamp}}'
       );
     });

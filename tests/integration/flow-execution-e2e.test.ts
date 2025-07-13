@@ -56,9 +56,9 @@ describe('CLI E2E Tests - flow:run command', () => {
 
       // Verify successful execution
       expect(result.exitCode).toBe(0);
-      // Note: Error level logs appear in stderr (raw message without context)
-      expect(result.stderr).toContain(
-        'ERROR: Error {{context.errorCode}} in {{context.appName}}'
+      // Note: All LogStep messages now go to stdout via logger.log (INFO level)
+      expect(result.stdout).toContain(
+        'INFO: Error {{context.errorCode}} in {{context.appName}}'
       );
 
       // Verify flow starts and completes
@@ -87,9 +87,9 @@ describe('CLI E2E Tests - flow:run command', () => {
           'version={{context.version}}, errorCode={{context.errorCode}}',
       ]);
 
-      // Verify warn level LogStep output in stdout (raw message format)
+      // All LogStep messages now use INFO level via logger.log
       expect(result.stdout).toContain(
-        'WARN: User {{context.user}} logged in to {{context.appName}}'
+        'INFO: User {{context.user}} logged in to {{context.appName}}'
       );
 
       // Verify decision steps
@@ -133,9 +133,9 @@ describe('CLI E2E Tests - flow:run command', () => {
       expect(result.stdout).toContain(
         "Flow 'comprehensive-test-flow' completed successfully"
       );
-      // Error level logs appear in stderr (raw message without context)
-      expect(result.stderr).toContain(
-        'ERROR: Error {{context.errorCode}} in {{context.appName}}'
+      // All LogStep messages now go to stdout via logger.log (INFO level)
+      expect(result.stdout).toContain(
+        'INFO: Error {{context.errorCode}} in {{context.appName}}'
       );
       // The parameters should be available in context as param0 and param1
     });

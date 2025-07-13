@@ -5,4 +5,5 @@ export interface Logger {
   warn(message: string, meta?: LogMetadata): void;
   info(message: string, meta?: LogMetadata): void;
   debug(message: string, meta?: LogMetadata): void;
+  log(message: string, meta?: LogMetadata): void;
 }

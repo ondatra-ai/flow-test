@@ -28,24 +28,30 @@ export class ConsoleLogger implements Logger {
       stack: error.stack,
       ...meta,
     };
-    this.log(LogLevel.ERROR, message, errorMeta);
+    this.writeLog(LogLevel.ERROR, message, errorMeta);
   }
 
   public warn(message: string, meta?: LogMetadata): void {
     if (this.shouldLog(LogLevel.WARN)) {
-      this.log(LogLevel.WARN, message, meta);
+      this.writeLog(LogLevel.WARN, message, meta);
     }
   }
 
   public info(message: string, meta?: LogMetadata): void {
     if (this.shouldLog(LogLevel.INFO)) {
-      this.log(LogLevel.INFO, message, meta);
+      this.writeLog(LogLevel.INFO, message, meta);
     }
   }
 
   public debug(message: string, meta?: LogMetadata): void {
     if (this.shouldLog(LogLevel.DEBUG)) {
-      this.log(LogLevel.DEBUG, message, meta);
+      this.writeLog(LogLevel.DEBUG, message, meta);
+    }
+  }
+
+  public log(message: string, meta?: LogMetadata): void {
+    if (this.shouldLog(LogLevel.INFO)) {
+      this.writeLog(LogLevel.INFO, message, meta);
     }
   }
 
@@ -59,7 +65,7 @@ export class ConsoleLogger implements Logger {
     return levels.indexOf(level) <= levels.indexOf(this.level);
   }
 
-  private log(level: LogLevel, message: string, meta?: LogMetadata): void {
+  private writeLog(level: LogLevel, message: string, meta?: LogMetadata): void {
     const timestamp = new Date().toISOString();
     const metaString = meta ? ` ${JSON.stringify(meta)}` : '';
     if (level === LogLevel.ERROR) {

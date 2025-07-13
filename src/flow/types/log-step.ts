@@ -22,28 +22,8 @@ export class LogStep extends Step implements IStep {
     this.logger.info(`Executing LogStep: ${this.config.message}`);
 
     try {
-      // Simply output the config message at the specified level
-      switch (this.config.level) {
-        case 'error':
-          this.logger.error(
-            this.config.message,
-            new Error(this.config.message)
-          );
-          break;
-        case 'warn':
-          this.logger.warn(this.config.message);
-          break;
-        case 'info':
-          this.logger.info(this.config.message);
-          break;
-        case 'debug':
-          this.logger.debug(this.config.message);
-          break;
-        default: {
-          const exhaustiveCheck: never = this.config.level;
-          throw new Error(`Unknown log level: ${exhaustiveCheck as string}`);
-        }
-      }
+      // Simply output the config message
+      this.logger.log(this.config.message);
 
       // Use parent's routing logic
       return super.execute(context);
