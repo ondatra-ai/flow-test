@@ -24,37 +24,67 @@
 - **Breaking Changes**: Direct rename without support
 - **Migration**: No helpers needed
 - **Compatibility**: None - clean break
-- **Documentation**: No updates needed
+- **Documentation**: No updates needed (except techContext.md)
 - **Testing**: Ensure existing tests pass
 - **Review**: Standard process
 
-## 📊 SIMPLIFIED IMPLEMENTATION PLAN
+## 📊 DETAILED IMPLEMENTATION PLAN
 
 ### Direct Rename Approach
 
-1. FlowDefinitionSchema → FlowConfigSchema
-2. FlowDefinition → FlowConfig
+**Pattern**: Use "Config" suffix for all schemas
 
-### Implementation Steps
+- FlowDefinitionSchema → FlowConfigSchema
+- FlowDefinition → FlowConfig
 
-0. **Document naming convention** in techContext.md
+### Phase 0: Documentation (10 minutes)
 
-1. **Rename schemas** in validation files
-2. **Update types** in type files
-3. **Fix all imports** throughout codebase
-4. **Run tests** to verify
+1. Update memory-bank/techContext.md
+   - [ ] Add "Schema Naming Conventions" section
+   - [ ] Document "Config" suffix pattern decision
+   - [ ] Provide examples of correct naming
+   - [ ] Explain rationale for consistency
 
-**Estimated Time**: 40 minutes
+### Phase 1: Schema Renaming (20 minutes)
 
-### Documentation Content for techContext.md
+1. Update src/validation/schemas/flow.schema.ts
+   - [ ] Rename FlowDefinitionSchema to FlowConfigSchema
+   - [ ] Update export statements
+2. Update src/types/validation/schemas.types.ts
+   - [ ] Change FlowDefinition type to FlowConfig
+   - [ ] Update type inference from FlowConfigSchema
 
-**Schema Naming Conventions Section**:
+### Phase 2: Import Updates (10 minutes)
 
-- Pattern: [Entity]ConfigSchema for Zod schemas
-- Pattern: [Entity]Config for TypeScript types
-- Examples of correct naming
-- Examples of incorrect naming (old pattern)
-- Rationale for "Config" suffix choice
+1. Update src/types/validation/index.ts
+   - [ ] Change FlowDefinition export to FlowConfig
+2. Update src/utils/flow-manager.ts
+   - [ ] Update FlowDefinitionSchema import
+   - [ ] Update FlowDefinition type references
+   - [ ] Update function signatures and comments
+
+3. Update test files (14 references)
+   - [ ] Update all test imports
+   - [ ] Update type declarations in tests
+
+### Phase 3: Testing & Verification (10 minutes)
+
+1. Run TypeScript compilation
+2. Run all unit tests
+3. Run integration tests
+4. Fix any broken imports
+
+**Total Estimated Time**: 40 minutes
+
+## ⚠️ CHALLENGES & MITIGATIONS
+
+1. **Import Path Consistency**
+   - Use search/replace for accuracy
+   - Double-check all import statements
+
+2. **Test Coverage**
+   - Ensure all renamed entities are tested
+   - No test logic changes needed
 
 ## 📝 CHECKLIST
 
@@ -62,7 +92,9 @@
 - [x] PLAN mode complete
 - [x] User questions answered
 - [x] Branch created
-- [ ] Implementation
+- [ ] Documentation in techContext.md
+- [ ] Schema renaming
+- [ ] Import updates
 - [ ] Tests passing
 - [ ] PR created
 
