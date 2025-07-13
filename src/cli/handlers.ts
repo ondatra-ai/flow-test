@@ -6,7 +6,6 @@ import { cast, castError } from '../utils/cast.js';
 import { FlowManager } from '../utils/flow-manager.js';
 import { parseGitHubIssueUrl } from '../utils/github-url-parser.js';
 import type { Logger } from '../utils/logger.js';
-import { generateTests } from '../utils/test-generator.js';
 
 /**
  * Handle GitHub issue URL option and populate context
@@ -56,19 +55,6 @@ export function handleChatCommand(): void {
   const logger = container.resolve<Logger>(SERVICES.Logger);
   logger.info('Ondatra Code');
   logger.info('Chat interface functionality is not yet implemented');
-}
-
-/**
- * Handle the tests:generate command
- */
-export async function handleTestsGenerateCommand(): Promise<void> {
-  const logger = container.resolve<Logger>(SERVICES.Logger);
-  try {
-    await generateTests();
-  } catch (error) {
-    logger.error('Command failed:', castError(error));
-    throw error;
-  }
 }
 
 /**

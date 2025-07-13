@@ -13,10 +13,6 @@ vi.mock('../../../src/config/container.js', () => ({
   },
 }));
 
-vi.mock('../../../src/utils/test-generator.js', () => ({
-  generateTests: vi.fn(),
-}));
-
 describe('CLI Handlers', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -38,38 +34,6 @@ describe('CLI Handlers', () => {
       handleChatCommand();
 
       expect(mockLogger.info).toHaveBeenCalledWith('Ondatra Code');
-    });
-  });
-
-  describe('handleTestsGenerateCommand', () => {
-    it('should handle tests:generate command successfully', async () => {
-      const { generateTests } = await import(
-        '../../../src/utils/test-generator.js'
-      );
-      const { handleTestsGenerateCommand } = await import(
-        '../../../src/cli/handlers.js'
-      );
-
-      (generateTests as Mock).mockResolvedValue(undefined);
-
-      await expect(handleTestsGenerateCommand()).resolves.not.toThrow();
-      expect(generateTests).toHaveBeenCalled();
-    });
-
-    it('should handle tests:generate command with error', async () => {
-      const { generateTests } = await import(
-        '../../../src/utils/test-generator.js'
-      );
-      const { handleTestsGenerateCommand } = await import(
-        '../../../src/cli/handlers.js'
-      );
-
-      const error = new Error('Test generation failed');
-      (generateTests as Mock).mockRejectedValue(error);
-
-      await expect(handleTestsGenerateCommand()).rejects.toThrow(
-        'Test generation failed'
-      );
     });
   });
 

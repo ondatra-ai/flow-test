@@ -50,18 +50,3 @@ export async function runFlowCommand(
     timeout,
   });
 }
-
-/**
- * Helper function specifically for running tests:generate command
- */
-export async function runTestsGenerateCommand(
-  testEnv: TestEnvironment,
-  tempTestDir: string,
-  timeout: number = 10000
-): Promise<CommandResult> {
-  return runCliCommand(testEnv, ['tests:generate'], {
-    workingDirectory: tempTestDir,
-    timeout,
-    expectSuccess: true,
-  });
-}
