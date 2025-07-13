@@ -85,9 +85,9 @@ describe('CLI E2E Tests - flow:run command', () => {
           'version={{context.version}}, errorCode={{context.errorCode}}',
       ]);
 
-      // Verify warn level LogStep output in stderr
-      expect(result.stderr).toContain(
-        'User {{UNDEFINED:user}} logged in to TestApp'
+      // Verify warn level LogStep output in stdout (Logger format)
+      expect(result.stdout).toContain(
+        'WARN: User {{UNDEFINED:user}} logged in to TestApp'
       );
 
       // Verify decision steps
