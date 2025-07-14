@@ -46,7 +46,7 @@ describe('Session start', (): void => {
 
   it('should throw error when session is already started', (): void => {
     const flow = new Flow('test-flow', mockSteps, 'step1');
-    const session = new Session(flow);
+    const session = new Session(flow, mockLogger);
 
     session.start();
     expect(() => session.start()).toThrow(
@@ -56,7 +56,7 @@ describe('Session start', (): void => {
 
   it('should set status to error when session is already started', (): void => {
     const flow = new Flow('test-flow', mockSteps, 'step1');
-    const session = new Session(flow);
+    const session = new Session(flow, mockLogger);
 
     session.start();
     try {
@@ -68,7 +68,7 @@ describe('Session start', (): void => {
 
   it('should return running status when started', (): void => {
     const flow = new Flow('test-flow', mockSteps, 'step1');
-    const session = new Session(flow);
+    const session = new Session(flow, mockLogger);
 
     const status: SessionStatus = session.start();
     expect(status).toBe('running');
@@ -79,7 +79,7 @@ describe('Session start', (): void => {
 describe('Session executeCurrentStep', (): void => {
   it('should throw error when session is not running', async (): Promise<void> => {
     const flow = new Flow('test-flow', mockSteps, 'step1');
-    const session = new Session(flow);
+    const session = new Session(flow, mockLogger);
 
     // Don't start the session
     await expect(session.executeCurrentStep()).rejects.toThrow(
@@ -97,7 +97,7 @@ describe('Session executeCurrentStep', (): void => {
       getSteps: (): Step[] => mockSteps,
     } as IFlow;
 
-    const session = new Session(mockFlow);
+    const session = new Session(mockFlow, mockLogger);
     session.start();
 
     const result = await session.executeCurrentStep();
@@ -118,7 +118,7 @@ describe('Session executeCurrentStep', (): void => {
       getSteps: (): Step[] => mockSteps,
     } as IFlow;
 
-    const session = new Session(mockFlow);
+    const session = new Session(mockFlow, mockLogger);
     session.start();
 
     const result = await session.executeCurrentStep();
@@ -129,7 +129,7 @@ describe('Session executeCurrentStep', (): void => {
 
   it('should throw error when session is completed', async (): Promise<void> => {
     const flow = new Flow('test-flow', mockSteps, 'step1');
-    const session = new Session(flow);
+    const session = new Session(flow, mockLogger);
 
     session.start();
 
@@ -155,7 +155,7 @@ describe('Session two-step flow execution', (): void => {
 
   it('should execute two-step flow with logging and automatic advancement', async (): Promise<void> => {
     const flow = new Flow('test-flow', mockSteps, 'step1');
-    const session = new Session(flow);
+    const session = new Session(flow, mockLogger);
 
     // Start session
     session.start();
@@ -178,7 +178,7 @@ describe('Session two-step flow execution', (): void => {
 
   it('should handle complete flow execution in simple loop', async (): Promise<void> => {
     const flow = new Flow('test-flow', mockSteps, 'step1');
-    const session = new Session(flow);
+    const session = new Session(flow, mockLogger);
 
     // Start session
     session.start();
@@ -214,7 +214,7 @@ describe('Session two-step flow execution', (): void => {
     ];
 
     const flow = new Flow('dynamic-flow', dynamicSteps, 'router');
-    const session = new Session(flow);
+    const session = new Session(flow, mockLogger);
 
     // Set routing context
     session.getContext().set('nextStep', 'bug');
@@ -238,7 +238,7 @@ describe('Session two-step flow execution', (): void => {
 describe('Session context management', (): void => {
   it('should provide access to context', (): void => {
     const flow = new Flow('test-flow', mockSteps, 'step1');
-    const session = new Session(flow);
+    const session = new Session(flow, mockLogger);
 
     const context = session.getContext();
     expect(context).toBeDefined();
@@ -248,7 +248,7 @@ describe('Session context management', (): void => {
 
   it('should maintain same context instance throughout session', (): void => {
     const flow = new Flow('test-flow', mockSteps, 'step1');
-    const session = new Session(flow);
+    const session = new Session(flow, mockLogger);
 
     const context1 = session.getContext();
     const context2 = session.getContext();
@@ -258,7 +258,7 @@ describe('Session context management', (): void => {
 
   it('should allow context to be used for data storage', (): void => {
     const flow = new Flow('test-flow', mockSteps, 'step1');
-    const session = new Session(flow);
+    const session = new Session(flow, mockLogger);
 
     const context = session.getContext();
     context.set('testKey', 'testValue');

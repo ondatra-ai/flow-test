@@ -56,7 +56,7 @@ export async function handleFlowRunCommand(
   const flow = await flowManager.loadFlow(flowName);
 
   logger.info(`Starting flow execution: ${flowName}`);
-  const session = new Session(flow);
+  const session = new Session(flow, logger);
   const context = session.getContext();
 
   // Inject parameters into context

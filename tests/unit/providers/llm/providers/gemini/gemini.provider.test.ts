@@ -171,16 +171,16 @@ describe('GeminiProvider', () => {
       mockChat.sendMessageStream.mockRejectedValue(error);
 
       const stream = provider.stream(request);
-      const events = [];
-      for await (const event of stream) {
-        events.push(event);
-      }
 
-      expect(mockHelper.wrapError).toHaveBeenCalledWith(error, request.signal);
-      expect(events).toContainEqual({
-        type: 'error',
-        error: new Error('Test error'),
-      });
+      // Error should bubble up directly instead of being wrapped
+      await expect(async () => {
+        for await (const _event of stream) {
+          // This should throw before yielding any events
+        }
+      }).rejects.toThrow('API Error');
+
+      // Helper should not be called for error wrapping
+      expect(mockHelper.wrapError).not.toHaveBeenCalled();
     });
   });
 
@@ -203,7 +203,7 @@ describe('GeminiProvider', () => {
   });
 
   describe('role validation', () => {
-    it('should yield error for invalid roles', async () => {
+    it('should throw error for invalid roles', async () => {
       const request: StreamRequest = {
         model: 'gemini-2.5-pro',
         prompt: 'Test prompt',
@@ -214,16 +214,16 @@ describe('GeminiProvider', () => {
       };
 
       const stream = provider.stream(request);
-      const events = [];
 
-      for await (const event of stream) {
-        events.push(event);
-      }
+      // Should throw directly for invalid roles instead of yielding error event
+      await expect(async () => {
+        for await (const _event of stream) {
+          // This should throw before yielding any events
+        }
+      }).rejects.toThrow("Role 'invalid' is not supported by Gemini API");
 
-      // Should yield an error event for invalid roles
-      const errorEvent = events.find(e => e.type === 'error');
-      expect(errorEvent).toBeDefined();
-      expect(mockHelper.wrapError).toHaveBeenCalled();
+      // Helper should not be called for error wrapping
+      expect(mockHelper.wrapError).not.toHaveBeenCalled();
     });
   });
 

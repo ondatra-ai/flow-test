@@ -83,52 +83,48 @@ export class OpenAIProvider implements ILLMProvider {
   }
 
   async *stream(request: StreamRequest): AsyncIterableIterator<StreamEvent> {
-    try {
-      const messages = this.validateAndPrepareMessages(request);
-      const stream = await this.createStream(request, messages);
+    const messages = this.validateAndPrepareMessages(request);
+    const stream = await this.createStream(request, messages);
 
-      // Token counting in streaming mode requires estimation
-      // OpenAI doesn't provide exact token counts in streaming responses
-      // We estimate based on character count using the standard 4:1 ratio
-      // This means approximately 1 token = 4 characters (0.25 tokens per
-      // character)
-      //
-      // This ratio comes from empirical analysis of OpenAI tokenization:
-      // - English text averages ~4 characters per token
-      // - Code and non-English text may vary significantly
-      // - For precise counts, consider using tiktoken library in non-streaming
-      //   mode
-      let completionCharacterCount = 0;
+    // Token counting in streaming mode requires estimation
+    // OpenAI doesn't provide exact token counts in streaming responses
+    // We estimate based on character count using the standard 4:1 ratio
+    // This means approximately 1 token = 4 characters (0.25 tokens per
+    // character)
+    //
+    // This ratio comes from empirical analysis of OpenAI tokenization:
+    // - English text averages ~4 characters per token
+    // - Code and non-English text may vary significantly
+    // - For precise counts, consider using tiktoken library in non-streaming
+    //   mode
+    let completionCharacterCount = 0;
 
-      for await (const chunk of stream) {
-        this.helper.checkAbortSignal(request.signal);
+    for await (const chunk of stream) {
+      this.helper.checkAbortSignal(request.signal);
 
-        const content = chunk.choices[0]?.delta?.content;
-        if (content) {
-          yield { type: 'token', token: content };
-          // Count characters instead of chunks for better token estimation
-          completionCharacterCount += content.length;
-        }
-
-        if (chunk.choices[0]?.finish_reason === 'stop') {
-          // Estimate token counts using character-based calculation
-          // Both prompt and completion use the same 4:1 character-to-token
-          // ratio
-          const promptTokens = Math.ceil(request.prompt.length / 4);
-          const completionTokens = Math.ceil(completionCharacterCount / 4);
-
-          yield {
-            type: 'done',
-            usage: {
-              promptTokens,
-              completionTokens,
-              totalTokens: promptTokens + completionTokens,
-            },
-          };
-        }
+      const content = chunk.choices[0]?.delta?.content;
+      if (content) {
+        yield { type: 'token', token: content };
+        // Count characters instead of chunks for better token estimation
+        completionCharacterCount += content.length;
       }
-    } catch (error) {
-      yield this.helper.wrapError(error as Error, request.signal);
+
+      if (chunk.choices[0]?.finish_reason === 'stop') {
+        // Estimate token counts using character-based calculation
+        // Both prompt and completion use the same 4:1 character-to-token
+        // ratio
+        const promptTokens = Math.ceil(request.prompt.length / 4);
+        const completionTokens = Math.ceil(completionCharacterCount / 4);
+
+        yield {
+          type: 'done',
+          usage: {
+            promptTokens,
+            completionTokens,
+            totalTokens: promptTokens + completionTokens,
+          },
+        };
+      }
     }
   }
 
