@@ -145,28 +145,24 @@ export class ClaudeProvider implements ILLMProvider {
   }
 
   async *stream(request: StreamRequest): AsyncIterableIterator<StreamEvent> {
-    try {
-      const messages = this.prepareMessages(request);
-      const stream = await this.createStream(request, messages);
-      const usage = { promptTokens: 0, completionTokens: 0 };
+    const messages = this.prepareMessages(request);
+    const stream = await this.createStream(request, messages);
+    const usage = { promptTokens: 0, completionTokens: 0 };
 
-      for await (const chunk of stream) {
-        this.helper.checkAbortSignal(request.signal);
-        yield* this.processChunk(chunk, usage);
-      }
-
-      // Yield final usage
-      yield {
-        type: 'done',
-        usage: {
-          promptTokens: usage.promptTokens,
-          completionTokens: usage.completionTokens,
-          totalTokens: usage.promptTokens + usage.completionTokens,
-        },
-      };
-    } catch (error) {
-      yield this.helper.wrapError(error as Error, request.signal);
+    for await (const chunk of stream) {
+      this.helper.checkAbortSignal(request.signal);
+      yield* this.processChunk(chunk, usage);
     }
+
+    // Yield final usage
+    yield {
+      type: 'done',
+      usage: {
+        promptTokens: usage.promptTokens,
+        completionTokens: usage.completionTokens,
+        totalTokens: usage.promptTokens + usage.completionTokens,
+      },
+    };
   }
 
   async generate(request: StreamRequest): Promise<string> {

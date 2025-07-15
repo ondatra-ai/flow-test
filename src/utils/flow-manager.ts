@@ -11,8 +11,7 @@ import type { StepConfig } from '../types/validation/index.js';
 import type { FlowConfig } from '../validation/index.js';
 import { FlowConfigSchema } from '../validation/schemas/flow.schema.js';
 
-import { castJson, castError } from './cast.js';
-import { Logger } from './logger.js';
+import { castJson } from './cast.js';
 
 /**
  * Service for managing flow discovery and loading
@@ -22,7 +21,6 @@ export class FlowManager {
   private readonly flowsDir: string;
 
   constructor(
-    @inject(SERVICES.Logger) private readonly logger: Logger,
     @inject(SERVICES.StepFactory) private readonly stepFactory: StepFactory
   ) {
     this.flowsDir = path.join('.flows');
@@ -32,15 +30,10 @@ export class FlowManager {
    * List all available flows by scanning the flows directory
    */
   public async listFlows(): Promise<string[]> {
-    try {
-      const files = await fs.readdir(this.flowsDir);
-      return files
-        .filter(file => file.endsWith('.json'))
-        .map(file => path.basename(file, '.json'));
-    } catch (error) {
-      this.logger.error('Failed to list flows', castError(error));
-      throw new Error('Unable to access flows directory');
-    }
+    const files = await fs.readdir(this.flowsDir);
+    return files
+      .filter(file => file.endsWith('.json'))
+      .map(file => path.basename(file, '.json'));
   }
 
   /**
@@ -77,13 +70,6 @@ export class FlowManager {
    * Create a step from validated step data
    */
   private createStep(stepData: StepConfig): IStep {
-    try {
-      return this.stepFactory.createStep(stepData);
-    } catch (error) {
-      this.logger.error('Failed to create step', castError(error), {
-        stepData: JSON.stringify(stepData),
-      });
-      throw error;
-    }
+    return this.stepFactory.createStep(stepData);
   }
 }

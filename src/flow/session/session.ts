@@ -1,4 +1,6 @@
 import type { SessionStatus } from '../../types/flow/index.js';
+import { castError } from '../../utils/cast.js';
+import type { Logger } from '../../utils/logger.js';
 import { IContext, Context } from '../context.js';
 import { IFlow } from '../flow.js';
 
@@ -12,10 +14,12 @@ export class Session {
 
   private readonly flow: IFlow;
   private readonly context: IContext;
+  private readonly logger: Logger;
 
-  constructor(flow: IFlow) {
+  constructor(flow: IFlow, logger: Logger) {
     this.flow = flow;
     this.context = new Context();
+    this.logger = logger;
 
     // Initialize session properties
     this.currentStepId = null;
@@ -49,10 +53,10 @@ export class Session {
       this.status = this.currentStepId ? 'running' : 'completed';
 
       return true;
-    } catch (_error) {
+    } catch (error) {
       this.status = 'error';
-      // Error handling: execution failed, status already set to 'error'
-      // Error intentionally not re-thrown as return value indicates failure
+      // Log error since this method returns boolean instead of throwing
+      this.logger.error('Flow execution failed:', castError(error));
       return false;
     }
   }
