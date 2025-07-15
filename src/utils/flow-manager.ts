@@ -60,7 +60,7 @@ export class FlowManager {
   /**
    * Convert validated FlowConfig to Flow object
    */
-  public convertToFlow(flowData: FlowConfig): Flow {
+  private convertToFlow(flowData: FlowConfig): Flow {
     const steps = flowData.steps.map(stepData => this.createStep(stepData));
 
     return new Flow(flowData.id, steps, flowData.initialStepId);
