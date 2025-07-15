@@ -1,7 +1,6 @@
 import { inject, injectable } from 'tsyringe';
 
 import { SERVICES } from '../../config/tokens.js';
-import { castError } from '../../utils/cast.js';
 import {
   GitHubClient,
   type GitHubIssue,
@@ -45,42 +44,35 @@ export class ReadGitHubIssueStep extends Step implements IStep {
   public async execute(context: IContext): Promise<string | null> {
     this.logger.info(`Executing ReadGitHubIssueStep: ${this.config.issueUrl}`);
 
-    try {
-      const issueUrl = context.get('github.issue.url') || this.config.issueUrl;
-      const { owner, repo, issue_number } = parseGitHubIssueUrl(issueUrl);
+    const issueUrl = context.get('github.issue.url') || this.config.issueUrl;
+    const { owner, repo, issue_number } = parseGitHubIssueUrl(issueUrl);
 
-      this.logger.info(
-        `ReadGitHubIssueStep: Reading issue #${issue_number} from ` +
-          `${owner}/${repo}`
-      );
+    this.logger.info(
+      `ReadGitHubIssueStep: Reading issue #${issue_number} from ` +
+        `${owner}/${repo}`
+    );
 
-      const { issue, comments } = await this.githubClient.getIssueWithComments(
-        owner,
-        repo,
-        issue_number
-      );
+    const { issue, comments } = await this.githubClient.getIssueWithComments(
+      owner,
+      repo,
+      issue_number
+    );
 
-      this.populateContext(context, issue, comments, issueUrl, issue_number);
+    this.populateContext(context, issue, comments, issueUrl, issue_number);
 
-      // Log issue content for verification
-      this.logger.info(`Issue Title: "${issue.title}"`);
-      this.logger.info(`Issue Author: "${issue.user.login}"`);
-      this.logger.info(`Issue State: "${issue.state}"`);
-      this.logger.info(`Issue Body: "${issue.body || ''}"`);
-      this.logger.info(`Issue Comments: ${comments.length}`);
+    // Log issue content for verification
+    this.logger.info(`Issue Title: "${issue.title}"`);
+    this.logger.info(`Issue Author: "${issue.user.login}"`);
+    this.logger.info(`Issue State: "${issue.state}"`);
+    this.logger.info(`Issue Body: "${issue.body || ''}"`);
+    this.logger.info(`Issue Comments: ${comments.length}`);
 
-      this.logger.info(
-        `Successfully loaded GitHub issue #${issue_number} from ` +
-          `${owner}/${repo}`
-      );
+    this.logger.info(
+      `Successfully loaded GitHub issue #${issue_number} from ` +
+        `${owner}/${repo}`
+    );
 
-      return super.execute(context);
-    } catch (error) {
-      this.logger.error(`ReadGitHubIssueStep failed`, castError(error), {
-        issueUrl: this.config.issueUrl,
-      });
-      throw error;
-    }
+    return super.execute(context);
   }
 
   private populateContext(

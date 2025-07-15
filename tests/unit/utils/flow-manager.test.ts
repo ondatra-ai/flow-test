@@ -65,7 +65,7 @@ function createTestSetup() {
   setupMocks();
   const mockLogger = createMockLogger();
   const mockStepFactory = createMockStepFactory();
-  const flowManager = new FlowManager(mockLogger, mockStepFactory);
+  const flowManager = new FlowManager(mockStepFactory);
   return { flowManager, mockLogger, mockStepFactory };
 }
 
@@ -110,13 +110,13 @@ describe('FlowManager', () => {
       const error = new Error('Permission denied');
       vi.mocked(fs.readdir).mockRejectedValue(error);
 
+      // Raw error should bubble up instead of transformed message
       await expect(flowManager.listFlows()).rejects.toThrow(
-        'Unable to access flows directory'
+        'Permission denied'
       );
-      expect(mockLogger.error).toHaveBeenCalledWith(
-        'Failed to list flows',
-        expect.any(Error)
-      );
+
+      // Logger should not be called since error handling was removed
+      expect(mockLogger.error).not.toHaveBeenCalled();
     });
   });
 
@@ -229,9 +229,8 @@ describe('FlowManager', () => {
       };
       vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify(flowWithoutNext));
 
-      await expect(flowManager.loadFlow('test-flow')).rejects.toThrow(
-        'Failed to parse JSON'
-      );
+      // Raw Zod validation error should bubble up instead of wrapped message
+      await expect(flowManager.loadFlow('test-flow')).rejects.toThrow();
     });
   });
 
@@ -284,9 +283,8 @@ describe('FlowManager', () => {
         JSON.stringify(flowWithInvalidInitialStepId)
       );
 
-      await expect(flowManager.loadFlow('test-flow')).rejects.toThrow(
-        'Failed to parse JSON'
-      );
+      // Raw Zod validation error should bubble up instead of wrapped message
+      await expect(flowManager.loadFlow('test-flow')).rejects.toThrow();
     });
 
     it('should throw error for flow with no steps', async () => {

@@ -159,13 +159,8 @@ describe('ReadGitHubIssueStep - Execute', () => {
       'Invalid GitHub issue URL'
     );
 
-    expect(vi.mocked(mockLogger.error)).toHaveBeenCalledWith(
-      'ReadGitHubIssueStep failed',
-      expect.any(Error),
-      expect.objectContaining({
-        issueUrl: undefined,
-      })
-    );
+    // Error should bubble up without intermediate logging
+    expect(vi.mocked(mockLogger.error)).not.toHaveBeenCalled();
   });
 
   it('should handle invalid GitHub URL', async () => {
@@ -182,13 +177,8 @@ describe('ReadGitHubIssueStep - Execute', () => {
       'Invalid GitHub issue URL'
     );
 
-    expect(vi.mocked(mockLogger.error)).toHaveBeenCalledWith(
-      'ReadGitHubIssueStep failed',
-      expect.any(Error),
-      expect.objectContaining({
-        issueUrl: 'https://invalid-url',
-      })
-    );
+    // Error should bubble up without intermediate logging
+    expect(vi.mocked(mockLogger.error)).not.toHaveBeenCalled();
   });
 
   it('should handle GitHub API errors', async () => {
@@ -208,13 +198,8 @@ describe('ReadGitHubIssueStep - Execute', () => {
 
     await expect(step.execute(context)).rejects.toThrow('API Error');
 
-    expect(vi.mocked(mockLogger.error)).toHaveBeenCalledWith(
-      'ReadGitHubIssueStep failed',
-      expect.any(Error),
-      expect.objectContaining({
-        issueUrl: 'https://github.com/owner/repo/issues/123',
-      })
-    );
+    // Error should bubble up without intermediate logging
+    expect(vi.mocked(mockLogger.error)).not.toHaveBeenCalled();
   });
 
   it('should handle empty body gracefully', async () => {

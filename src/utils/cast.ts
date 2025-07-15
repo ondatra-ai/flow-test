@@ -39,12 +39,8 @@ export function castJson<T extends z.ZodType<any, any, any>>(
   schema: T,
   json: string
 ): z.infer<T> {
-  try {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const parsed = JSON.parse(json);
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-    return schema.parse(parsed);
-  } catch (error) {
-    throw new Error(`Failed to parse JSON: ${castError(error).message}`);
-  }
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  const parsed = JSON.parse(json);
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+  return schema.parse(parsed);
 }

@@ -74,53 +74,49 @@ export class GeminiProvider implements ILLMProvider {
   }
 
   async *stream(request: StreamRequest): AsyncIterableIterator<StreamEvent> {
-    try {
-      const model = this.client.getGenerativeModel({ model: request.model });
-      const { prompt, history } = this.buildPromptAndHistory(request);
+    const model = this.client.getGenerativeModel({ model: request.model });
+    const { prompt, history } = this.buildPromptAndHistory(request);
 
-      const chat = model.startChat({
-        history,
-        generationConfig: {
-          temperature: request.temperature,
-          maxOutputTokens: request.maxTokens,
-        },
-      });
+    const chat = model.startChat({
+      history,
+      generationConfig: {
+        temperature: request.temperature,
+        maxOutputTokens: request.maxTokens,
+      },
+    });
 
-      const result = await chat.sendMessageStream(prompt);
+    const result = await chat.sendMessageStream(prompt);
 
-      // Token counting for Gemini in streaming mode requires estimation
-      // Gemini doesn't provide exact token counts in streaming responses
-      // We estimate using character-based calculation similar to OpenAI
-      // Each chunk from Gemini may contain multiple words/tokens
-      let completionCharacterCount = 0;
+    // Token counting for Gemini in streaming mode requires estimation
+    // Gemini doesn't provide exact token counts in streaming responses
+    // We estimate using character-based calculation similar to OpenAI
+    // Each chunk from Gemini may contain multiple words/tokens
+    let completionCharacterCount = 0;
 
-      for await (const chunk of result.stream) {
-        this.helper.checkAbortSignal(request.signal);
+    for await (const chunk of result.stream) {
+      this.helper.checkAbortSignal(request.signal);
 
-        const text = chunk.text();
-        if (text) {
-          // Count characters for token estimation
-          completionCharacterCount += text.length;
-          yield { type: 'token', token: text };
-        }
+      const text = chunk.text();
+      if (text) {
+        // Count characters for token estimation
+        completionCharacterCount += text.length;
+        yield { type: 'token', token: text };
       }
-
-      // Estimate token counts using character-based calculation
-      // Standard ratio: approximately 1 token = 4 characters (0.25 per char)
-      const promptTokens = Math.ceil(prompt.length / 4);
-      const completionTokens = Math.ceil(completionCharacterCount / 4);
-
-      yield {
-        type: 'done',
-        usage: {
-          promptTokens,
-          completionTokens,
-          totalTokens: promptTokens + completionTokens,
-        },
-      };
-    } catch (error) {
-      yield this.helper.wrapError(error as Error, request.signal);
     }
+
+    // Estimate token counts using character-based calculation
+    // Standard ratio: approximately 1 token = 4 characters (0.25 per char)
+    const promptTokens = Math.ceil(prompt.length / 4);
+    const completionTokens = Math.ceil(completionCharacterCount / 4);
+
+    yield {
+      type: 'done',
+      usage: {
+        promptTokens,
+        completionTokens,
+        totalTokens: promptTokens + completionTokens,
+      },
+    };
   }
 
   async generate(request: StreamRequest): Promise<string> {
