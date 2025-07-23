@@ -1,61 +1,85 @@
 # ACTIVE CONTEXT
 
-## Recently Completed Task: flowmanager-converttoflow-private-20250123 ✅
+## Current Task: centralize-test-mocks-20250125 🔄
 
-**Issue**: #75 - Change FlowManager.convertToFlow method visibility from public to private
-**Type**: Level 1 - Quick Bug Fix (Refactoring)
-**Status**: COMPLETED & ARCHIVED ✅
-**Date Completed**: 2025-01-23
-**Archive**: [archive-flowmanager-converttoflow-private-20250123.md](archive/archive-flowmanager-converttoflow-private-20250123.md)
+**Issue**: #99 - Centralize test mocks into shared tests/unit/mocks directory
+**Type**: Level 3 - Intermediate Feature (Testing Infrastructure)
+**Status**: PLAN Mode Complete - Ready for Implementation
+**Date Started**: 2025-01-25
+**Branch**: task-20250125-centralize-test-mocks
 
-### Completion Summary
+### Task Summary
 
-Successfully changed FlowManager.convertToFlow method visibility from public to private to improve encapsulation. Task completed with perfect quality metrics:
+This task involves creating a centralized mock management system to eliminate duplication and establish consistent mock patterns across all test files. The implementation requires:
 
-- ✅ **Implementation**: Single-line change on line 70 of `src/utils/flow-manager.ts`
-- ✅ **Quality**: 188/188 tests passing, zero TypeScript errors, zero ESLint violations
-- ✅ **Encapsulation**: Method now properly scoped as private implementation detail
-- ✅ **Verification**: Full test suite confirmed no external dependencies
-- ✅ **Documentation**: Comprehensive reflection and archiving completed
+- Creating a structured tests/unit/mocks/ directory
+- Developing mock factories for all core interfaces
+- Migrating existing test files to use centralized mocks
+- Establishing TypeScript-safe mock patterns
+- Creating ESLint rule to enforce architectural decisions
+- Phased implementation approach to minimize disruption
 
-## Current Focus
+### 📋 Implementation Plan Complete
 
-**Status**: Ready for Next Task Assignment
+**Phased Approach Defined**:
 
-The Memory Bank is fully prepared for the next task:
+1. **Phase 0: ESLint Rule** (1-2 hours)
+   - Add custom rule to forbid cast import in test files
+   - Identify all current violations
+   - Prevent new violations during migration
 
-- All established quality standards and methodologies ready for immediate deployment
-- Level 1 task execution template refined and proven
-- Encapsulation improvement patterns documented and available for reuse
-- FlowManager class enhanced with better API design
+2. **Phase 1: Mock Infrastructure** (2-3 hours)
+   - Create mock directory structure
+   - Implement core mock factories
+   - Test factories in isolation
 
-## Next Task Assignment
+3. **Phase 2: High-Impact Migration** (2-3 hours)
+   - Start with plan-generation-step tests
+   - These have the most duplication
+   - Measure code reduction
 
-**Action Required**: Assign next task through VAN mode
+4. **Phase 3: Complete Migration** (3-4 hours)
+   - Migrate all remaining test files
+   - Ensure zero cast usage in tests
+   - Verify all tests pass
 
-To start the next task:
+5. **Phase 4: Documentation** (1 hour)
+   - Create comprehensive docs
+   - Update project guidelines
 
-1. Identify the next GitHub issue or enhancement opportunity
-2. Use VAN mode to analyze and initialize the new task
-3. Follow established workflows based on task complexity level
+### Key Design Decisions ✅
 
-## Key Patterns Available
+1. **Factory Pattern**: All mocks created via typed factory functions
+2. **Preset Behaviors**: Success, error, and custom options
+3. **No Cast in Tests**: Cast only used inside mock factories
+4. **ESLint Enforcement**: Automatic prevention of anti-patterns
 
-- **Level 1 Tasks**: Quick bug fixes and simple refactoring (proven methodology)
-- **Encapsulation Reviews**: API design improvements through visibility changes
-- **Quality Gates**: TypeScript + ESLint + full test suite validation
-- **Test Coverage**: Comprehensive validation for confident refactoring
+### Challenges Identified
+
+- ESLint custom rule complexity → Use no-restricted-imports if needed
+- Breaking tests during migration → One file at a time approach
+- Type safety without cast → Factories return fully typed objects
+- Large migration scope → Phased approach with verification
+
+### Next Steps
+
+**Action Required**: Begin Implementation
+
+1. Start with Phase 0: ESLint Rule Implementation
+2. This will prevent new violations while we migrate
+3. Then proceed with mock infrastructure creation
 
 ## System State
 
-- **Memory Bank**: Clean and ready for next task
-- **Test Suite**: 188/188 tests passing
-- **Build Process**: Clean compilation
-- **Code Quality**: All standards maintained
-- **Documentation**: Up to date with latest patterns
+- **PLAN Mode**: Complete ✅
+- **Implementation Plan**: Detailed and Phased ✅
+- **Design Decisions**: Documented ✅
+- **Challenges**: Identified with Mitigations ✅
+- **Time Estimate**: 8-12 hours total
+- **Required Mode**: IMPLEMENT
 
 ---
 
-_Mode: Ready for VAN (Next Task Initialization)_
-_Updated: 2025-01-23_
-_Status: Task Complete - Ready for Next Assignment_
+_Mode: PLAN Complete - Ready for IMPLEMENT_
+_Updated: 2025-01-25_
+_Next Action: Begin Phase 0 - ESLint Rule Implementation_

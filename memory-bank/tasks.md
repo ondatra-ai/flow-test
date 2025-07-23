@@ -1,151 +1,272 @@
 # MEMORY BANK TASKS
 
-## Current Task Status: ✅ COMPLETED
+## Current Task Status: 🔄 IN PROGRESS - PLAN MODE
 
-**Current Task**: flowmanager-converttoflow-private-20250123
-**Issue**: #75 - Change FlowManager.convertToFlow method visibility from public to private
-**Complexity**: Level 1 - Quick Bug Fix
-**Branch**: task-20250123-flowmanager-converttoflow-private
-**Start Date**: 2025-01-23
-**Build Complete**: 2025-01-23
-**Reflection Complete**: 2025-01-23
+**Current Task**: centralize-test-mocks-20250125
+**Issue**: #99 - Centralize test mocks into shared tests/unit/mocks directory
+**Complexity**: Level 3 - Intermediate Feature
+**Branch**: task-20250125-centralize-test-mocks
+**Start Date**: 2025-01-25
+**Status**: PLAN Mode - Detailed Implementation Plan Created
 
 ## Task Details
 
-### flowmanager-converttoflow-private-20250123 - ✅ COMPLETED
+### centralize-test-mocks-20250125 - 🔄 IN PROGRESS
 
-**Objective**: Change the visibility of the `convertToFlow` method in the `FlowManager` class from `public` to `private` to improve encapsulation and API design.
+**Objective**: Create a centralized mock management system by moving all test mocks into a shared tests/unit/mocks/ directory structure, eliminating duplication and establishing consistent mock patterns project-wide.
 
 **Technical Scope**:
 
-- File: `src/utils/flow-manager.ts`
-- Line: 70
-- Change: `public convertToFlow` → `private convertToFlow`
-- Impact: Internal method only, no external dependencies
+- Create tests/unit/mocks/ directory structure
+- Create mock factories for core interfaces (IContext, ILLMProvider, Logger)
+- Migrate existing test files to use centralized mocks
+- Remove duplicated mock code from individual test files
+- Add TypeScript barrel exports
+- Update all test files project-wide
 
-**Key Requirements**:
+## 📋 Feature Planning Document
 
-- ✅ Low risk refactoring task
-- ✅ No breaking changes expected
-- ✅ Internal method only used within FlowManager class
-- ✅ Improves encapsulation and API design
+### Contracts, scheme and interface update
 
-## Task Checklist
+**Mock Factory Interfaces** (new in `tests/unit/mocks/`):
 
-### Phase 1: Analysis ✅
+```typescript
+// tests/unit/mocks/types.ts
+export interface MockOptions {
+  throwOnUnmockedCall?: boolean;
+  customBehavior?: Record<string, unknown>;
+}
 
-- [x] Analyze GitHub issue #75
-- [x] Confirm complexity level (Level 1)
-- [x] Create task branch
+export interface LoggerMockOptions extends MockOptions {
+  captureMessages?: boolean;
+}
 
-### Phase 2: Implementation ✅
+export interface ContextMockOptions extends MockOptions {
+  initialData?: Record<string, unknown>;
+}
 
-- [x] Change method visibility from public to private
-- [x] Verify compilation succeeds
-- [x] Run test suite to ensure no regressions
-- [x] Review any tests that directly test convertToFlow
-
-### Phase 3: Verification ✅
-
-- [x] Run full test suite (188 tests passed)
-- [x] Verify build process
-- [x] Ensure no external usage of the method
-
-### Phase 4: Documentation ✅
-
-- [x] Update any relevant documentation
-- [x] Add reflection notes
-
-## Build Results
-
-### Implementation Summary
-
-- **Change Made**: Modified `convertToFlow` method visibility from `public` to `private` in FlowManager class
-- **File Modified**: `src/utils/flow-manager.ts` at line 70
-- **Verification**: All 188 tests passed successfully
-- **Build Status**: Clean compilation with no errors
-
-### Commands Executed
-
+export interface LLMProviderMockOptions extends MockOptions {
+  defaultResponse?: string;
+  simulateError?: boolean;
+}
 ```
+
+### Functional changes
+
+**No functional changes expected** - This is a test infrastructure refactoring. All existing tests should continue to pass without modification of test logic.
+
+**E2E Test Coverage**: No new E2E tests required as this is a test-only refactoring.
+
+## 📊 Requirements Analysis
+
+### Core Requirements:
+
+- ✅ Centralize all mock definitions in `tests/unit/mocks/`
+- ✅ Create type-safe mock factories for core interfaces
+- ✅ Eliminate cast usage in test files (enforced by ESLint)
+- ✅ Maintain 100% test pass rate during migration
+- ✅ Reduce test file sizes by 30-40%
+
+### Technical Constraints:
+
+- ✅ Must use vitest mock functions (vi.fn())
+- ✅ Must maintain TypeScript strict mode compliance
+- ✅ Must follow existing project patterns
+- ✅ Zero breaking changes to test functionality
+
+## 🔍 Component Analysis
+
+### Affected Components:
+
+**1. Test Files (15+ files)**
+
+- `tests/unit/flow/types/*.test.ts` (5 files)
+- `tests/unit/flow/*.test.ts` (5 files)
+- `tests/unit/providers/llm/providers/*.test.ts` (3 files)
+- `tests/unit/utils/*.test.ts` (2 files)
+- `tests/unit/cli/*.test.ts` (2 files)
+- `tests/unit/config/*.test.ts` (1 file)
+
+**2. New Mock Infrastructure**
+
+- `tests/unit/mocks/flow/` - Flow-related mocks
+- `tests/unit/mocks/providers/` - Provider mocks
+- `tests/unit/mocks/utils/` - Utility mocks
+- `tests/unit/mocks/index.ts` - Barrel export
+
+**3. ESLint Configuration**
+
+- `.eslintrc.json` - Add custom rule
+- New rule implementation or configuration
+
+## 🎨 Design Decisions
+
+### Architecture:
+
+- ✅ Factory pattern for all mocks
+- ✅ Preset behaviors (success, error, custom)
+- ✅ Typed returns without cast in consuming code
+- ✅ Composable mock options
+
+### Mock Structure:
+
+```typescript
+// Example: Logger mock factory
+export function createLoggerMock(options?: LoggerMockOptions): Logger {
+  const mock = cast<Logger>({
+    info: vi.fn(),
+    error: vi.fn(),
+    warn: vi.fn(),
+    debug: vi.fn(),
+  });
+
+  if (options?.captureMessages) {
+    // Add message capture logic
+  }
+
+  return mock;
+}
+```
+
+### ESLint Rule Design:
+
+- Rule name: `no-cast-in-tests`
+- Scope: All `*.test.ts` files
+- Exception: `tests/unit/mocks/**/*`
+- Error level: `error` (not warning)
+
+## ⚙️ Implementation Strategy
+
+### Phase 0: ESLint Rule Implementation (1-2 hours)
+
+- [x] Analyze current ESLint configuration
+- [ ] Add custom rule to forbid cast import in test files
+- [ ] Configure rule with proper paths
+- [ ] Run lint to identify all violations
+- [ ] Document violations count
+
+### Phase 1: Mock Infrastructure Creation (2-3 hours)
+
+- [ ] Create `tests/unit/mocks/` directory structure
+- [ ] Implement core mock factories:
+  - [ ] `createLoggerMock()`
+  - [ ] `createContextMock()`
+  - [ ] `createLLMProviderMock()`
+  - [ ] `createHelperMock()`
+- [ ] Create TypeScript types for mock options
+- [ ] Add barrel exports
+- [ ] Test mock factories in isolation
+
+### Phase 2: High-Impact File Migration (2-3 hours)
+
+Start with files that have the most duplication:
+
+- [ ] Migrate `plan-generation-step-template.test.ts`
+- [ ] Migrate `plan-generation-step-core.test.ts`
+- [ ] Migrate `plan-generation-step-providers.test.ts`
+- [ ] Verify all plan-generation tests pass
+- [ ] Measure code reduction
+
+### Phase 3: Remaining Test Migration (3-4 hours)
+
+- [ ] Migrate flow test files
+- [ ] Migrate provider test files
+- [ ] Migrate utils test files
+- [ ] Migrate cli test files
+- [ ] Migrate config test files
+
+### Phase 4: Cleanup & Documentation (1 hour)
+
+- [ ] Remove all deprecated mock code
+- [ ] Create README in mocks directory
+- [ ] Update project documentation
+- [ ] Run full test suite
+- [ ] Verify ESLint compliance
+
+## 🧪 Testing Strategy
+
+### Unit Tests:
+
+- [ ] Test each mock factory independently
+- [ ] Verify mock behavior presets work correctly
+- [ ] Test mock option configurations
+
+### Integration Tests:
+
+- [ ] Run full test suite after each phase
+- [ ] Verify no test functionality changed
+- [ ] Check test performance metrics
+
+### Verification Commands:
+
+```bash
+# After each phase:
 npm test
+npm run lint
+npm run build
+
+# Final verification:
+grep -r "cast<" tests/unit/ --include="*.test.ts" | wc -l  # Should be 0
+grep -r "vi\.fn()" tests/unit/ --include="*.test.ts" | wc -l  # Should be 0
 ```
 
-### Result
+## 📚 Documentation Plan
 
-```
-✓ 188 tests passed
-✓ Clean build with no TypeScript errors
-✓ No external dependencies affected
-```
+- [ ] Mock factory API documentation
+- [ ] Migration guide for future tests
+- [ ] ESLint rule documentation
+- [ ] Best practices guide
 
-### Effect
+## 🚨 Challenges & Mitigations
 
-The FlowManager class now has better encapsulation with the convertToFlow method marked as private, preventing external access while maintaining all internal functionality.
+**Challenge 1**: ESLint custom rule complexity
 
-## Progress Tracking
+- **Mitigation**: Use existing no-restricted-imports pattern if custom rule too complex
 
-**Current Phase**: Build Complete
-**Status**: Ready for REFLECT MODE
-**Commits**:
+**Challenge 2**: Breaking tests during migration
 
-- 80d7dac - Change FlowManager.convertToFlow method visibility from public to private
-- 757f672 - Update task tracking status to reflect completion
+- **Mitigation**: Migrate one file at a time, verify tests pass after each
+
+**Challenge 3**: Maintaining type safety without cast
+
+- **Mitigation**: Ensure mock factories return properly typed objects
+
+**Challenge 4**: Large number of files to migrate
+
+- **Mitigation**: Phased approach, starting with highest-impact files
+
+## ✅ Technology Validation Checkpoints
+
+- [x] TypeScript project already set up
+- [x] Vitest testing framework in place
+- [x] ESLint configured and working
+- [ ] Custom ESLint rule approach validated
+- [ ] Mock factory pattern tested
+
+## 📈 Success Metrics
+
+- 100+ anti-patterns eliminated
+- 30-40% reduction in test file sizes
+- Zero cast usage in test files
+- All 188 tests passing
+- ESLint enforcing architecture
 
 ---
 
-## Previous Task
+## Implementation Plan Summary
 
-### delete-generator-command-20250122 - ✅ ARCHIVED
+**Total Estimated Time**: 8-12 hours
 
-- **Issue**: #86 - Delete generator command and all related functionality
-- **Archive Date**: 2025-01-22
-- **Archive Document**: memory-bank/archive/archive-delete-generator-command-20250122.md
+**Priority Order**:
+
+1. ESLint rule (prevents new violations)
+2. Mock infrastructure (foundation)
+3. High-impact migrations (biggest wins)
+4. Complete migration (full consistency)
+5. Documentation (maintainability)
+
+**Next Mode**: IMPLEMENT MODE (no creative phases required)
 
 ---
 
-_Last Updated: 2025-01-23_
-
-### Phase 4: Reflection ✅
-
-- [x] Review implementation against plan
-- [x] Document what went well
-- [x] Document challenges and solutions
-- [x] Document key insights and lessons learned
-- [x] Create reflection document
-- [x] Update tasks.md with reflection status
-
-## Reflection Highlights
-
-- **What Went Well**: Precise implementation with zero breaking changes, all 188 tests passed
-- **Key Challenge**: Minor line number discrepancy in GitHub issue (line 74 vs actual line 70)
-- **Solution Applied**: Direct code inspection and comprehensive test suite validation
-- **Key Insight**: Simple visibility changes provide significant encapsulation improvements with minimal risk
-- **Process Learning**: Full test suite is gold standard for refactoring validation
-- **Time Efficiency**: 50% under estimate (< 1 hour vs 1-2 hours estimated)
-
-## Reflection Document
-
-- **Location**: `memory-bank/reflection/reflection-flowmanager-converttoflow-private-20250123.md`
-- **Status**: Complete ✅
-- **Ready for**: ARCHIVE MODE
-  **Archive Complete**: 2025-01-23
-
-## Archive Information
-
-- **Archive Document**: memory-bank/archive/archive-flowmanager-converttoflow-private-20250123.md
-- **Reflection Document**: memory-bank/reflection/reflection-flowmanager-converttoflow-private-20250123.md
-- **Final Status**: COMPLETED ✅
-- **GitHub Issue**: Ready for closure (#75)
-
-### Phase 5: Archiving ✅
-
-- [x] Create comprehensive archive document
-- [x] Update tasks.md with completion status
-- [x] Update progress.md with archive reference
-- [x] Update activeContext.md for next task
-- [x] Mark task as COMPLETED
-
-## Task Summary
-
-Successfully completed Level 1 enhancement to improve FlowManager encapsulation by changing convertToFlow method visibility from public to private. Achieved perfect quality metrics with zero breaking changes and comprehensive test validation.
+_Last Updated: 2025-01-25_

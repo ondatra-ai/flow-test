@@ -457,3 +457,44 @@ interface FlowConfig {
 - **Code reviews** - Require explicit justification comments for deprecated code
 - **Documentation** - Maintain clear migration guides and timelines
 - **Regular cleanup** - Schedule removal of deprecated compatibility features
+  The user prefers not to use the 'cat' command in the terminal; for tasks like saving or displaying file contents (e.g., updating implementation status), always use 'echo' with '>>' for appending or '>' for overwriting. Never use 'cat > file << EOF' pattern.
+
+### File Writing Patterns
+
+**⚠️ CRITICAL: Never use cat command with heredoc syntax**
+
+#### Writing to Files
+
+**✅ ALWAYS USE: echo with >> or >**
+
+- **Appending content** - Use echo >> filename
+- **Overwriting content** - Use echo > filename
+- **Multi-line content** - Use multiple echo statements
+- **Consistency** - Ensures reliable file operations
+
+**❌ NEVER USE: cat with heredoc**
+
+```bash
+# BAD - Never use cat with heredoc
+cat > file.txt << EOF
+content
+EOF
+
+# GOOD - Use echo for single line
+echo "content" > file.txt
+
+# GOOD - Use echo for appending
+echo "additional content" >> file.txt
+
+# GOOD - Use multiple echo for multi-line
+echo "line 1" > file.txt
+echo "line 2" >> file.txt
+echo "line 3" >> file.txt
+```
+
+#### Best Practices
+
+- **Single line content** - Use echo with > or >>
+- **Multi-line content** - Use multiple echo statements with >>
+- **Complex content** - Consider using printf or creating the file programmatically
+- **Verification** - Always verify file contents after writing
