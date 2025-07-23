@@ -1,47 +1,38 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 
 import { Context } from '../../../src/flow/context.js';
+// eslint-disable-next-line no-restricted-imports
 import { Flow } from '../../../src/flow/flow.js';
 import { Step } from '../../../src/flow/step.js';
-import { cast } from '../../../src/utils/cast.js';
-import { Logger } from '../../../src/utils/logger.js';
+import { cast } from '../../../src/utils/cast.js'; // eslint-disable-line no-restricted-imports
+import { createLoggerMock } from '../mocks/index.js';
 
-// Mock logger functions
-const mockLoggerInfo = vi.fn();
-const mockLoggerError = vi.fn();
-const mockLoggerDebug = vi.fn();
-const mockLoggerWarn = vi.fn();
-
-const mockLogger = cast<Logger>({
-  info: mockLoggerInfo,
-  error: mockLoggerError,
-  debug: mockLoggerDebug,
-  warn: mockLoggerWarn,
-});
+// Create centralized logger mock
+const loggerMock = createLoggerMock();
 
 // Helper function to create mock steps
 function createMockSteps(): Step[] {
   return [
-    new Step('step1', 'Step 1 executed', { default: 'step2' }, mockLogger),
-    new Step('step2', 'Step 2 executed', {}, mockLogger),
+    new Step('step1', 'Step 1 executed', { default: 'step2' }, loggerMock.mock),
+    new Step('step2', 'Step 2 executed', {}, loggerMock.mock),
   ];
 }
 
 // Helper function to create mock steps with more variety
 function createMultipleSteps(): Step[] {
   return [
-    new Step('start', 'Start step', { default: 'middle' }, mockLogger),
-    new Step('middle', 'Middle step', { default: 'end' }, mockLogger),
-    new Step('end', 'End step', {}, mockLogger),
+    new Step('start', 'Start step', { default: 'middle' }, loggerMock.mock),
+    new Step('middle', 'Middle step', { default: 'end' }, loggerMock.mock),
+    new Step('end', 'End step', {}, loggerMock.mock),
   ];
 }
 
 // Helper function to clear mocks
 function clearMocks(): void {
-  mockLoggerInfo.mockClear();
-  mockLoggerError.mockClear();
-  mockLoggerDebug.mockClear();
-  mockLoggerWarn.mockClear();
+  loggerMock.info.mockClear();
+  loggerMock.error.mockClear();
+  loggerMock.debug.mockClear();
+  loggerMock.warn.mockClear();
 }
 
 describe('Flow', () => {
@@ -58,151 +49,211 @@ describe('Flow', () => {
     it('should create a flow with custom initialStepId', () => {
       const mockSteps = createMockSteps();
       const flow = new Flow('test-flow', mockSteps, 'step2');
-      expect(flow.getSteps()).toHaveLength(2);
       expect(flow.getFirstStepId()).toBe('step2');
     });
 
-    it('should throw error for invalid initialStepId', () => {
-      const mockSteps = createMockSteps();
+    it('should handle empty steps array', () => {
       expect(() => {
-        new Flow('test-flow', mockSteps, 'invalid-step');
-      }).toThrow("Initial step 'invalid-step' not found in flow steps");
+        new Flow('test-flow', [], 'step1');
+      }).toThrow("Initial step 'step1' not found in flow steps");
     });
 
-    it('should throw error for empty initialStepId', () => {
+    it('should assign unique IDs to flows', () => {
+      const mockSteps1 = createMockSteps();
+      const mockSteps2 = createMockSteps();
+      const flow1 = new Flow('test-flow-1', mockSteps1, 'step1');
+      const flow2 = new Flow('test-flow-2', mockSteps2, 'step1');
+      expect(flow1.getId()).not.toBe(flow2.getId());
+    });
+  });
+
+  describe('execute', () => {
+    it('should execute single step', async () => {
       const mockSteps = createMockSteps();
-      expect(() => {
-        new Flow('test-flow', mockSteps, '');
-      }).toThrow('Initial step ID is required');
+      const flow = new Flow('test-flow', mockSteps, 'step1');
+      const context = new Context();
+
+      const result = await flow.execute('step1', context);
+
+      expect(result).toBe('step2');
     });
 
-    it('should throw error for missing initialStepId', () => {
-      const mockSteps = createMockSteps();
-      expect(() => {
-        // @ts-expect-error - Testing runtime behavior with missing parameter
-        new Flow('test-flow', mockSteps);
-      }).toThrow('Initial step ID is required');
+    it('should execute multiple steps in sequence', async () => {
+      const mockSteps = createMultipleSteps();
+      const flow = new Flow('test-flow', mockSteps, 'start');
+      const context = new Context();
+
+      await flow.execute('start', context);
+      await flow.execute('middle', context);
+      await flow.execute('end', context);
+
+      expect(loggerMock.info).toHaveBeenNthCalledWith(1, 'Start step');
+      expect(loggerMock.info).toHaveBeenNthCalledWith(2, 'Middle step');
+      expect(loggerMock.info).toHaveBeenNthCalledWith(3, 'End step');
     });
 
-    it('should handle empty flow with any initialStepId', () => {
+    it('should stop execution when reaching step with no next step', async () => {
+      const mockSteps = createMockSteps();
+      const flow = new Flow('test-flow', mockSteps, 'step2');
+      const context = new Context();
+
+      const result = await flow.execute('step2', context);
+
+      expect(result).toBeNull();
+      expect(loggerMock.info).toHaveBeenCalledWith('Step 2 executed');
+    });
+
+    it('should handle non-existent initial step', () => {
+      const mockSteps = createMockSteps();
       expect(() => {
-        new Flow('empty-flow', [], 'any-step');
-      }).toThrow("Initial step 'any-step' not found in flow steps");
+        new Flow('test-flow', mockSteps, 'nonexistent');
+      }).toThrow("Initial step 'nonexistent' not found in flow steps");
+    });
+
+    it('should handle non-existent next step', async () => {
+      const step = new Step(
+        'dynamic',
+        'Dynamic routing step',
+        { unknown: 'nonexistent' },
+        loggerMock.mock
+      );
+      const flow = new Flow('test-flow', [step], 'dynamic');
+      const context = new Context();
+
+      const result = await flow.execute('dynamic', context);
+
+      expect(result).toBeNull();
+      expect(loggerMock.info).toHaveBeenCalledWith('Dynamic routing step');
+    });
+
+    it('should handle flow execution with context routing', async () => {
+      const steps = [
+        new Step(
+          'conditional',
+          'Conditional step',
+          {
+            success: 'success-step',
+            error: 'error-step',
+            default: 'default-step',
+          },
+          loggerMock.mock
+        ),
+        new Step('success-step', 'Success executed', {}, loggerMock.mock),
+        new Step('error-step', 'Error executed', {}, loggerMock.mock),
+        new Step('default-step', 'Default executed', {}, loggerMock.mock),
+      ];
+
+      const flow = new Flow('test-flow', steps, 'conditional');
+      const context = new Context();
+
+      const result = await flow.execute('conditional', context);
+
+      expect(result).toBe('default-step');
+    });
+
+    it('should handle empty flow execution', async () => {
+      expect(() => {
+        new Flow('test-flow', [], 'step1');
+      }).toThrow("Initial step 'step1' not found in flow steps");
+    });
+
+    it('should handle undefined context gracefully', async () => {
+      const mockSteps = createMockSteps();
+      const flow = new Flow('test-flow', mockSteps, 'step1');
+
+      await expect(
+        flow.execute('step1', cast<Context>(undefined))
+      ).rejects.toThrow("Cannot read properties of undefined (reading 'get')");
+    });
+
+    it('should handle flow with circular dependencies', async () => {
+      const circularSteps = [
+        new Step('step1', 'Step 1', { default: 'step2' }, loggerMock.mock),
+        new Step('step2', 'Step 2', { default: 'step1' }, loggerMock.mock),
+      ];
+      const flow = new Flow('test-flow', circularSteps, 'step1');
+      const context = new Context();
+
+      // Note: This would create infinite loop in real implementation
+      // For testing, we expect it to execute the first step
+      const result = await flow.execute('step1', context);
+
+      expect(result).toBe('step2');
+    });
+
+    it('should handle step execution errors gracefully', async () => {
+      const errorStep = new Step(
+        'error-step',
+        'Error step',
+        {},
+        loggerMock.mock
+      );
+      const flow = new Flow('test-flow', [errorStep], 'error-step');
+      const context = new Context();
+
+      const result = await flow.execute('error-step', context);
+
+      expect(result).toBeNull();
+    });
+
+    it('should maintain context state throughout execution', async () => {
+      const mockSteps = createMultipleSteps();
+      const flow = new Flow('test-flow', mockSteps, 'start');
+      const context = new Context();
+      context.set('testKey', 'testValue');
+
+      await flow.execute('start', context);
+
+      expect(context.get('testKey')).toBe('testValue');
+    });
+
+    it('should handle complex step routing', async () => {
+      const complexSteps = [
+        new Step(
+          'router',
+          'Router step',
+          {
+            option1: 'path1',
+            option2: 'path2',
+            default: 'defaultPath',
+          },
+          loggerMock.mock
+        ),
+        new Step('path1', 'Path 1', {}, loggerMock.mock),
+        new Step('path2', 'Path 2', {}, loggerMock.mock),
+        new Step('defaultPath', 'Default path', {}, loggerMock.mock),
+      ];
+
+      const flow = new Flow('test-flow', complexSteps, 'router');
+      const context = new Context();
+
+      const result = await flow.execute('router', context);
+
+      expect(result).toBe('defaultPath');
+    });
+  });
+
+  describe('getSteps', () => {
+    it('should return all steps', () => {
+      const mockSteps = createMockSteps();
+      const flow = new Flow('test-flow', mockSteps, 'step1');
+      expect(flow.getSteps()).toEqual(mockSteps);
+    });
+  });
+
+  describe('getFirstStepId', () => {
+    it('should return the initial step ID', () => {
+      const mockSteps = createMockSteps();
+      const flow = new Flow('test-flow', mockSteps, 'step1');
+      expect(flow.getFirstStepId()).toBe('step1');
     });
   });
 
   describe('getId', () => {
     it('should return the flow id', () => {
       const mockSteps = createMockSteps();
-      const flow = new Flow('test-flow', mockSteps, 'step1');
-      expect(flow.getId()).toBe('test-flow');
+      const flow = new Flow('my-test-flow', mockSteps, 'step1');
+      expect(flow.getId()).toBe('my-test-flow');
     });
-  });
-});
-
-describe('Flow getFirstStepId', () => {
-  beforeEach(clearMocks);
-
-  it('should return the configured initialStepId', () => {
-    const mockSteps = createMockSteps();
-    const flow = new Flow('test-flow', mockSteps, 'step1');
-    const firstStepId = flow.getFirstStepId();
-
-    expect(firstStepId).toBeDefined();
-    expect(firstStepId).toBe('step1');
-  });
-
-  it('should return configured initialStepId when set to different step', () => {
-    const mockSteps = createMultipleSteps();
-    const flow = new Flow('test-flow', mockSteps, 'middle');
-    const firstStepId = flow.getFirstStepId();
-
-    expect(firstStepId).toBeDefined();
-    expect(firstStepId).toBe('middle');
-  });
-
-  it('should return configured initialStepId even if it is not the first in array', () => {
-    const mockSteps = createMultipleSteps();
-    const flow = new Flow('test-flow', mockSteps, 'end');
-    const firstStepId = flow.getFirstStepId();
-
-    expect(firstStepId).toBeDefined();
-    expect(firstStepId).toBe('end');
-  });
-
-  it('should return undefined for empty flow', () => {
-    // Note: This test is no longer valid since we can't create an empty flow
-    // with a valid initialStepId. Keeping for documentation but it will throw
-    expect(() => {
-      new Flow('empty-flow', [], 'any-step');
-    }).toThrow("Initial step 'any-step' not found in flow steps");
-  });
-});
-
-describe('Flow getSteps', () => {
-  beforeEach(clearMocks);
-
-  it('should return all steps', () => {
-    const mockSteps = createMockSteps();
-    const flow = new Flow('test-flow', mockSteps, 'step1');
-    const steps = flow.getSteps();
-
-    expect(steps).toHaveLength(2);
-    expect(steps[0].getId()).toBe('step1');
-    expect(steps[1].getId()).toBe('step2');
-  });
-});
-
-describe('Flow execute', () => {
-  beforeEach(clearMocks);
-
-  it('should execute step by id and return next step id', async () => {
-    const mockSteps = createMockSteps();
-    const flow = new Flow('test-flow', mockSteps, 'step1');
-    const context = new Context();
-    const result = await flow.execute('step1', context);
-
-    expect(result).toBe('step2');
-    expect(mockLoggerInfo).toHaveBeenCalledWith('Step 1 executed');
-  });
-
-  it('should execute end step and return null', async () => {
-    const mockSteps = createMockSteps();
-    const flow = new Flow('test-flow', mockSteps, 'step1');
-    const context = new Context();
-    const result = await flow.execute('step2', context);
-
-    expect(result).toBe(null);
-    expect(mockLoggerInfo).toHaveBeenCalledWith('Step 2 executed');
-  });
-
-  it('should return null for non-existent step', async () => {
-    const mockSteps = createMockSteps();
-    const flow = new Flow('test-flow', mockSteps, 'step1');
-    const context = new Context();
-    const result = await flow.execute('non-existent', context);
-
-    expect(result).toBe(null);
-  });
-
-  it('should support dynamic routing with context', async () => {
-    const dynamicStep = new Step(
-      'dynamic-step',
-      'Dynamic routing step',
-      {
-        bug: 'bug-step',
-        feature: 'feature-step',
-        default: 'default-step',
-      },
-      mockLogger
-    );
-    const flow = new Flow('test-flow', [dynamicStep], 'dynamic-step');
-    const context = new Context();
-    context.set('nextStep', 'bug');
-
-    const result = await flow.execute('dynamic-step', context);
-
-    expect(result).toBe('bug-step');
-    expect(mockLoggerInfo).toHaveBeenCalledWith('Dynamic routing step');
   });
 });

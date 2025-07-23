@@ -113,6 +113,15 @@
         "@typescript-eslint/explicit-function-return-type": "off",
         "@typescript-eslint/require-await": "off",
         "@typescript-eslint/unbound-method": "off",
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [{
+              "group": ["**/src/utils/cast*"],
+              "message": "Use centralized mocks from 'tests/unit/mocks' instead of cast in test files"
+            }]
+          }
+        ],
         "no-restricted-syntax": [
           "error",
           {
@@ -199,6 +208,20 @@
           {
             "selector": "TSInterfaceDeclaration",
             "message": "Interface definitions must be in src/interfaces/ folder"
+          }
+        ]
+      }
+    },
+    {
+      "files": ["tests/unit/mocks/**/*.ts"],
+      "rules": {
+        "@typescript-eslint/explicit-function-return-type": "off",
+        "max-lines-per-function": ["error", { "max": 100, "skipBlankLines": true, "skipComments": true }],
+        "no-restricted-syntax": [
+          "error",
+          {
+            "selector": "TSAsExpression > TSUnknownKeyword",
+            "message": "Use cast<T>() from '@/utils/cast' instead of 'as unknown as T'"
           }
         ]
       }

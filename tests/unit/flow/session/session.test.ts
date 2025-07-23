@@ -6,21 +6,11 @@ import {
   SessionStatus,
 } from '../../../../src/flow/session/session.js';
 import { Step } from '../../../../src/flow/step.js';
-import { cast } from '../../../../src/utils/cast.js';
-import { Logger } from '../../../../src/utils/logger.js';
+import { createLoggerMock } from '../../mocks/index.js';
 
-// Mock logger functions
-const mockLoggerInfo = vi.fn();
-const mockLoggerError = vi.fn();
-const mockLoggerDebug = vi.fn();
-const mockLoggerWarn = vi.fn();
-
-const mockLogger = cast<Logger>({
-  info: mockLoggerInfo,
-  error: mockLoggerError,
-  debug: mockLoggerDebug,
-  warn: mockLoggerWarn,
-});
+// Create centralized logger mock
+const loggerMock = createLoggerMock();
+const mockLogger = loggerMock.mock;
 
 const mockSteps = [
   new Step('step1', 'Step 1 executed', { default: 'step2' }, mockLogger),
@@ -147,10 +137,10 @@ describe('Session executeCurrentStep', (): void => {
 
 describe('Session two-step flow execution', (): void => {
   beforeEach((): void => {
-    mockLoggerInfo.mockClear();
-    mockLoggerError.mockClear();
-    mockLoggerDebug.mockClear();
-    mockLoggerWarn.mockClear();
+    loggerMock.info.mockClear();
+    loggerMock.error.mockClear();
+    loggerMock.debug.mockClear();
+    loggerMock.warn.mockClear();
   });
 
   it('should execute two-step flow with logging and automatic advancement', async (): Promise<void> => {
@@ -163,17 +153,17 @@ describe('Session two-step flow execution', (): void => {
     // Execute step 1 (automatically advances to step 2)
     const result1 = await session.executeCurrentStep();
     expect(result1).toBe(true);
-    expect(mockLoggerInfo).toHaveBeenCalledWith('Step 1 executed');
+    expect(loggerMock.info).toHaveBeenCalledWith('Step 1 executed');
 
     // Execute step 2 (automatically completes session)
     const result2 = await session.executeCurrentStep();
     expect(result2).toBe(true);
-    expect(mockLoggerInfo).toHaveBeenCalledWith('Step 2 executed');
+    expect(loggerMock.info).toHaveBeenCalledWith('Step 2 executed');
     expect(session.status).toBe('completed');
 
     // Verify all logging calls
-    expect(mockLoggerInfo).toHaveBeenCalledWith('Step 1 executed');
-    expect(mockLoggerInfo).toHaveBeenCalledWith('Step 2 executed');
+    expect(loggerMock.info).toHaveBeenCalledWith('Step 1 executed');
+    expect(loggerMock.info).toHaveBeenCalledWith('Step 2 executed');
   });
 
   it('should handle complete flow execution in simple loop', async (): Promise<void> => {
@@ -192,8 +182,8 @@ describe('Session two-step flow execution', (): void => {
     expect(session.status).toBe('completed');
 
     // Verify all steps were logged
-    expect(mockLoggerInfo).toHaveBeenCalledWith('Step 1 executed');
-    expect(mockLoggerInfo).toHaveBeenCalledWith('Step 2 executed');
+    expect(loggerMock.info).toHaveBeenCalledWith('Step 1 executed');
+    expect(loggerMock.info).toHaveBeenCalledWith('Step 2 executed');
   });
 
   it('should support dynamic routing with context', async (): Promise<void> => {
@@ -225,12 +215,12 @@ describe('Session two-step flow execution', (): void => {
     // Execute router step - should go to bug-step
     const result1 = await session.executeCurrentStep();
     expect(result1).toBe(true);
-    expect(mockLoggerInfo).toHaveBeenCalledWith('Routing step');
+    expect(loggerMock.info).toHaveBeenCalledWith('Routing step');
 
     // Execute bug-step - should complete
     const result2 = await session.executeCurrentStep();
     expect(result2).toBe(true);
-    expect(mockLoggerInfo).toHaveBeenCalledWith('Bug fix step');
+    expect(loggerMock.info).toHaveBeenCalledWith('Bug fix step');
     expect(session.status).toBe('completed');
   });
 });

@@ -1,11 +1,11 @@
 import 'reflect-metadata';
+
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 import { ReadGitHubIssueStep } from '../../../../src/flow/types/read-github-issue-step.js';
-import { cast } from '../../../../src/utils/cast.js';
-import type { GitHubClient } from '../../../../src/utils/github-client.js';
-import type { Logger } from '../../../../src/utils/logger.js';
 import type { ReadGitHubIssueStepConfig } from '../../../../src/validation/schemas/step.schema.js';
+// Import centralized mocks
+import { createLoggerMock, createGitHubClientMock } from '../../mocks/index.js';
 
 // Mock dependencies
 vi.mock('../../../../src/utils/github-url-parser.js', () => ({
@@ -37,44 +37,14 @@ vi.mock('../../../../src/utils/github-client.js', () => ({
   })),
 }));
 
-// Test helper functions
-function createMockLogger(): Logger {
-  return cast<Logger>({
-    info: vi.fn(),
-    error: vi.fn(),
-    warn: vi.fn(),
-    debug: vi.fn(),
-  });
-}
-
-function createMockGitHubClient(): GitHubClient {
-  return cast<GitHubClient>({
-    getIssueWithComments: vi.fn().mockResolvedValue({
-      issue: {
-        number: 123,
-        title: 'Test Issue',
-        body: 'Test body',
-        state: 'open',
-        user: { login: 'testuser' },
-        created_at: '2023-01-01',
-        updated_at: '2023-01-02',
-      },
-      comments: [
-        { id: 1, body: 'Comment 1', user: { login: 'user1' } },
-        { id: 2, body: 'Comment 2', user: { login: 'user2' } },
-      ],
-    }),
-  });
-}
-
 describe('ReadGitHubIssueStep - Constructor', () => {
-  let mockLogger: Logger;
-  let mockGitHubClient: GitHubClient;
+  let loggerMock: ReturnType<typeof createLoggerMock>;
+  let githubClientMock: ReturnType<typeof createGitHubClientMock>;
 
   beforeEach(() => {
     vi.clearAllMocks();
-    mockLogger = createMockLogger();
-    mockGitHubClient = createMockGitHubClient();
+    loggerMock = createLoggerMock();
+    githubClientMock = createGitHubClientMock();
   });
 
   it('should create step with provided config', () => {
@@ -86,7 +56,11 @@ describe('ReadGitHubIssueStep - Constructor', () => {
       nextStepId: { default: 'next-step' },
     };
 
-    const step = new ReadGitHubIssueStep(mockLogger, mockGitHubClient, config);
+    const step = new ReadGitHubIssueStep(
+      loggerMock.mock,
+      githubClientMock.mock,
+      config
+    );
 
     expect(step.getId()).toBe('test-step');
     expect(step.githubToken).toBe('test-token');
@@ -103,7 +77,11 @@ describe('ReadGitHubIssueStep - Constructor', () => {
       nextStepId: {},
     };
 
-    const step = new ReadGitHubIssueStep(mockLogger, mockGitHubClient, config);
+    const step = new ReadGitHubIssueStep(
+      loggerMock.mock,
+      githubClientMock.mock,
+      config
+    );
 
     expect(step.githubToken).toBe('env-token');
 
@@ -112,7 +90,7 @@ describe('ReadGitHubIssueStep - Constructor', () => {
 
   it('should have empty githubToken when no token provided', () => {
     const originalEnv = process.env.GITHUB_TOKEN;
-    process.env.GITHUB_TOKEN = cast<string>(undefined);
+    process.env.GITHUB_TOKEN = undefined;
 
     const config: ReadGitHubIssueStepConfig = {
       type: 'read-github-issue',
@@ -121,7 +99,11 @@ describe('ReadGitHubIssueStep - Constructor', () => {
       nextStepId: {},
     };
 
-    const step = new ReadGitHubIssueStep(mockLogger, mockGitHubClient, config);
+    const step = new ReadGitHubIssueStep(
+      loggerMock.mock,
+      githubClientMock.mock,
+      config
+    );
 
     expect(step.githubToken).toBe('');
 
