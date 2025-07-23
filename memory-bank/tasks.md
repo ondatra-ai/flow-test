@@ -24,6 +24,72 @@
 - Add TypeScript barrel exports
 - Update all test files project-wide
 
+## 🚨 **CRITICAL GUIDANCE - PRESERVE EXISTING TEST LOGIC**
+
+**⚠️ MANDATORY REQUIREMENTS BASED ON CONVERSATION LEARNINGS:**
+
+### **1. NO CHANGES TO TEST LOGIC OR ASSERTIONS**
+
+- **✅ DO**: Replace mock creation with factory calls
+- **✅ DO**: Replace inline mocks with centralized references
+- **❌ NEVER**: Change test expectations, assertions, or validation logic
+- **❌ NEVER**: Add new validation to constructors or methods
+- **❌ NEVER**: Change error handling behavior in production code
+- **❌ NEVER**: Modify existing test cases to test different scenarios
+
+### **2. REFACTORING ONLY - NO FUNCTIONAL CHANGES**
+
+- This is purely a **test infrastructure refactoring**
+- All existing tests must pass **without modification of their logic**
+- Test behavior should be **100% identical** before and after
+- Any test failure indicates incorrect implementation
+
+### **3. PRODUCTION CODE MUST REMAIN UNCHANGED**
+
+- **✅ DO**: Only modify files in `tests/` directory
+- **❌ NEVER**: Modify any files in `src/` directory
+- **❌ NEVER**: Add constructor validation or error throwing
+- **❌ NEVER**: Change template variable handling
+- **❌ NEVER**: Modify existing error handling patterns
+
+### **4. MOCK-ONLY SCOPE**
+
+- Focus exclusively on centralizing mock creation
+- Replace `vi.fn()` calls with factory calls
+- Replace `cast<Interface>()` calls with factory calls
+- Keep all test assertions exactly as they are
+
+### **Example of CORRECT Migration:**
+
+```typescript
+// ❌ BEFORE - Scattered mock creation
+const mockLogger = cast<Logger>({
+  info: vi.fn(),
+  error: vi.fn(),
+});
+
+// ✅ AFTER - Centralized mock creation
+const loggerMock = createLoggerMock();
+
+// ✅ SAME TEST LOGIC - No changes to assertions
+expect(loggerMock.info).toHaveBeenCalledWith('expected message');
+```
+
+### **Example of INCORRECT Migration:**
+
+```typescript
+// ❌ WRONG - Adding new validation to tests
+it('should validate input parameters', () => {
+  // This is adding NEW test logic - forbidden!
+  expect(() => new Step('')).toThrow('Invalid parameter');
+});
+
+// ❌ WRONG - Changing production code
+constructor(issueUrl: string) {
+  if (!issueUrl) throw new Error('Invalid URL'); // Never add this!
+}
+```
+
 ## 📋 Feature Planning Document
 
 ### Contracts, scheme and interface update
@@ -66,6 +132,7 @@ export interface LLMProviderMockOptions extends MockOptions {
 - ✅ Eliminate cast usage in test files (enforced by ESLint)
 - ✅ Maintain 100% test pass rate during migration
 - ✅ Reduce test file sizes by 30-40%
+- 🚨 **PRESERVE all existing test logic and assertions unchanged**
 
 ### Technical Constraints:
 
@@ -73,6 +140,8 @@ export interface LLMProviderMockOptions extends MockOptions {
 - ✅ Must maintain TypeScript strict mode compliance
 - ✅ Must follow existing project patterns
 - ✅ Zero breaking changes to test functionality
+- 🚨 **Zero changes to production code in src/ directory**
+- 🚨 **Zero changes to test assertions or validation logic**
 
 ## 🔍 Component Analysis
 
@@ -296,6 +365,13 @@ expect(loggerMock.info).toHaveBeenCalled();
 expect(contextMock.get).toHaveBeenCalledWith('key');
 ```
 
+**🚨 CRITICAL MIGRATION RULES**:
+
+- Replace mock creation code ONLY
+- Keep all `expect()` calls exactly as they are
+- Keep all test descriptions and scenarios unchanged
+- Keep all test data and configurations unchanged
+
 ### Phase 3: Remaining Test Migration (3-4 hours)
 
 - [ ] Migrate flow test files
@@ -385,6 +461,14 @@ const { mock, info, error } = createLoggerMock();
 
 - **Mitigation**: Clear documentation and code review guidelines emphasizing simple property access
 
+**🚨 Challenge 6**: Accidentally changing test logic during migration
+
+- **Mitigation**:
+  - Focus only on mock creation replacement
+  - Never modify expect() calls or test assertions
+  - Never modify production code in src/ directory
+  - Run tests after each file migration to verify unchanged behavior
+
 ## ✅ Technology Validation Checkpoints
 
 - [x] TypeScript project already set up
@@ -399,9 +483,11 @@ const { mock, info, error } = createLoggerMock();
 - 100+ anti-patterns eliminated
 - 30-40% reduction in test file sizes
 - Zero cast usage in test files
-- All 188 tests passing
+- All 188 tests passing **with identical behavior**
 - ESLint enforcing architecture
 - **All test files using simple property access pattern**
+- **Zero changes to production code**
+- **Zero changes to test assertions or logic**
 
 ---
 
@@ -418,6 +504,13 @@ const { mock, info, error } = createLoggerMock();
 5. Documentation (maintainability)
 
 **Critical Success Factor**: All mock factories must return objects designed for simple property access, NOT destructuring.
+
+**🚨 ABSOLUTE REQUIREMENTS**:
+
+- Only modify test mock creation - never test logic
+- Only touch files in tests/ directory - never src/
+- All tests must pass with identical behavior
+- If any test fails, revert immediately and identify root cause
 
 **Next Mode**: IMPLEMENT MODE (no creative phases required)
 
