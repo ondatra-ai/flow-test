@@ -146,9 +146,9 @@ describe('Flow', () => {
       const flow = new Flow('test-flow', steps, 'conditional');
       const context = new Context();
 
-      const result = await flow.execute('step1', context);
+      const result = await flow.execute('conditional', context);
 
-      expect(result).toBeNull();
+      expect(result).toBe('default-step');
     });
 
     it('should handle empty flow execution', async () => {
@@ -191,7 +191,7 @@ describe('Flow', () => {
       const flow = new Flow('test-flow', [errorStep], 'error-step');
       const context = new Context();
 
-      const result = await flow.execute('step1', context);
+      const result = await flow.execute('error-step', context);
 
       expect(result).toBeNull();
     });
@@ -202,7 +202,7 @@ describe('Flow', () => {
       const context = new Context();
       context.set('testKey', 'testValue');
 
-      await flow.execute('step1', context);
+      await flow.execute('start', context);
 
       expect(context.get('testKey')).toBe('testValue');
     });
@@ -227,9 +227,9 @@ describe('Flow', () => {
       const flow = new Flow('test-flow', complexSteps, 'router');
       const context = new Context();
 
-      const result = await flow.execute('step1', context);
+      const result = await flow.execute('router', context);
 
-      expect(result).toBeNull();
+      expect(result).toBe('defaultPath');
     });
   });
 
