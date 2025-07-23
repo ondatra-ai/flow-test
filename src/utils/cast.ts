@@ -34,13 +34,10 @@ export function castError(error: unknown): Error {
  * Parse JSON string and validate with Zod schema.
  * This provides centralized JSON parsing with runtime validation.
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function castJson<T extends z.ZodType<any, any, any>>(
   schema: T,
   json: string
 ): z.infer<T> {
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const parsed = JSON.parse(json);
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
   return schema.parse(parsed);
 }

@@ -5,10 +5,7 @@ interface CustomMatchers {
 }
 
 declare module 'vitest' {
-  // Use proper type extension instead of empty interface
-  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   interface Assertion extends CustomMatchers {}
-  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   interface AsymmetricMatchersContaining extends CustomMatchers {}
 }
 

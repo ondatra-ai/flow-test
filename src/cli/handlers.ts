@@ -43,7 +43,6 @@ export function handleChatCommand(): void {
 /**
  * Handle the flow:run command
  */
-// eslint-disable-next-line max-lines-per-function
 export async function handleFlowRunCommand(
   flowName: string,
   parameters: string[],

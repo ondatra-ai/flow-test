@@ -4,7 +4,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { StepFactory } from '../../../src/flow/step-factory.js';
 import { PlanGenerationStep } from '../../../src/flow/types/plan-generation-step.js';
 import { ReadGitHubIssueStep } from '../../../src/flow/types/read-github-issue-step.js';
-// eslint-disable-next-line no-restricted-imports
 import { cast } from '../../../src/utils/cast.js';
 import { GitHubClient } from '../../../src/utils/github-client.js';
 import { Logger } from '../../../src/utils/logger.js';

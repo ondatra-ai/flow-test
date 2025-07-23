@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import 'reflect-metadata';
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';

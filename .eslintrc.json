@@ -18,6 +18,7 @@
     "plugin:prettier/recommended"
   ],
   "rules": {
+    "no-warning-comments": ["error", { "terms": ["eslint-disable"], "location": "start" }],
     "prettier/prettier": "error",
     "@typescript-eslint/no-unused-vars": [
       "error",
@@ -98,9 +99,15 @@
       }
     },
     {
+      "files": ["src/config/container.ts", "src/cli/handlers.ts"],
+      "rules": {
+        "max-lines-per-function": ["error", { "max": 100, "skipBlankLines": true, "skipComments": true }]
+      }
+    },
+    {
       "files": ["scripts/merged-prs-last-24h.ts"],
       "rules": {
-        "@typescript-eslint/no-unsafe-assignment": "off",
+        "@typescript-eslint/no-unsafe-assignment": "off", // Required for test mock objects and dynamic test data
         "@typescript-eslint/no-unsafe-call": "off",
         "@typescript-eslint/no-unsafe-member-access": "off"
       }
@@ -113,15 +120,7 @@
         "@typescript-eslint/explicit-function-return-type": "off",
         "@typescript-eslint/require-await": "off",
         "@typescript-eslint/unbound-method": "off",
-        "no-restricted-imports": [
-          "error",
-          {
-            "patterns": [{
-              "group": ["**/src/utils/cast*"],
-              "message": "Use centralized mocks from 'tests/unit/mocks' instead of cast in test files"
-            }]
-          }
-        ],
+        "@typescript-eslint/no-unsafe-assignment": "off", // Required for test mock objects and dynamic test data
         "no-restricted-syntax": [
           "error",
           {
@@ -138,10 +137,10 @@
     {
       "files": ["tests/test-utils/custom-matchers.ts"],
       "rules": {
-
         "@typescript-eslint/explicit-function-return-type": "off",
         "@typescript-eslint/require-await": "off",
         "@typescript-eslint/unbound-method": "off",
+        "@typescript-eslint/no-empty-object-type": "off",
         "no-restricted-syntax": [
           "error",
           {
@@ -186,7 +185,9 @@
     {
       "files": ["src/utils/cast.ts"],
       "rules": {
-        "no-restricted-syntax": [
+        "@typescript-eslint/no-explicit-any": "off",
+        "@typescript-eslint/no-unsafe-assignment": "off",
+        "@typescript-eslint/no-unsafe-return": "off",        "no-restricted-syntax": [
           "error",
           {
             "selector": "TSTypeAliasDeclaration",

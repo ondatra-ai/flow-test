@@ -9,7 +9,6 @@ describe('ProviderHelper.streamToString', () => {
   const helper = new ProviderHelper();
 
   it('should convert token stream to string', async () => {
-    // eslint-disable-next-line @typescript-eslint/require-await
     async function* mockStream(): AsyncIterableIterator<StreamEvent> {
       yield { type: 'token', token: 'Hello' };
       yield { type: 'token', token: ' ' };
@@ -22,7 +21,6 @@ describe('ProviderHelper.streamToString', () => {
   });
 
   it('should include all tokens regardless of done event', async () => {
-    // eslint-disable-next-line @typescript-eslint/require-await
     async function* mockStream(): AsyncIterableIterator<StreamEvent> {
       yield { type: 'token', token: 'Hello' };
       yield { type: 'done' };
@@ -34,7 +32,6 @@ describe('ProviderHelper.streamToString', () => {
   });
 
   it('should throw on error event', async () => {
-    // eslint-disable-next-line @typescript-eslint/require-await
     async function* mockStream(): AsyncIterableIterator<StreamEvent> {
       yield { type: 'token', token: 'Start' };
       yield {

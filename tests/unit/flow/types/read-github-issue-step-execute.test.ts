@@ -3,7 +3,6 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 import { Context } from '../../../../src/flow/context.js';
 import { ReadGitHubIssueStep } from '../../../../src/flow/types/read-github-issue-step.js';
-// eslint-disable-next-line no-restricted-imports
 import { cast } from '../../../../src/utils/cast.js';
 import type { GitHubClient } from '../../../../src/utils/github-client.js';
 import type { Logger } from '../../../../src/utils/logger.js';

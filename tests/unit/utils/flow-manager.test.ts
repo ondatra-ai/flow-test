@@ -6,7 +6,6 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { Flow } from '../../../src/flow/flow.js';
 import { StepFactory } from '../../../src/flow/step-factory.js';
-// eslint-disable-next-line no-restricted-imports
 import { cast } from '../../../src/utils/cast.js';
 import { FlowManager } from '../../../src/utils/flow-manager.js';
 import { Logger } from '../../../src/utils/logger.js';
