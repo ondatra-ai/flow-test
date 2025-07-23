@@ -99,14 +99,6 @@
       }
     },
     {
-      "files": ["src/utils/cast.ts"],
-      "rules": {
-        "@typescript-eslint/no-explicit-any": "off",
-        "@typescript-eslint/no-unsafe-assignment": "off",
-        "@typescript-eslint/no-unsafe-return": "off"
-      }
-    },
-    {
       "files": ["src/config/container.ts", "src/cli/handlers.ts"],
       "rules": {
         "max-lines-per-function": ["error", { "max": 100, "skipBlankLines": true, "skipComments": true }]
@@ -115,7 +107,7 @@
     {
       "files": ["scripts/merged-prs-last-24h.ts"],
       "rules": {
-        "@typescript-eslint/no-unsafe-assignment": "off",
+        "@typescript-eslint/no-unsafe-assignment": "off", // Required for test mock objects and dynamic test data
         "@typescript-eslint/no-unsafe-call": "off",
         "@typescript-eslint/no-unsafe-member-access": "off"
       }
@@ -128,7 +120,7 @@
         "@typescript-eslint/explicit-function-return-type": "off",
         "@typescript-eslint/require-await": "off",
         "@typescript-eslint/unbound-method": "off",
-        "@typescript-eslint/no-unsafe-assignment": "off",
+        "@typescript-eslint/no-unsafe-assignment": "off", // Required for test mock objects and dynamic test data
         "no-restricted-syntax": [
           "error",
           {
@@ -193,7 +185,9 @@
     {
       "files": ["src/utils/cast.ts"],
       "rules": {
-        "no-restricted-syntax": [
+        "@typescript-eslint/no-explicit-any": "off",
+        "@typescript-eslint/no-unsafe-assignment": "off",
+        "@typescript-eslint/no-unsafe-return": "off",        "no-restricted-syntax": [
           "error",
           {
             "selector": "TSTypeAliasDeclaration",
