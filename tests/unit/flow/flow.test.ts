@@ -249,7 +249,7 @@ describe('Flow', () => {
     });
   });
 
-  describe('getName', () => {
+  describe('getId', () => {
     it('should return the flow id', () => {
       const mockSteps = createMockSteps();
       const flow = new Flow('my-test-flow', mockSteps, 'step1');
