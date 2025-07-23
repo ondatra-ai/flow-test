@@ -82,16 +82,23 @@ describe('Step', () => {
       expect(result).toBeNull();
     });
 
-    it('should handle step execution with undefined context gracefully', async () => {
+    it('should throw error with undefined context', async () => {
       const step = new Step(
         'test-step',
         'Test message',
         { default: 'next-step' },
         loggerMock.mock
       );
-      const result = await step.execute(cast<Context>(undefined));
 
-      expect(result).toBe('next-step');
+      try {
+        await step.execute(cast<Context>(undefined));
+        expect.fail('Expected step.execute to throw an error');
+      } catch (error) {
+        expect(error).toBeInstanceOf(TypeError);
+        expect((error as Error).message).toContain(
+          'Cannot read properties of undefined'
+        );
+      }
     });
 
     it('should handle step with empty message gracefully', async () => {

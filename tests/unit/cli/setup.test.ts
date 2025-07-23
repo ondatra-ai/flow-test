@@ -7,7 +7,7 @@ describe('CLI Setup', () => {
   let mockProgram: Command;
 
   beforeEach(() => {
-    const commandMock = createCommandMock();
+    const commandMock = createCommandMock({ chainable: true });
     mockProgram = commandMock.mock;
     vi.clearAllMocks();
   });

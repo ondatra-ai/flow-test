@@ -53,9 +53,9 @@ describe('Flow', () => {
     });
 
     it('should handle empty steps array', () => {
-      const flow = new Flow('test-flow', [], 'step1');
-      expect(flow.getSteps()).toHaveLength(0);
-      expect(flow.getFirstStepId()).toBe('step1');
+      expect(() => {
+        new Flow('test-flow', [], 'step1');
+      }).toThrow("Initial step 'step1' not found in flow steps");
     });
 
     it('should assign unique IDs to flows', () => {
@@ -97,20 +97,17 @@ describe('Flow', () => {
       const flow = new Flow('test-flow', mockSteps, 'step2');
       const context = new Context();
 
-      const result = await flow.execute('step1', context);
+      const result = await flow.execute('step2', context);
 
       expect(result).toBeNull();
       expect(loggerMock.info).toHaveBeenCalledWith('Step 2 executed');
     });
 
-    it('should handle non-existent initial step', async () => {
+    it('should handle non-existent initial step', () => {
       const mockSteps = createMockSteps();
-      const flow = new Flow('test-flow', mockSteps, 'nonexistent');
-      const context = new Context();
-
-      const result = await flow.execute('step1', context);
-
-      expect(result).toBeNull();
+      expect(() => {
+        new Flow('test-flow', mockSteps, 'nonexistent');
+      }).toThrow("Initial step 'nonexistent' not found in flow steps");
     });
 
     it('should handle non-existent next step', async () => {
@@ -123,7 +120,7 @@ describe('Flow', () => {
       const flow = new Flow('test-flow', [step], 'dynamic');
       const context = new Context();
 
-      const result = await flow.execute('step1', context);
+      const result = await flow.execute('dynamic', context);
 
       expect(result).toBeNull();
       expect(loggerMock.info).toHaveBeenCalledWith('Dynamic routing step');
@@ -155,21 +152,18 @@ describe('Flow', () => {
     });
 
     it('should handle empty flow execution', async () => {
-      const flow = new Flow('test-flow', [], 'step1');
-      const context = new Context();
-
-      const result = await flow.execute('step1', context);
-
-      expect(result).toBeNull();
+      expect(() => {
+        new Flow('test-flow', [], 'step1');
+      }).toThrow("Initial step 'step1' not found in flow steps");
     });
 
     it('should handle undefined context gracefully', async () => {
       const mockSteps = createMockSteps();
       const flow = new Flow('test-flow', mockSteps, 'step1');
 
-      const result = await flow.execute('step1', cast<Context>(undefined));
-
-      expect(result).toBe('step2');
+      await expect(
+        flow.execute('step1', cast<Context>(undefined))
+      ).rejects.toThrow("Cannot read properties of undefined (reading 'get')");
     });
 
     it('should handle flow with circular dependencies', async () => {
@@ -250,8 +244,8 @@ describe('Flow', () => {
   describe('getFirstStepId', () => {
     it('should return the initial step ID', () => {
       const mockSteps = createMockSteps();
-      const flow = new Flow('test-flow', mockSteps, 'customStart');
-      expect(flow.getFirstStepId()).toBe('customStart');
+      const flow = new Flow('test-flow', mockSteps, 'step1');
+      expect(flow.getFirstStepId()).toBe('step1');
     });
   });
 

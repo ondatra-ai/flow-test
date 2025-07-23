@@ -47,6 +47,13 @@ export function createContextMock(
     });
     deleteMethod.mockImplementation((key: string) => data.delete(key));
     clear.mockImplementation(() => data.clear());
+  } else {
+    // Set up default mock implementations
+    get.mockReturnValue(undefined);
+    has.mockReturnValue(false);
+    set.mockReturnValue(undefined);
+    deleteMethod.mockReturnValue(false);
+    clear.mockReturnValue(undefined);
   }
 
   const mock = cast<IContext>({

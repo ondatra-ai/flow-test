@@ -102,7 +102,7 @@ describe('StepFactory', () => {
 
       expect(() => {
         stepFactory.createStep(cast<ReadGitHubIssueStepConfig>(config));
-      }).toThrow('Unsupported step type: unsupported-type');
+      }).toThrow('Unexpected step type: "unsupported-type"');
     });
 
     it('should handle missing configuration gracefully', () => {
