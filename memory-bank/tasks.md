@@ -104,6 +104,7 @@ export interface LLMProviderMockOptions extends MockOptions {
 ### Architecture:
 
 - ✅ Factory pattern for all mocks
+- ✅ **Object-based return pattern with simple property access** (see critical guidance below)
 - ✅ Preset behaviors (success, error, custom)
 - ✅ Typed returns without cast in consuming code
 - ✅ Composable mock options
@@ -111,21 +112,95 @@ export interface LLMProviderMockOptions extends MockOptions {
 ### Mock Structure:
 
 ```typescript
-// Example: Logger mock factory
-export function createLoggerMock(options?: LoggerMockOptions): Logger {
+// CRITICAL: Design mock factories to return objects that are easy to use
+// with simple property access pattern
+
+// Mock factory returns an object with:
+// - 'mock' property for constructor injection
+// - Individual method properties for direct assertion access
+export interface LoggerMockResult {
+  mock: Logger; // The interface for injection
+  info: Mock; // Direct access to mock functions
+  error: Mock;
+  warn: Mock;
+  debug: Mock;
+}
+
+export function createLoggerMock(
+  options?: LoggerMockOptions
+): LoggerMockResult {
+  const info = vi.fn();
+  const error = vi.fn();
+  const warn = vi.fn();
+  const debug = vi.fn();
+
   const mock = cast<Logger>({
-    info: vi.fn(),
-    error: vi.fn(),
-    warn: vi.fn(),
-    debug: vi.fn(),
+    info,
+    error,
+    warn,
+    debug,
+    // Apply any custom behavior overrides
+    ...options?.customBehavior,
   });
 
   if (options?.captureMessages) {
     // Add message capture logic
   }
 
-  return mock;
+  // Return object designed for simple property access
+  return {
+    mock, // For injection
+    info, // For assertions
+    error,
+    warn,
+    debug,
+  };
 }
+```
+
+### 🚨 **CRITICAL USAGE PATTERN - Simple Property Access**
+
+**The key insight**: Design the API to encourage simple property access, not destructuring
+
+```typescript
+// ✅ CORRECT - Simple property access pattern
+const loggerMock = createLoggerMock();
+
+// Clean usage - single variable, clear property access
+new Step('id', 'message', {}, loggerMock.mock); // .mock for injection
+expect(loggerMock.info).toHaveBeenCalledWith('msg'); // .info for assertion
+expect(loggerMock.error).toHaveBeenCalledWith('err'); // .error for assertion
+
+// ❌ AVOID - Complex destructuring pattern
+const { mock: logger, info, error, debug, warn } = createLoggerMock();
+// This creates 5 variables and adds unnecessary complexity
+```
+
+### **Why Simple Property Access is Better**
+
+1. **Less Code**: One variable (`loggerMock`) instead of many
+2. **Self-Documenting**: `loggerMock.info` clearly shows what's being tested
+3. **Easier Refactoring**: All mock usage tied to one variable
+4. **Better IDE Support**: Autocomplete shows all available methods
+5. **Cleaner Test Setup**: No need to manage multiple destructured variables
+
+### **Apply This Pattern to All Mock Factories**
+
+```typescript
+// Context Mock
+const contextMock = createContextMock();
+new Context(contextMock.mock);
+expect(contextMock.get).toHaveBeenCalledWith('key');
+
+// LLM Provider Mock
+const providerMock = createLLMProviderMock();
+service.setProvider(providerMock.mock);
+expect(providerMock.generate).toHaveBeenCalledWith(prompt);
+
+// Command Mock
+const commandMock = createCommandMock();
+setupCli(commandMock.mock);
+expect(commandMock.action).toHaveBeenCalled();
 ```
 
 ### ESLint Rule Design:
@@ -134,6 +209,36 @@ export function createLoggerMock(options?: LoggerMockOptions): Logger {
 - Scope: All `*.test.ts` files
 - Exception: `tests/unit/mocks/**/*`
 - Error level: `error` (not warning)
+
+**🎯 Implementation Approach - Use Pattern-Based Restriction**:
+
+Instead of enumerating multiple import paths, use a single pattern to restrict cast imports:
+
+```json
+// In .eslintrc.json under test file overrides
+"no-restricted-imports": [
+  "error",
+  {
+    "patterns": [{
+      "group": ["**/src/utils/cast*"],
+      "message": "Use centralized mocks from 'tests/unit/mocks' instead of cast in test files"
+    }]
+  }
+]
+```
+
+**Benefits of Pattern Approach**:
+
+- **Simpler**: One pattern rule vs 7+ specific paths
+- **Maintainable**: No need to update when file structure changes
+- **Future-proof**: Catches any path variation automatically
+- **Cleaner Config**: ~6 lines instead of ~20 lines
+
+This pattern will match:
+
+- `../../../src/utils/cast.js`
+- `../../../../src/utils/cast.js`
+- Any relative depth to the cast utility
 
 ## ⚙️ Implementation Strategy
 
@@ -149,13 +254,24 @@ export function createLoggerMock(options?: LoggerMockOptions): Logger {
 
 - [ ] Create `tests/unit/mocks/` directory structure
 - [ ] Implement core mock factories:
-  - [ ] `createLoggerMock()`
-  - [ ] `createContextMock()`
-  - [ ] `createLLMProviderMock()`
-  - [ ] `createHelperMock()`
+  - [ ] `createLoggerMock()` - with object return pattern
+  - [ ] `createContextMock()` - with object return pattern
+  - [ ] `createLLMProviderMock()` - with object return pattern
+  - [ ] `createHelperMock()` - with object return pattern
 - [ ] Create TypeScript types for mock options
 - [ ] Add barrel exports
 - [ ] Test mock factories in isolation
+
+**🎯 Implementation Focus**: All mock factories MUST return objects designed for simple property access:
+
+```typescript
+return {
+  mock: actualMockInterface, // For injection
+  method1: mockFn1, // For assertions
+  method2: mockFn2, // For assertions
+  // ... etc
+};
+```
 
 ### Phase 2: High-Impact File Migration (2-3 hours)
 
@@ -167,6 +283,19 @@ Start with files that have the most duplication:
 - [ ] Verify all plan-generation tests pass
 - [ ] Measure code reduction
 
+**🎯 Migration Pattern**:
+
+```typescript
+// Replace scattered mocks with:
+const loggerMock = createLoggerMock();
+const contextMock = createContextMock();
+
+// Use in tests:
+const step = new Step(config, loggerMock.mock, contextMock.mock);
+expect(loggerMock.info).toHaveBeenCalled();
+expect(contextMock.get).toHaveBeenCalledWith('key');
+```
+
 ### Phase 3: Remaining Test Migration (3-4 hours)
 
 - [ ] Migrate flow test files
@@ -175,10 +304,12 @@ Start with files that have the most duplication:
 - [ ] Migrate cli test files
 - [ ] Migrate config test files
 
+**🎯 Consistency Rule**: Enforce simple property access pattern across ALL test files
+
 ### Phase 4: Cleanup & Documentation (1 hour)
 
 - [ ] Remove all deprecated mock code
-- [ ] Create README in mocks directory
+- [ ] Create README in mocks directory with usage examples
 - [ ] Update project documentation
 - [ ] Run full test suite
 - [ ] Verify ESLint compliance
@@ -212,10 +343,25 @@ grep -r "vi\.fn()" tests/unit/ --include="*.test.ts" | wc -l  # Should be 0
 
 ## 📚 Documentation Plan
 
-- [ ] Mock factory API documentation
-- [ ] Migration guide for future tests
+- [ ] Mock factory API documentation with correct usage patterns
+- [ ] Migration guide emphasizing simple property access
 - [ ] ESLint rule documentation
-- [ ] Best practices guide
+- [ ] Best practices guide with DO/DON'T examples
+
+### Example Documentation:
+
+```markdown
+## Mock Usage Guide
+
+### ✅ DO - Simple Property Access
+
+const loggerMock = createLoggerMock();
+expect(loggerMock.info).toHaveBeenCalled();
+
+### ❌ DON'T - Complex Destructuring
+
+const { mock, info, error } = createLoggerMock();
+```
 
 ## 🚨 Challenges & Mitigations
 
@@ -235,6 +381,10 @@ grep -r "vi\.fn()" tests/unit/ --include="*.test.ts" | wc -l  # Should be 0
 
 - **Mitigation**: Phased approach, starting with highest-impact files
 
+**Challenge 5**: Developers using destructuring pattern
+
+- **Mitigation**: Clear documentation and code review guidelines emphasizing simple property access
+
 ## ✅ Technology Validation Checkpoints
 
 - [x] TypeScript project already set up
@@ -242,6 +392,7 @@ grep -r "vi\.fn()" tests/unit/ --include="*.test.ts" | wc -l  # Should be 0
 - [x] ESLint configured and working
 - [ ] Custom ESLint rule approach validated
 - [ ] Mock factory pattern tested
+- [ ] Simple property access pattern validated in sample test
 
 ## 📈 Success Metrics
 
@@ -250,6 +401,7 @@ grep -r "vi\.fn()" tests/unit/ --include="*.test.ts" | wc -l  # Should be 0
 - Zero cast usage in test files
 - All 188 tests passing
 - ESLint enforcing architecture
+- **All test files using simple property access pattern**
 
 ---
 
@@ -260,10 +412,12 @@ grep -r "vi\.fn()" tests/unit/ --include="*.test.ts" | wc -l  # Should be 0
 **Priority Order**:
 
 1. ESLint rule (prevents new violations)
-2. Mock infrastructure (foundation)
+2. Mock infrastructure (foundation with correct pattern)
 3. High-impact migrations (biggest wins)
 4. Complete migration (full consistency)
 5. Documentation (maintainability)
+
+**Critical Success Factor**: All mock factories must return objects designed for simple property access, NOT destructuring.
 
 **Next Mode**: IMPLEMENT MODE (no creative phases required)
 
