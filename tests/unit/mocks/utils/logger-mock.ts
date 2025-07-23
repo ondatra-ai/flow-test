@@ -36,13 +36,6 @@ export function createLoggerMock(
     ...options?.customBehavior,
   });
 
-  if (options?.captureMessages) {
-    // Add message capture logic if needed
-    info.mockImplementation((_message: string) => {
-      // Could store messages in an array for later verification
-    });
-  }
-
   // Return object designed for simple property access
   return {
     mock, // For injection

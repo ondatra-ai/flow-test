@@ -17,8 +17,7 @@ export interface MockOptions {
 /**
  * Logger mock options
  */
-export interface LoggerMockOptions extends MockOptions {
-  captureMessages?: boolean;
+export interface LoggerMockOptions {
   setupBehavior?: (mocks: {
     info: Mock;
     error: Mock;
@@ -26,6 +25,7 @@ export interface LoggerMockOptions extends MockOptions {
     debug: Mock;
     log: Mock;
   }) => void;
+  customBehavior?: Record<string, unknown>;
 }
 
 /**

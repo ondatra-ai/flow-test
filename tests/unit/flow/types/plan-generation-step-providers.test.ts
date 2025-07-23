@@ -39,12 +39,12 @@ describe('PlanGenerationStep - Provider Testing', () => {
       const providerMock = createLLMProviderMock();
 
       const planGenerationStep = new PlanGenerationStep(
-        loggerMock,
-        providerMock,
+        loggerMock.mock,
+        providerMock.mock,
         mockConfig
       );
 
-      await planGenerationStep.execute(contextMock);
+      await planGenerationStep.execute(contextMock.mock);
 
       expect(providerMock.generate).toHaveBeenCalledWith({
         prompt: expect.any(String),
