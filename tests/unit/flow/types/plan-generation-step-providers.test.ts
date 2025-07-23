@@ -1,62 +1,22 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import 'reflect-metadata';
-import {
-  beforeEach,
-  describe,
-  expect,
-  it,
-  vi,
-  type MockedFunction,
-} from 'vitest';
 
-import type { IContext } from '../../../../src/flow/context.js';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
 import { PlanGenerationStep } from '../../../../src/flow/types/plan-generation-step.js';
-import type {
-  ILLMProvider,
-  StreamRequest,
-} from '../../../../src/interfaces/providers/index.js';
-import { cast } from '../../../../src/utils/cast.js';
-import { Logger } from '../../../../src/utils/logger.js';
 import type { PlanGenerationStepConfig } from '../../../../src/validation/index.js';
+// Import centralized mocks
+import {
+  createContextMock,
+  createLLMProviderMock,
+  createLoggerMock,
+} from '../../mocks/index.js';
 
-// Mock logger functions
-const mockLoggerInfo = vi.fn();
-const mockLoggerError = vi.fn();
-const mockLoggerWarn = vi.fn();
-const mockLoggerDebug = vi.fn();
-
-const mockLogger = cast<Logger>({
-  info: mockLoggerInfo,
-  error: mockLoggerError,
-  warn: mockLoggerWarn,
-  debug: mockLoggerDebug,
-});
-
-// Mock LLM provider functions
-const mockGenerate = vi.fn();
-const mockGetProviderName = vi.fn();
-
-const mockLLMProvider = cast<ILLMProvider>({
-  generate: mockGenerate,
-  getProviderName: mockGetProviderName,
-});
-
-// Mock context functions
-const mockContextGet = vi.fn();
-const mockContextSet = vi.fn();
-
-const mockContext = cast<IContext>({
-  get: mockContextGet,
-  set: mockContextSet,
-});
-
-describe('PlanGenerationStep - Providers & Edge Cases', () => {
-  let planGenerationStep: PlanGenerationStep;
+describe('PlanGenerationStep - Provider Testing', () => {
   let mockConfig: PlanGenerationStepConfig;
 
   beforeEach(() => {
     vi.clearAllMocks();
-
     mockConfig = {
       id: 'test-plan-generation',
       type: 'plan-generation',
@@ -66,79 +26,32 @@ describe('PlanGenerationStep - Providers & Edge Cases', () => {
       max_tokens: 1500,
       nextStepId: { default: 'next-step' },
     };
-
-    planGenerationStep = new PlanGenerationStep(
-      mockLogger,
-      mockLLMProvider,
-      mockConfig
-    );
   });
 
-  describe('different LLM provider configurations', () => {
-    beforeEach(() => {
-      mockGenerate.mockResolvedValue('Plan result');
-      mockContextGet.mockReturnValue('Test data');
-    });
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
 
-    it('should handle OpenAI provider configuration', async () => {
-      const openaiConfig: PlanGenerationStepConfig = {
-        id: 'openai-step',
-        type: 'plan-generation',
-        llm_provider: 'openai',
-        model: 'gpt-4',
-        temperature: 0.5,
-        max_tokens: 3000,
-        nextStepId: {},
-      };
+  describe('LLM Provider Integration', () => {
+    it('should call LLM provider with correct parameters', async () => {
+      const loggerMock = createLoggerMock();
+      const contextMock = createContextMock();
+      const providerMock = createLLMProviderMock();
 
-      const openaiStep = new PlanGenerationStep(
-        mockLogger,
-        mockLLMProvider,
-        openaiConfig
+      const planGenerationStep = new PlanGenerationStep(
+        loggerMock,
+        providerMock,
+        mockConfig
       );
 
-      await openaiStep.execute(mockContext);
+      await planGenerationStep.execute(contextMock);
 
-      expect(mockGenerate).toHaveBeenCalledWith({
+      expect(providerMock.generate).toHaveBeenCalledWith({
         prompt: expect.any(String),
         signal: expect.any(AbortSignal),
-        model: 'gpt-4',
-        temperature: 0.5,
-        maxTokens: 3000,
-        messages: [
-          {
-            role: 'user',
-            content: expect.any(String),
-          },
-        ],
-      });
-    });
-
-    it('should handle Gemini provider configuration', async () => {
-      const geminiConfig: PlanGenerationStepConfig = {
-        id: 'gemini-step',
-        type: 'plan-generation',
-        llm_provider: 'gemini',
-        model: 'gemini-pro',
-        temperature: 1.0,
-        max_tokens: 4000,
-        nextStepId: {},
-      };
-
-      const geminiStep = new PlanGenerationStep(
-        mockLogger,
-        mockLLMProvider,
-        geminiConfig
-      );
-
-      await geminiStep.execute(mockContext);
-
-      expect(mockGenerate).toHaveBeenCalledWith({
-        prompt: expect.any(String),
-        signal: expect.any(AbortSignal),
-        model: 'gemini-pro',
-        temperature: 1.0,
-        maxTokens: 4000,
+        model: 'claude-sonnet-4-20250514',
+        temperature: 0.8,
+        maxTokens: 1500,
         messages: [
           {
             role: 'user',
@@ -149,28 +62,43 @@ describe('PlanGenerationStep - Providers & Edge Cases', () => {
     });
   });
 
-  describe('edge cases', () => {
-    beforeEach(() => {
-      mockGenerate.mockResolvedValue('Edge case result');
-    });
-
+  describe('Edge Cases', () => {
     it('should handle special characters in issue title and body', async () => {
-      mockContextGet
+      const loggerMock = createLoggerMock();
+      const contextMock = createContextMock();
+      const providerMock = createLLMProviderMock({
+        defaultResponse: 'Edge case result',
+      });
+
+      // Set up context mock behavior for special characters test
+      contextMock.get
         .mockReturnValueOnce('Title with "quotes" & <tags>')
         .mockReturnValueOnce('Body with $pecial ch@rs!')
         .mockReturnValueOnce('999');
 
-      await planGenerationStep.execute(mockContext);
-
-      const callArgs = cast<StreamRequest>(
-        (mockGenerate as MockedFunction<typeof mockGenerate>).mock.calls[0][0]
+      const planGenerationStep = new PlanGenerationStep(
+        loggerMock.mock,
+        providerMock.mock,
+        mockConfig
       );
+
+      await planGenerationStep.execute(contextMock.mock);
+
+      const callArgs = providerMock.generate.mock
+        .calls[0][0] as import('../../../../src/interfaces/providers/index.js').StreamRequest;
       expect(callArgs.prompt).toContain('Title with "quotes" & <tags>');
       expect(callArgs.prompt).toContain('Body with $pecial ch@rs!');
     });
 
     it('should handle template variables with special regex characters', async () => {
-      mockContextGet
+      const loggerMock = createLoggerMock();
+      const contextMock = createContextMock();
+      const providerMock = createLLMProviderMock({
+        defaultResponse: 'Template result',
+      });
+
+      // Set up context mock behavior for regex characters test
+      contextMock.get
         .mockReturnValueOnce('Title with $1 and (parentheses)')
         .mockReturnValueOnce('Body with [brackets] and {braces}')
         .mockReturnValueOnce('111');
@@ -182,16 +110,15 @@ describe('PlanGenerationStep - Providers & Edge Cases', () => {
       };
 
       const stepWithTemplate = new PlanGenerationStep(
-        mockLogger,
-        mockLLMProvider,
+        loggerMock.mock,
+        providerMock.mock,
         configWithTemplate
       );
 
-      await stepWithTemplate.execute(mockContext);
+      await stepWithTemplate.execute(contextMock.mock);
 
-      const callArgs = cast<StreamRequest>(
-        (mockGenerate as MockedFunction<typeof mockGenerate>).mock.calls[0][0]
-      );
+      const callArgs = providerMock.generate.mock
+        .calls[0][0] as import('../../../../src/interfaces/providers/index.js').StreamRequest;
       expect(callArgs.prompt).toBe(
         'Process: Title with $1 and (parentheses) - Details: Body with [brackets] and {braces}'
       );

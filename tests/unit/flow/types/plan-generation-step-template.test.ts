@@ -1,81 +1,19 @@
 import 'reflect-metadata';
-import {
-  beforeEach,
-  describe,
-  expect,
-  it,
-  vi,
-  type MockedFunction,
-  type Mock,
-} from 'vitest';
 
-import type { IContext } from '../../../../src/flow/context.js';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
 import { PlanGenerationStep } from '../../../../src/flow/types/plan-generation-step.js';
-import type {
-  ILLMProvider,
-  StreamRequest,
-} from '../../../../src/interfaces/providers/index.js';
-import { cast } from '../../../../src/utils/cast.js';
-import { Logger } from '../../../../src/utils/logger.js';
+import type { StreamRequest } from '../../../../src/interfaces/providers/index.js';
 import type { PlanGenerationStepConfig } from '../../../../src/validation/index.js';
+// Import centralized mocks
+import {
+  createContextMock,
+  createLLMProviderMock,
+  createLoggerMock,
+} from '../../mocks/index.js';
 
 describe('PlanGenerationStep - Template Handling', () => {
   let mockConfig: PlanGenerationStepConfig;
-
-  // Helper function to create test mocks
-  function createTestMocks(contextMockBehavior?: (mockGet: Mock) => void) {
-    const mockContextGet = vi.fn();
-
-    // Apply custom behavior if provided, otherwise use default
-    if (contextMockBehavior) {
-      contextMockBehavior(mockContextGet);
-    } else {
-      // Default behavior for most tests
-      mockContextGet
-        .mockReturnValueOnce('Issue Title') // github.issue.title
-        .mockReturnValueOnce('Issue Body') // github.issue.body
-        .mockReturnValueOnce('456') // github.issue.number
-        .mockReturnValue(undefined); // All other calls
-    }
-
-    const mockContextSet = vi.fn();
-    const mockContext = cast<IContext>({
-      get: mockContextGet,
-      set: mockContextSet,
-    });
-
-    const mockGenerate = vi.fn().mockResolvedValue('Generated plan');
-    const mockGetProviderName = vi.fn();
-    const mockLLMProvider = cast<ILLMProvider>({
-      generate: mockGenerate,
-      getProviderName: mockGetProviderName,
-    });
-
-    const mockLoggerInfo = vi.fn();
-    const mockLoggerError = vi.fn();
-    const mockLoggerWarn = vi.fn();
-    const mockLoggerDebug = vi.fn();
-    const mockLogger = cast<Logger>({
-      info: mockLoggerInfo,
-      error: mockLoggerError,
-      warn: mockLoggerWarn,
-      debug: mockLoggerDebug,
-    });
-
-    return {
-      mockContext,
-      mockLLMProvider,
-      mockLogger,
-      mockGenerate,
-      mockContextGet,
-      mockContextSet,
-      mockLoggerInfo,
-      mockLoggerError,
-      mockLoggerWarn,
-      mockLoggerDebug,
-      mockGetProviderName,
-    };
-  }
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -93,20 +31,30 @@ describe('PlanGenerationStep - Template Handling', () => {
 
   describe('prompt template handling', () => {
     it('should use default prompt template when none provided', async () => {
-      const { mockContext, mockLLMProvider, mockLogger, mockGenerate } =
-        createTestMocks();
+      // Set up mocks with default issue context data
+      const contextMock = createContextMock({
+        setupBehavior: mocks => {
+          mocks.get
+            .mockReturnValueOnce('Issue Title') // github.issue.title
+            .mockReturnValueOnce('Issue Body') // github.issue.body
+            .mockReturnValueOnce('456') // github.issue.number
+            .mockReturnValue(undefined); // All other calls
+        },
+      });
+      const providerMock = createLLMProviderMock({
+        defaultResponse: 'Generated plan',
+      });
+      const loggerMock = createLoggerMock();
 
       const step = new PlanGenerationStep(
-        mockLogger,
-        mockLLMProvider,
+        loggerMock.mock,
+        providerMock.mock,
         mockConfig
       );
 
-      await step.execute(mockContext);
+      await step.execute(contextMock.mock);
 
-      const callArgs = cast<StreamRequest>(
-        (mockGenerate as MockedFunction<typeof mockGenerate>).mock.calls[0][0]
-      );
+      const callArgs = providerMock.generate.mock.calls[0][0] as StreamRequest;
       expect(callArgs.prompt).toContain('Generate a detailed execution plan');
       expect(callArgs.prompt).toContain('Title: Issue Title');
       expect(callArgs.prompt).toContain('Description: Issue Body');
@@ -115,8 +63,20 @@ describe('PlanGenerationStep - Template Handling', () => {
     });
 
     it('should substitute template variables in custom prompt', async () => {
-      const { mockContext, mockLLMProvider, mockLogger, mockGenerate } =
-        createTestMocks();
+      // Set up mocks with default issue context data
+      const contextMock = createContextMock({
+        setupBehavior: mocks => {
+          mocks.get
+            .mockReturnValueOnce('Issue Title') // github.issue.title
+            .mockReturnValueOnce('Issue Body') // github.issue.body
+            .mockReturnValueOnce('456') // github.issue.number
+            .mockReturnValue(undefined); // All other calls
+        },
+      });
+      const providerMock = createLLMProviderMock({
+        defaultResponse: 'Generated plan',
+      });
+      const loggerMock = createLoggerMock();
 
       const configWithTemplate: PlanGenerationStepConfig = {
         ...mockConfig,
@@ -125,22 +85,32 @@ describe('PlanGenerationStep - Template Handling', () => {
       };
 
       const stepWithTemplate = new PlanGenerationStep(
-        mockLogger,
-        mockLLMProvider,
+        loggerMock.mock,
+        providerMock.mock,
         configWithTemplate
       );
 
-      await stepWithTemplate.execute(mockContext);
+      await stepWithTemplate.execute(contextMock.mock);
 
-      const callArgs = cast<StreamRequest>(
-        (mockGenerate as MockedFunction<typeof mockGenerate>).mock.calls[0][0]
-      );
+      const callArgs = providerMock.generate.mock.calls[0][0] as StreamRequest;
       expect(callArgs.prompt).toBe('Create plan for Issue Title - Issue Body');
     });
 
     it('should handle custom prompt template without variable substitution', async () => {
-      const { mockContext, mockLLMProvider, mockLogger, mockGenerate } =
-        createTestMocks();
+      // Set up mocks with default issue context data
+      const contextMock = createContextMock({
+        setupBehavior: mocks => {
+          mocks.get
+            .mockReturnValueOnce('Issue Title') // github.issue.title
+            .mockReturnValueOnce('Issue Body') // github.issue.body
+            .mockReturnValueOnce('456') // github.issue.number
+            .mockReturnValue(undefined); // All other calls
+        },
+      });
+      const providerMock = createLLMProviderMock({
+        defaultResponse: 'Generated plan',
+      });
+      const loggerMock = createLoggerMock();
 
       const configWithTemplate: PlanGenerationStepConfig = {
         ...mockConfig,
@@ -148,31 +118,32 @@ describe('PlanGenerationStep - Template Handling', () => {
       };
 
       const stepWithTemplate = new PlanGenerationStep(
-        mockLogger,
-        mockLLMProvider,
+        loggerMock.mock,
+        providerMock.mock,
         configWithTemplate
       );
 
-      await stepWithTemplate.execute(mockContext);
+      await stepWithTemplate.execute(contextMock.mock);
 
-      const callArgs = cast<StreamRequest>(
-        (mockGenerate as MockedFunction<typeof mockGenerate>).mock.calls[0][0]
-      );
+      const callArgs = providerMock.generate.mock.calls[0][0] as StreamRequest;
       expect(callArgs.prompt).toBe('Simple prompt without variables');
     });
 
     it('should handle empty issue title and body in template substitution', async () => {
-      // Custom context behavior for this test
-      const customBehavior = (mockGet: Mock) => {
-        mockGet
-          .mockReturnValueOnce(null) // null title (will become 'Unknown Issue')
-          .mockReturnValueOnce(null) // null body (will become '')
-          .mockReturnValueOnce('789') // issue number
-          .mockReturnValue(undefined); // All other context.get calls
-      };
-
-      const { mockContext, mockLLMProvider, mockLogger, mockGenerate } =
-        createTestMocks(customBehavior);
+      // Set up mocks with null/empty context data
+      const contextMock = createContextMock({
+        setupBehavior: mocks => {
+          mocks.get
+            .mockReturnValueOnce(null) // null title (becomes 'Unknown Issue')
+            .mockReturnValueOnce(null) // null body (will become '')
+            .mockReturnValueOnce('789') // issue number
+            .mockReturnValue(undefined); // All other context.get calls
+        },
+      });
+      const providerMock = createLLMProviderMock({
+        defaultResponse: 'Generated plan',
+      });
+      const loggerMock = createLoggerMock();
 
       const configWithTemplate: PlanGenerationStepConfig = {
         ...mockConfig,
@@ -181,16 +152,14 @@ describe('PlanGenerationStep - Template Handling', () => {
       };
 
       const stepWithTemplate = new PlanGenerationStep(
-        mockLogger,
-        mockLLMProvider,
+        loggerMock.mock,
+        providerMock.mock,
         configWithTemplate
       );
 
-      await stepWithTemplate.execute(mockContext);
+      await stepWithTemplate.execute(contextMock.mock);
 
-      const callArgs = cast<StreamRequest>(
-        (mockGenerate as MockedFunction<typeof mockGenerate>).mock.calls[0][0]
-      );
+      const callArgs = providerMock.generate.mock.calls[0][0] as StreamRequest;
       // null values get converted to 'Unknown Issue' and ''
       expect(callArgs.prompt).toBe('Title: Unknown Issue, Body: ');
     });
