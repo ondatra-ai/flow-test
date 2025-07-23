@@ -1,9 +1,8 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 
 import { Context } from '../../../src/flow/context.js';
-// eslint-disable-next-line no-restricted-imports
 import { Step } from '../../../src/flow/step.js';
-import { cast } from '../../../src/utils/cast.js'; // eslint-disable-line no-restricted-imports
+import { cast } from '../../../src/utils/cast.js';
 import { createLoggerMock } from '../mocks/index.js';
 
 // Create centralized logger mock
