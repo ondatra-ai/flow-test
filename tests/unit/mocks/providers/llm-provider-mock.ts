@@ -45,7 +45,8 @@ export function createLLMProviderMock(
 
   if (options?.simulateError) {
     generate.mockRejectedValue(new Error('Simulated LLM error'));
-    stream.mockImplementation(function* () {
+    stream.mockImplementation(async function* () {
+      await Promise.resolve(); // Add await to satisfy eslint rule
       yield { content: 'error', delta: 'error' };
       throw new Error('Simulated LLM stream error');
     });

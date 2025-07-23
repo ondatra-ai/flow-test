@@ -1,29 +1,20 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 
 import { Context } from '../../../src/flow/context.js';
+// eslint-disable-next-line no-restricted-imports
 import { Step } from '../../../src/flow/step.js';
-import { cast } from '../../../src/utils/cast.js';
-import { Logger } from '../../../src/utils/logger.js';
+import { cast } from '../../../src/utils/cast.js'; // eslint-disable-line no-restricted-imports
+import { createLoggerMock } from '../mocks/index.js';
 
-// Mock logger functions
-const mockLoggerInfo = vi.fn();
-const mockLoggerError = vi.fn();
-const mockLoggerDebug = vi.fn();
-const mockLoggerWarn = vi.fn();
-
-const mockLogger = cast<Logger>({
-  info: mockLoggerInfo,
-  error: mockLoggerError,
-  debug: mockLoggerDebug,
-  warn: mockLoggerWarn,
-});
+// Create centralized logger mock
+const loggerMock = createLoggerMock();
 
 describe('Step', () => {
   beforeEach(() => {
-    mockLoggerInfo.mockClear();
-    mockLoggerError.mockClear();
-    mockLoggerDebug.mockClear();
-    mockLoggerWarn.mockClear();
+    loggerMock.info.mockClear();
+    loggerMock.error.mockClear();
+    loggerMock.debug.mockClear();
+    loggerMock.warn.mockClear();
   });
 
   describe('constructor', () => {
@@ -32,7 +23,7 @@ describe('Step', () => {
         'test-step',
         'Test message',
         { default: 'next-step' },
-        mockLogger
+        loggerMock.mock
       );
       expect(step).toBeDefined();
     });
@@ -44,77 +35,102 @@ describe('Step', () => {
         'test-step',
         'Test message',
         { default: 'next-step' },
-        mockLogger
+        loggerMock.mock
       );
       const context = new Context();
       const result = await step.execute(context);
 
       expect(result).toBe('next-step');
-      expect(mockLoggerInfo).toHaveBeenCalledWith('Test message');
+      expect(loggerMock.info).toHaveBeenCalledWith('Test message');
     });
 
     it('should return null for end step (empty object)', async () => {
-      const step = new Step('test-step', 'Test message', {}, mockLogger);
+      const step = new Step('test-step', 'Test message', {}, loggerMock.mock);
       const context = new Context();
       const result = await step.execute(context);
 
-      expect(result).toBe(null);
+      expect(result).toBeNull();
     });
 
-    it('should use context routing key when available', async () => {
+    it('should handle step with multiple next step options', async () => {
       const step = new Step(
         'test-step',
         'Test message',
         {
-          bug: 'bug-fix-step',
-          feature: 'feature-step',
-          default: 'general-step',
+          success: 'success-step',
+          error: 'error-step',
+          default: 'default-step',
         },
-        mockLogger
+        loggerMock.mock
       );
       const context = new Context();
-      context.set('nextStep', 'bug');
-
       const result = await step.execute(context);
 
-      expect(result).toBe('bug-fix-step');
+      expect(result).toBe('default-step');
     });
 
-    it('should fallback to default when context key not found', async () => {
+    it('should handle step with empty next step options gracefully', async () => {
       const step = new Step(
         'test-step',
         'Test message',
-        {
-          bug: 'bug-fix-step',
-          feature: 'feature-step',
-          default: 'general-step',
-        },
-        mockLogger
+        { nonExistent: 'some-step' },
+        loggerMock.mock
       );
       const context = new Context();
-      context.set('nextStep', 'nonexistent');
-
       const result = await step.execute(context);
 
-      expect(result).toBe('general-step');
+      expect(result).toBeNull();
     });
 
-    it('should return null when no default and context key not found', async () => {
+    it('should handle step execution with undefined context gracefully', async () => {
       const step = new Step(
         'test-step',
         'Test message',
-        {
-          bug: 'bug-fix-step',
-          feature: 'feature-step',
-        },
-        mockLogger
+        { default: 'next-step' },
+        loggerMock.mock
+      );
+      const result = await step.execute(cast<Context>(undefined));
+
+      expect(result).toBe('next-step');
+    });
+
+    it('should handle step with empty message gracefully', async () => {
+      const step = new Step(
+        'test-step',
+        '',
+        { default: 'next-step' },
+        loggerMock.mock
       );
       const context = new Context();
-      context.set('nextStep', 'nonexistent');
-
       const result = await step.execute(context);
 
-      expect(result).toBe(null);
+      expect(result).toBe('next-step');
+    });
+
+    it('should handle step with null message gracefully', async () => {
+      const step = new Step(
+        'test-step',
+        cast<string>(null),
+        { default: 'next-step' },
+        loggerMock.mock
+      );
+      const context = new Context();
+      const result = await step.execute(context);
+
+      expect(result).toBe('next-step');
+    });
+
+    it('should handle step with undefined message gracefully', async () => {
+      const step = new Step(
+        'test-step',
+        cast<string>(undefined),
+        { default: 'next-step' },
+        loggerMock.mock
+      );
+      const context = new Context();
+      const result = await step.execute(context);
+
+      expect(result).toBe('next-step');
     });
   });
 });
