@@ -1,4 +1,5 @@
-export type * from './flow/index.js';
-export type * from './github/index.js';
-export type * from './providers/index.js';
-export type * from './utils/index.js';
+export * from './flow/index.js';
+export * from './github/index.js';
+export * from './providers/index.js';
+export * from './utils/index.js';
+export * from './testing/index.js';
