@@ -1,12 +1,12 @@
 import type { IProviderHelper } from '../../../interfaces/providers/index.js';
-import type { StreamEvent } from '../interfaces/provider.js';
+import type { IStreamEvent } from '../../../interfaces/providers/provider.interface.js';
 
-// Re-export for backward compatibility
+// Re-export for convenience
 export type { IProviderHelper } from '../../../interfaces/providers/index.js';
 
 export class ProviderHelper implements IProviderHelper {
   async streamToString(
-    stream: AsyncIterableIterator<StreamEvent>
+    stream: AsyncIterableIterator<IStreamEvent>
   ): Promise<string> {
     const tokens: string[] = [];
 
@@ -27,7 +27,7 @@ export class ProviderHelper implements IProviderHelper {
     }
   }
 
-  wrapError(error: Error, signal: AbortSignal): StreamEvent {
+  wrapError(error: Error, signal: AbortSignal): IStreamEvent {
     if (signal.aborted) {
       return {
         type: 'error',

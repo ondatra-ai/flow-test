@@ -10,9 +10,9 @@ export { createCommandMock } from './cli/command-mock.js';
 
 // Re-export types for convenience
 export type {
-  LoggerMockResult,
-  ContextMockResult,
-  LLMProviderMockResult,
-  GitHubClientMockResult,
-  CommandMockResult,
+  ILoggerMockResult,
+  IContextMockResult,
+  ILLMProviderMockResult,
+  IGitHubClientMockResult,
+  ICommandMockResult,
 } from './types.js';

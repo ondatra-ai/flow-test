@@ -1,10 +1,11 @@
+import type { IContext } from '../../interfaces/flow/context.interface.js';
+import type { IFlow } from '../../interfaces/flow/flow.interface.js';
 import type { SessionStatus } from '../../types/flow/index.js';
 import { castError } from '../../utils/cast.js';
-import type { Logger } from '../../utils/logger.js';
-import { IContext, Context } from '../context.js';
-import { IFlow } from '../flow.js';
+import type { ILogger } from '../../utils/logger.js';
+import { Context } from '../context.js';
 
-// Re-export for backward compatibility
+// Re-export for convenience
 export type { SessionStatus } from '../../types/flow/index.js';
 
 // Session entity - Primary focus for flow execution
@@ -14,9 +15,9 @@ export class Session {
 
   private readonly flow: IFlow;
   private readonly context: IContext;
-  private readonly logger: Logger;
+  private readonly logger: ILogger;
 
-  constructor(flow: IFlow, logger: Logger) {
+  constructor(flow: IFlow, logger: ILogger) {
     this.flow = flow;
     this.context = new Context();
     this.logger = logger;

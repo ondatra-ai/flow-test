@@ -1,7 +1,4 @@
-import type { GitHubIssueArgs } from '../interfaces/github/index.js';
-
-// Re-export for backward compatibility
-export type { GitHubIssueArgs } from '../interfaces/github/index.js';
+import type { IGitHubIssueArgs } from '../interfaces/github/index.js';
 
 /**
  * Parse a GitHub issue URL and extract owner, repo, and issue number
@@ -9,7 +6,7 @@ export type { GitHubIssueArgs } from '../interfaces/github/index.js';
  * @returns Parsed GitHub issue information
  * @throws Error if URL is invalid
  */
-export function parseGitHubIssueUrl(url: string): GitHubIssueArgs {
+export function parseGitHubIssueUrl(url: string): IGitHubIssueArgs {
   const regex = /github\.com\/([^/]+)\/([^/]+)\/issues\/(\d+)/;
   const match = regex.exec(url);
   if (!match) {

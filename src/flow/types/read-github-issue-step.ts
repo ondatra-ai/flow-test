@@ -1,16 +1,17 @@
 import { inject, injectable } from 'tsyringe';
 
 import { SERVICES } from '../../config/tokens.js';
+import type { IContext } from '../../interfaces/flow/context.interface.js';
+import type { IStep } from '../../interfaces/flow/step.interface.js';
 import {
   GitHubClient,
   type GitHubIssue,
   type GitHubComment,
 } from '../../utils/github-client.js';
 import { parseGitHubIssueUrl } from '../../utils/github-url-parser.js';
-import { Logger } from '../../utils/logger.js';
+import { ILogger } from '../../utils/logger.js';
 import { type ReadGitHubIssueStepConfig } from '../../validation/index.js';
-import { IContext } from '../context.js';
-import { Step, IStep } from '../step.js';
+import { Step } from '../step.js';
 
 /**
  * Flow step for reading GitHub issue data and comments
@@ -21,7 +22,7 @@ export class ReadGitHubIssueStep extends Step implements IStep {
   public readonly githubToken: string;
 
   constructor(
-    @inject(SERVICES.Logger) logger: Logger,
+    @inject(SERVICES.Logger) logger: ILogger,
     @inject(SERVICES.GitHubClient)
     private readonly githubClient: GitHubClient,
     config: ReadGitHubIssueStepConfig

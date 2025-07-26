@@ -33,6 +33,18 @@
     "@typescript-eslint/explicit-module-boundary-types": "error",
     "@typescript-eslint/no-inferrable-types": "off",
     "@typescript-eslint/no-non-null-assertion": "error",
+    "@typescript-eslint/naming-convention": [
+      "error",
+      {
+        "selector": "interface",
+        "format": ["PascalCase"],
+        "prefix": ["I"],
+        "filter": {
+          "regex": "^(Assertion|AsymmetricMatchersContaining)$",
+          "match": false
+        }
+      }
+    ],
     "complexity": ["error", { "max": 10 }],
     "max-classes-per-file": ["error", 1],
     "max-depth": ["error", 4],

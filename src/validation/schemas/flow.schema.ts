@@ -50,6 +50,3 @@ export const FlowConfigSchema = z
         'All step references in nextStepId must point to existing steps, and initialStepId must reference a valid step',
     }
   );
-
-// Re-export for backward compatibility
-export type { FlowConfig } from '../../types/validation/index.js';

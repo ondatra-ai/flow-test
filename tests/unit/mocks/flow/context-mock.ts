@@ -2,7 +2,7 @@ import { vi } from 'vitest';
 
 import type { IContext } from '../../../../src/interfaces/flow/context.interface.js';
 import { cast } from '../../../../src/utils/cast.js';
-import type { ContextMockOptions, ContextMockResult } from '../types.js';
+import type { IContextMockOptions, IContextMockResult } from '../types.js';
 
 /**
  * Creates a Context mock with simple property access pattern
@@ -29,8 +29,8 @@ import type { ContextMockOptions, ContextMockResult } from '../types.js';
  * });
  */
 export function createContextMock(
-  options?: ContextMockOptions
-): ContextMockResult {
+  options?: IContextMockOptions
+): IContextMockResult {
   const get = vi.fn();
   const set = vi.fn();
   const has = vi.fn();

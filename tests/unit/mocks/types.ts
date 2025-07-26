@@ -3,13 +3,13 @@ import type { Mock } from 'vitest';
 
 import type { IContext } from '../../../src/interfaces/flow/context.interface.js';
 import type { ILLMProvider } from '../../../src/interfaces/providers/provider.interface.js';
-import type { Logger } from '../../../src/interfaces/utils/logger.interface.js';
+import type { ILogger } from '../../../src/interfaces/utils/logger.interface.js';
 import type { GitHubClient } from '../../../src/utils/github-client.js';
 
 /**
  * Base mock options for all mock factories
  */
-export interface MockOptions {
+export interface IMockOptions {
   throwOnUnmockedCall?: boolean;
   customBehavior?: Record<string, unknown>;
 }
@@ -17,7 +17,7 @@ export interface MockOptions {
 /**
  * Logger mock options
  */
-export interface LoggerMockOptions {
+export interface ILoggerMockOptions {
   setupBehavior?: (mocks: {
     info: Mock;
     error: Mock;
@@ -31,8 +31,8 @@ export interface LoggerMockOptions {
 /**
  * Logger mock result with simple property access pattern
  */
-export interface LoggerMockResult {
-  mock: Logger; // For injection
+export interface ILoggerMockResult {
+  mock: ILogger; // For injection
   info: Mock; // For assertions
   error: Mock;
   warn: Mock;
@@ -43,7 +43,7 @@ export interface LoggerMockResult {
 /**
  * Context mock options
  */
-export interface ContextMockOptions extends MockOptions {
+export interface IContextMockOptions extends IMockOptions {
   initialData?: Record<string, string>;
   setupBehavior?: (mocks: {
     get: Mock;
@@ -57,7 +57,7 @@ export interface ContextMockOptions extends MockOptions {
 /**
  * Context mock result with simple property access pattern
  */
-export interface ContextMockResult {
+export interface IContextMockResult {
   mock: IContext; // For injection
   get: Mock; // For assertions
   set: Mock;
@@ -69,7 +69,7 @@ export interface ContextMockResult {
 /**
  * LLM Provider mock options
  */
-export interface LLMProviderMockOptions extends MockOptions {
+export interface ILLMProviderMockOptions extends IMockOptions {
   defaultResponse?: string;
   simulateError?: boolean;
   providerName?: string;
@@ -85,7 +85,7 @@ export interface LLMProviderMockOptions extends MockOptions {
 /**
  * LLM Provider mock result with simple property access pattern
  */
-export interface LLMProviderMockResult {
+export interface ILLMProviderMockResult {
   mock: ILLMProvider; // For injection
   stream: Mock; // For assertions
   generate: Mock;
@@ -96,7 +96,7 @@ export interface LLMProviderMockResult {
 /**
  * GitHub Client mock options
  */
-export interface GitHubClientMockOptions extends MockOptions {
+export interface IGitHubClientMockOptions extends IMockOptions {
   defaultIssueResponse?: {
     issue: Record<string, unknown>;
     comments: Record<string, unknown>[];
@@ -108,7 +108,7 @@ export interface GitHubClientMockOptions extends MockOptions {
 /**
  * GitHub Client mock result with simple property access pattern
  */
-export interface GitHubClientMockResult {
+export interface IGitHubClientMockResult {
   mock: GitHubClient; // For injection
   getIssueWithComments: Mock; // For assertions
 }
@@ -116,7 +116,7 @@ export interface GitHubClientMockResult {
 /**
  * Command mock options
  */
-export interface CommandMockOptions extends MockOptions {
+export interface ICommandMockOptions extends IMockOptions {
   chainable?: boolean;
   defaultAction?: () => void;
   setupBehavior?: (mocks: {
@@ -133,7 +133,7 @@ export interface CommandMockOptions extends MockOptions {
 /**
  * Command mock result with simple property access pattern
  */
-export interface CommandMockResult {
+export interface ICommandMockResult {
   mock: Command; // For injection
   name: Mock; // For assertions
   description: Mock;

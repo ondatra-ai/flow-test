@@ -2,8 +2,8 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
+import type { IStreamRequest } from '../../../../../../src/interfaces/providers/provider.interface.js';
 import type { IProviderHelper } from '../../../../../../src/providers/llm/helpers/provider-helper.js';
-import type { StreamRequest } from '../../../../../../src/providers/llm/interfaces/provider.js';
 import { GeminiProvider } from '../../../../../../src/providers/llm/providers/gemini/gemini.provider.js';
 
 // Mock Google AI SDK
@@ -67,7 +67,7 @@ describe('GeminiProvider', () => {
 
   describe('streaming functionality', () => {
     it('should process content chunks', async () => {
-      const request: StreamRequest = {
+      const request: IStreamRequest = {
         model: 'gemini-2.5-pro',
         prompt: 'Test prompt',
         messages: [{ role: 'user', content: 'Hello' }],
@@ -98,7 +98,7 @@ describe('GeminiProvider', () => {
     });
 
     it('should handle token counting', async () => {
-      const request: StreamRequest = {
+      const request: IStreamRequest = {
         model: 'gemini-2.5-pro',
         prompt: 'Test prompt', // 11 chars
         messages: [{ role: 'user', content: 'Hello' }],
@@ -131,7 +131,7 @@ describe('GeminiProvider', () => {
     });
 
     it('should check abort signal during streaming', async () => {
-      const request: StreamRequest = {
+      const request: IStreamRequest = {
         model: 'gemini-2.5-pro',
         prompt: 'Test prompt',
         messages: [{ role: 'user', content: 'Hello' }],
@@ -160,7 +160,7 @@ describe('GeminiProvider', () => {
 
   describe('error handling', () => {
     it('should handle streaming errors', async () => {
-      const request: StreamRequest = {
+      const request: IStreamRequest = {
         model: 'gemini-2.5-pro',
         prompt: 'Test prompt',
         messages: [{ role: 'user', content: 'Hello' }],
@@ -186,7 +186,7 @@ describe('GeminiProvider', () => {
 
   describe('generate method', () => {
     it('should use helper to convert stream to string', async () => {
-      const request: StreamRequest = {
+      const request: IStreamRequest = {
         model: 'gemini-1.5-flash',
         prompt: 'Test prompt',
         messages: [{ role: 'user', content: 'Hello' }],
@@ -204,7 +204,7 @@ describe('GeminiProvider', () => {
 
   describe('role validation', () => {
     it('should throw error for invalid roles', async () => {
-      const request: StreamRequest = {
+      const request: IStreamRequest = {
         model: 'gemini-2.5-pro',
         prompt: 'Test prompt',
         messages: [
@@ -229,7 +229,7 @@ describe('GeminiProvider', () => {
 
   describe('API configuration', () => {
     it('should pass correct parameters to Gemini API', async () => {
-      const request: StreamRequest = {
+      const request: IStreamRequest = {
         model: 'gemini-2.5-pro',
         prompt: 'Test prompt',
         messages: [{ role: 'user', content: 'Hello' }],

@@ -1,13 +1,13 @@
 /**
  * Interface for parsed GitHub issue information
  */
-export interface GitHubIssueArgs {
+export interface IGitHubIssueArgs {
   owner: string;
   repo: string;
   issue_number: number;
 }
 
-export interface MockOctokit {
+export interface IMockOctokit {
   rest: {
     issues: {
       get: () => Promise<{

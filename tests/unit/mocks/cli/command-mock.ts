@@ -2,7 +2,7 @@ import type { Command } from 'commander';
 import { vi } from 'vitest';
 
 import { cast } from '../../../../src/utils/cast.js';
-import type { CommandMockOptions, CommandMockResult } from '../types.js';
+import type { ICommandMockOptions, ICommandMockResult } from '../types.js';
 
 /**
  * Creates a Command mock with simple property access pattern
@@ -18,8 +18,8 @@ import type { CommandMockOptions, CommandMockResult } from '../types.js';
  * expect(commandMock.description).toHaveBeenCalledWith('desc');
  */
 export function createCommandMock(
-  options?: CommandMockOptions
-): CommandMockResult {
+  options?: ICommandMockOptions
+): ICommandMockResult {
   const name = vi.fn();
   const description = vi.fn();
   const version = vi.fn();

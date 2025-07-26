@@ -1,6 +1,7 @@
 import { describe, test, expect } from 'vitest';
 
-import { Context, IContext } from '../../../src/flow/context.js';
+import { Context } from '../../../src/flow/context.js';
+import type { IContext } from '../../../src/interfaces/flow/context.interface.js';
 
 describe('Context interface compliance', () => {
   test('should implement IContext interface', () => {

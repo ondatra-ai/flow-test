@@ -2,14 +2,14 @@
 
 import { describe, it, expect } from 'vitest';
 
+import type { IStreamEvent } from '../../../../../src/interfaces/providers/provider.interface.js';
 import { ProviderHelper } from '../../../../../src/providers/llm/helpers/provider-helper.js';
-import type { StreamEvent } from '../../../../../src/providers/llm/interfaces/provider.js';
 
 describe('ProviderHelper.streamToString', () => {
   const helper = new ProviderHelper();
 
   it('should convert token stream to string', async () => {
-    async function* mockStream(): AsyncIterableIterator<StreamEvent> {
+    async function* mockStream(): AsyncIterableIterator<IStreamEvent> {
       yield { type: 'token', token: 'Hello' };
       yield { type: 'token', token: ' ' };
       yield { type: 'token', token: 'world' };
@@ -21,7 +21,7 @@ describe('ProviderHelper.streamToString', () => {
   });
 
   it('should include all tokens regardless of done event', async () => {
-    async function* mockStream(): AsyncIterableIterator<StreamEvent> {
+    async function* mockStream(): AsyncIterableIterator<IStreamEvent> {
       yield { type: 'token', token: 'Hello' };
       yield { type: 'done' };
       yield { type: 'token', token: ' ignored' };
@@ -32,7 +32,7 @@ describe('ProviderHelper.streamToString', () => {
   });
 
   it('should throw on error event', async () => {
-    async function* mockStream(): AsyncIterableIterator<StreamEvent> {
+    async function* mockStream(): AsyncIterableIterator<IStreamEvent> {
       yield { type: 'token', token: 'Start' };
       yield {
         type: 'error',

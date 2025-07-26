@@ -3,7 +3,7 @@ import 'reflect-metadata';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 import { ReadGitHubIssueStep } from '../../../../src/flow/types/read-github-issue-step.js';
-import type { ReadGitHubIssueStepConfig } from '../../../../src/validation/schemas/step.schema.js';
+import type { ReadGitHubIssueStepConfig } from '../../../../src/validation/index.js';
 // Import centralized mocks
 import { createLoggerMock, createGitHubClientMock } from '../../mocks/index.js';
 

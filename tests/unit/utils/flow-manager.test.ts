@@ -6,9 +6,9 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { Flow } from '../../../src/flow/flow.js';
 import { StepFactory } from '../../../src/flow/step-factory.js';
+import type { ILogger } from '../../../src/interfaces/utils/logger.interface.js';
 import { cast } from '../../../src/utils/cast.js';
 import { FlowManager } from '../../../src/utils/flow-manager.js';
-import { Logger } from '../../../src/utils/logger.js';
 
 import testData from './test-data.json';
 
@@ -29,8 +29,8 @@ vi.mock('path', () => ({
 }));
 
 // Mock factory functions
-function createMockLogger(): Logger {
-  return cast<Logger>({
+function createMockLogger(): ILogger {
+  return cast<ILogger>({
     info: vi.fn(),
     error: vi.fn(),
     warn: vi.fn(),
@@ -71,7 +71,7 @@ function createTestSetup() {
 
 describe('FlowManager', () => {
   let flowManager: FlowManager;
-  let mockLogger: Logger;
+  let mockLogger: ILogger;
 
   beforeEach(() => {
     const setup = createTestSetup();

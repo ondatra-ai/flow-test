@@ -8,9 +8,9 @@ import {
   initializeContainer,
   SERVICES,
 } from '../../../src/config/container.js';
+import type { ILLMProvider } from '../../../src/interfaces/providers/provider.interface.js';
+import type { ILogger } from '../../../src/interfaces/utils/logger.interface.js';
 import type { IProviderHelper } from '../../../src/providers/llm/helpers/provider-helper.js';
-import type { ILLMProvider } from '../../../src/providers/llm/interfaces/provider.js';
-import type { Logger } from '../../../src/utils/logger.js';
 
 // Mock the SDK dependencies
 vi.mock('@anthropic-ai/sdk', () => ({
@@ -75,7 +75,7 @@ describe('Container Configuration', () => {
     it('should register Logger service', () => {
       expect(container.isRegistered(SERVICES.Logger)).toBe(true);
 
-      const logger = container.resolve<Logger>(SERVICES.Logger);
+      const logger = container.resolve<ILogger>(SERVICES.Logger);
       expect(logger).toBeDefined();
       expect(typeof logger.info).toBe('function');
       expect(typeof logger.error).toBe('function');

@@ -2,8 +2,8 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
+import type { IStreamRequest } from '../../../../../../src/interfaces/providers/provider.interface.js';
 import type { IProviderHelper } from '../../../../../../src/providers/llm/helpers/provider-helper.js';
-import type { StreamRequest } from '../../../../../../src/providers/llm/interfaces/provider.js';
 import { OpenAIProvider } from '../../../../../../src/providers/llm/providers/openai/openai.provider.js';
 
 // Mock OpenAI SDK
@@ -63,7 +63,7 @@ describe('OpenAIProvider', () => {
 
   describe('streaming functionality', () => {
     it('should process content delta chunks', async () => {
-      const request: StreamRequest = {
+      const request: IStreamRequest = {
         model: 'gpt-4o',
         prompt: 'Test prompt',
         messages: [{ role: 'user', content: 'Hello' }],
@@ -94,7 +94,7 @@ describe('OpenAIProvider', () => {
     });
 
     it('should handle token counting with character estimation', async () => {
-      const request: StreamRequest = {
+      const request: IStreamRequest = {
         model: 'gpt-4o',
         prompt: 'Test prompt', // 11 chars
         messages: [{ role: 'user', content: 'Hello' }],
@@ -131,7 +131,7 @@ describe('OpenAIProvider', () => {
     });
 
     it('should check abort signal during streaming', async () => {
-      const request: StreamRequest = {
+      const request: IStreamRequest = {
         model: 'gpt-4o',
         prompt: 'Test prompt',
         messages: [{ role: 'user', content: 'Hello' }],
@@ -160,7 +160,7 @@ describe('OpenAIProvider', () => {
 
   describe('error handling', () => {
     it('should handle streaming errors', async () => {
-      const request: StreamRequest = {
+      const request: IStreamRequest = {
         model: 'gpt-4o',
         prompt: 'Test prompt',
         messages: [{ role: 'user', content: 'Hello' }],
@@ -186,7 +186,7 @@ describe('OpenAIProvider', () => {
 
   describe('generate method', () => {
     it('should use helper to convert stream to string', async () => {
-      const request: StreamRequest = {
+      const request: IStreamRequest = {
         model: 'gpt-4o',
         prompt: 'Test prompt',
         messages: [{ role: 'user', content: 'Hello' }],
@@ -204,7 +204,7 @@ describe('OpenAIProvider', () => {
 
   describe('role validation', () => {
     it('should throw error for invalid roles', async () => {
-      const request: StreamRequest = {
+      const request: IStreamRequest = {
         model: 'gpt-4o',
         prompt: 'Test prompt',
         messages: [
@@ -229,7 +229,7 @@ describe('OpenAIProvider', () => {
 
   describe('API configuration', () => {
     it('should pass correct parameters to OpenAI API', async () => {
-      const request: StreamRequest = {
+      const request: IStreamRequest = {
         model: 'gpt-4o',
         prompt: 'Test prompt',
         messages: [{ role: 'user', content: 'Hello' }],

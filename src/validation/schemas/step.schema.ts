@@ -36,9 +36,3 @@ export const StepConfigSchema = z.discriminatedUnion('type', [
   ReadGitHubIssueStepConfigSchema,
   PlanGenerationStepConfigSchema,
 ]);
-
-// Re-export for backward compatibility
-export type {
-  ReadGitHubIssueStepConfig,
-  PlanGenerationStepConfig,
-} from '../../types/validation/index.js';

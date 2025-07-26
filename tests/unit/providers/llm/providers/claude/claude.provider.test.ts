@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
+import type { IStreamRequest } from '../../../../../../src/interfaces/providers/provider.interface.js';
 import type { IProviderHelper } from '../../../../../../src/providers/llm/helpers/provider-helper.js';
-import type { StreamRequest } from '../../../../../../src/providers/llm/interfaces/provider.js';
 import { ClaudeProvider } from '../../../../../../src/providers/llm/providers/claude/claude.provider.js';
 
 // Mock Anthropic SDK
@@ -59,7 +59,7 @@ describe('ClaudeProvider', () => {
 
   describe('streaming functionality', () => {
     it('should process content delta chunks', async () => {
-      const request: StreamRequest = {
+      const request: IStreamRequest = {
         model: 'claude-3-5-sonnet-20241022',
         prompt: 'Test prompt',
         messages: [{ role: 'user', content: 'Hello' }],
@@ -98,7 +98,7 @@ describe('ClaudeProvider', () => {
     });
 
     it('should handle token counting', async () => {
-      const request: StreamRequest = {
+      const request: IStreamRequest = {
         model: 'claude-3-5-sonnet-20241022',
         prompt: 'Test prompt',
         messages: [{ role: 'user', content: 'Hello' }],
@@ -139,7 +139,7 @@ describe('ClaudeProvider', () => {
     });
 
     it('should check abort signal during streaming', async () => {
-      const request: StreamRequest = {
+      const request: IStreamRequest = {
         model: 'claude-3-5-sonnet-20241022',
         prompt: 'Test prompt',
         messages: [{ role: 'user', content: 'Hello' }],
@@ -169,7 +169,7 @@ describe('ClaudeProvider', () => {
 
   describe('error handling', () => {
     it('should handle streaming errors', async () => {
-      const request: StreamRequest = {
+      const request: IStreamRequest = {
         model: 'claude-3-5-sonnet-20241022',
         prompt: 'Test prompt',
         messages: [{ role: 'user', content: 'Hello' }],
@@ -195,7 +195,7 @@ describe('ClaudeProvider', () => {
 
   describe('generate method', () => {
     it('should use helper to convert stream to string', async () => {
-      const request: StreamRequest = {
+      const request: IStreamRequest = {
         model: 'claude-3-5-sonnet-20241022',
         prompt: 'Test prompt',
         messages: [{ role: 'user', content: 'Hello' }],
@@ -213,7 +213,7 @@ describe('ClaudeProvider', () => {
 
   describe('role validation', () => {
     it('should throw error for invalid roles', async () => {
-      const request: StreamRequest = {
+      const request: IStreamRequest = {
         model: 'claude-3-5-sonnet-20241022',
         prompt: 'Test prompt',
         messages: [
@@ -238,7 +238,7 @@ describe('ClaudeProvider', () => {
 
   describe('API configuration', () => {
     it('should pass correct parameters to Anthropic API', async () => {
-      const request: StreamRequest = {
+      const request: IStreamRequest = {
         model: 'claude-3-5-sonnet-20241022',
         prompt: 'Test prompt',
         messages: [{ role: 'user', content: 'Hello' }],
