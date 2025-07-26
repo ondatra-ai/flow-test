@@ -1,4 +1,4 @@
-import type { IGitHubIssueArgs } from '../interfaces/github/index.js';
+import type { IGitHubIssueArgs } from '../interfaces/github/github.interface.js';
 
 /**
  * Parse a GitHub issue URL and extract owner, repo, and issue number

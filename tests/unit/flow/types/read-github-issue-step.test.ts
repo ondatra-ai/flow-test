@@ -3,9 +3,10 @@ import 'reflect-metadata';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 import { ReadGitHubIssueStep } from '../../../../src/flow/types/read-github-issue-step.js';
-import type { ReadGitHubIssueStepConfig } from '../../../../src/validation/index.js';
+import type { ReadGitHubIssueStepConfig } from '../../../../src/types/validation/schemas.types.js';
 // Import centralized mocks
-import { createLoggerMock, createGitHubClientMock } from '../../mocks/index.js';
+import { createGitHubClientMock } from '../../mocks/utils/github-client-mock.js';
+import { createLoggerMock } from '../../mocks/utils/logger-mock.js';
 
 // Mock dependencies
 vi.mock('../../../../src/utils/github-url-parser.js', () => ({

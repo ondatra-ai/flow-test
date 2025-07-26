@@ -4,9 +4,9 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { Context } from '../../../../src/flow/context.js';
 import { ReadGitHubIssueStep } from '../../../../src/flow/types/read-github-issue-step.js';
 import type { ILogger } from '../../../../src/interfaces/utils/logger.interface.js';
+import type { ReadGitHubIssueStepConfig } from '../../../../src/types/validation/schemas.types.js';
 import { cast } from '../../../../src/utils/cast.js';
 import type { GitHubClient } from '../../../../src/utils/github-client.js';
-import type { ReadGitHubIssueStepConfig } from '../../../../src/validation/index.js';
 
 // Mock dependencies
 vi.mock('../../../../src/utils/github-url-parser.js', () => ({

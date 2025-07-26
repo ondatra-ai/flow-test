@@ -2,10 +2,10 @@ import { injectable, inject, container } from 'tsyringe';
 
 import { SERVICES } from '../config/tokens.js';
 import type { IStep } from '../interfaces/flow/step.interface.js';
-import type { ILLMProvider } from '../interfaces/providers/index.js';
-import type { StepConfig } from '../types/validation/index.js';
+import type { ILLMProvider } from '../interfaces/providers/provider.interface.js';
+import type { ILogger } from '../interfaces/utils/logger.interface.js';
+import type { StepConfig } from '../types/validation/schemas.types.js';
 import { GitHubClient } from '../utils/github-client.js';
-import { ILogger } from '../utils/logger.js';
 
 import { PlanGenerationStep } from './types/plan-generation-step.js';
 import { ReadGitHubIssueStep } from './types/read-github-issue-step.js';

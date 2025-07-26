@@ -1,5 +1,5 @@
 import type { TestEnvironment } from './test-environment.js';
-import type { CommandResult } from './types/index.js';
+import type { CommandResult } from './types/test-environment.types.js';
 
 /**
  * Run a CLI command and return the result

@@ -1,5 +1,5 @@
 import type { IContext } from '../interfaces/flow/context.interface.js';
-import type { IFlow } from '../interfaces/flow/index.js';
+import type { IFlow } from '../interfaces/flow/flow.interface.js';
 import type { IStep } from '../interfaces/flow/step.interface.js';
 
 // Flow entity - Simple data structure for directed graph of steps

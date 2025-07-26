@@ -3,14 +3,14 @@ import { inject, injectable } from 'tsyringe';
 import { SERVICES } from '../../config/tokens.js';
 import type { IContext } from '../../interfaces/flow/context.interface.js';
 import type { IStep } from '../../interfaces/flow/step.interface.js';
-import {
-  GitHubClient,
-  type GitHubIssue,
-  type GitHubComment,
-} from '../../utils/github-client.js';
+import type { ILogger } from '../../interfaces/utils/logger.interface.js';
+import type {
+  GitHubIssue,
+  GitHubComment,
+} from '../../types/github/github.types.js';
+import { type ReadGitHubIssueStepConfig } from '../../types/validation/schemas.types.js';
+import { GitHubClient } from '../../utils/github-client.js';
 import { parseGitHubIssueUrl } from '../../utils/github-url-parser.js';
-import { ILogger } from '../../utils/logger.js';
-import { type ReadGitHubIssueStepConfig } from '../../validation/index.js';
 import { Step } from '../step.js';
 
 /**

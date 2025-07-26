@@ -9,8 +9,8 @@ config();
 import { setupCliProgram, registerCommands } from './cli/setup.js';
 import { initializeContainer, container } from './config/container.js';
 import { SERVICES } from './config/tokens.js';
+import type { ILogger } from './interfaces/utils/logger.interface.js';
 import { cast, castError } from './utils/cast.js';
-import type { ILogger } from './utils/logger.js';
 
 // Configure dependency injection container
 initializeContainer();

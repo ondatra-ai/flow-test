@@ -1,9 +1,7 @@
 import { injectable } from 'tsyringe';
 
-import type { ILogger, LogMetadata } from '../interfaces/utils/index.js';
-
-// Re-export for convenience
-export type { ILogger } from '../interfaces/utils/index.js';
+import type { ILogger } from '../interfaces/utils/logger.interface.js';
+import type { LogMetadata } from '../types/utils/logger.types.js';
 
 /**
  * Log levels for the application

@@ -1,13 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 import { Flow } from '../../../../src/flow/flow.js';
-import {
-  Session,
-  SessionStatus,
-} from '../../../../src/flow/session/session.js';
+import { Session } from '../../../../src/flow/session/session.js';
 import { Step } from '../../../../src/flow/step.js';
 import type { IFlow } from '../../../../src/interfaces/flow/flow.interface.js';
-import { createLoggerMock } from '../../mocks/index.js';
+import type { SessionStatus } from '../../../../src/types/flow/session.types.js';
+import { createLoggerMock } from '../../mocks/utils/logger-mock.js';
 
 // Create centralized logger mock
 const loggerMock = createLoggerMock();
