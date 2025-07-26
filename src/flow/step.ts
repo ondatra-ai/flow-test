@@ -1,9 +1,6 @@
+import type { IContext } from '../interfaces/flow/context.interface.js';
 import type { IStep } from '../interfaces/flow/index.js';
 import type { ILogger } from '../utils/logger.js';
-
-import type { IContext } from '../interfaces/flow/context.interface.js';
-
-
 
 // Step entity - Simple action-based execution with dynamic routing
 export class Step implements IStep {

@@ -5,8 +5,8 @@ import { injectable, inject } from 'tsyringe';
 
 import { SERVICES } from '../config/tokens.js';
 import { Flow } from '../flow/flow.js';
-import type { IFlow } from '../interfaces/flow/flow.interface.js';
 import { StepFactory } from '../flow/step-factory.js';
+import type { IFlow } from '../interfaces/flow/flow.interface.js';
 import type { IStep } from '../interfaces/flow/step.interface.js';
 import type { StepConfig } from '../types/validation/index.js';
 import type { FlowConfig } from '../validation/index.js';

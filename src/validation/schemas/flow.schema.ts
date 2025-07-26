@@ -50,4 +50,3 @@ export const FlowConfigSchema = z
         'All step references in nextStepId must point to existing steps, and initialStepId must reference a valid step',
     }
   );
-

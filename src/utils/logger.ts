@@ -2,6 +2,9 @@ import { injectable } from 'tsyringe';
 
 import type { ILogger, LogMetadata } from '../interfaces/utils/index.js';
 
+// Re-export for convenience
+export type { ILogger } from '../interfaces/utils/index.js';
+
 /**
  * Log levels for the application
  */
@@ -11,7 +14,6 @@ export enum LogLevel {
   INFO = 'info',
   DEBUG = 'debug',
 }
-
 
 /**
  * Simple console logger implementation

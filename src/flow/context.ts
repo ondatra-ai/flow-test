@@ -1,7 +1,5 @@
 import type { IContext } from '../interfaces/flow/index.js';
 
-
-
 // Context implementation - Simple Map-based storage
 export class Context implements IContext, Iterable<[string, string]> {
   private readonly storage: Map<string, string>;

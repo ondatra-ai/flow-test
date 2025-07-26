@@ -1,12 +1,12 @@
 import { injectable, inject, container } from 'tsyringe';
 
 import { SERVICES } from '../config/tokens.js';
+import type { IStep } from '../interfaces/flow/step.interface.js';
 import type { ILLMProvider } from '../interfaces/providers/index.js';
 import type { StepConfig } from '../types/validation/index.js';
 import { GitHubClient } from '../utils/github-client.js';
 import { ILogger } from '../utils/logger.js';
 
-import type { IStep } from '../interfaces/flow/step.interface.js';
 import { PlanGenerationStep } from './types/plan-generation-step.js';
 import { ReadGitHubIssueStep } from './types/read-github-issue-step.js';
 

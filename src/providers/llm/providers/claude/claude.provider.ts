@@ -1,11 +1,11 @@
 import Anthropic from '@anthropic-ai/sdk';
 
-import type { IProviderHelper } from '../../helpers/provider-helper.js';
 import type {
   ILLMProvider,
   IStreamRequest,
   IStreamEvent,
-} from '../../interfaces/provider.js';
+} from '../../../../interfaces/providers/provider.interface.js';
+import type { IProviderHelper } from '../../helpers/provider-helper.js';
 
 export class ClaudeProvider implements ILLMProvider {
   private readonly client: Anthropic;

@@ -5,6 +5,8 @@ import type { GitHubIssue, GitHubComment } from '../types/github/index.js';
 
 import { castError } from './cast.js';
 
+// Re-export for convenience
+export type { GitHubIssue, GitHubComment } from '../types/github/index.js';
 
 /**
  * GitHub API client for fetching issue and comment data

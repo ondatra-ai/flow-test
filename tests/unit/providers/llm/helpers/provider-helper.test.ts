@@ -2,8 +2,8 @@
 
 import { describe, it, expect } from 'vitest';
 
-import { ProviderHelper } from '../../../../../src/providers/llm/helpers/provider-helper.js';
 import type { IStreamEvent } from '../../../../../src/interfaces/providers/provider.interface.js';
+import { ProviderHelper } from '../../../../../src/providers/llm/helpers/provider-helper.js';
 
 describe('ProviderHelper.streamToString', () => {
   const helper = new ProviderHelper();

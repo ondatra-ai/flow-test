@@ -1,6 +1,5 @@
 import type { IGitHubIssueArgs } from '../interfaces/github/index.js';
 
-
 /**
  * Parse a GitHub issue URL and extract owner, repo, and issue number
  * @param url - GitHub issue URL

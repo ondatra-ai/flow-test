@@ -4,8 +4,8 @@ import { container, DependencyContainer } from 'tsyringe';
 
 import { StepFactory } from '../flow/step-factory.js';
 import type { IProviderHelper } from '../interfaces/providers/index.js';
+import type { ILLMProvider } from '../interfaces/providers/provider.interface.js';
 import { ProviderHelper } from '../providers/llm/helpers/provider-helper.js';
-import type { ILLMProvider } from '../providers/llm/interfaces/provider.js';
 import { ClaudeProvider } from '../providers/llm/providers/claude/claude.provider.js';
 import { GeminiProvider } from '../providers/llm/providers/gemini/gemini.provider.js';
 import { OpenAIProvider } from '../providers/llm/providers/openai/openai.provider.js';

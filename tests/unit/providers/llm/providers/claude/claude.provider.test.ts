@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-import type { IProviderHelper } from '../../../../../../src/providers/llm/helpers/provider-helper.js';
 import type { IStreamRequest } from '../../../../../../src/interfaces/providers/provider.interface.js';
+import type { IProviderHelper } from '../../../../../../src/providers/llm/helpers/provider-helper.js';
 import { ClaudeProvider } from '../../../../../../src/providers/llm/providers/claude/claude.provider.js';
 
 // Mock Anthropic SDK

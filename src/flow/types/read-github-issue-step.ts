@@ -1,6 +1,8 @@
 import { inject, injectable } from 'tsyringe';
 
 import { SERVICES } from '../../config/tokens.js';
+import type { IContext } from '../../interfaces/flow/context.interface.js';
+import type { IStep } from '../../interfaces/flow/step.interface.js';
 import {
   GitHubClient,
   type GitHubIssue,
@@ -9,9 +11,7 @@ import {
 import { parseGitHubIssueUrl } from '../../utils/github-url-parser.js';
 import { ILogger } from '../../utils/logger.js';
 import { type ReadGitHubIssueStepConfig } from '../../validation/index.js';
-import type { IContext } from '../../interfaces/flow/context.interface.js';
 import { Step } from '../step.js';
-import type { IStep } from '../../interfaces/flow/step.interface.js';
 
 /**
  * Flow step for reading GitHub issue data and comments

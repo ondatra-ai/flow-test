@@ -8,9 +8,9 @@ import {
   initializeContainer,
   SERVICES,
 } from '../../../src/config/container.js';
-import type { IProviderHelper } from '../../../src/providers/llm/helpers/provider-helper.js';
 import type { ILLMProvider } from '../../../src/interfaces/providers/provider.interface.js';
 import type { ILogger } from '../../../src/interfaces/utils/logger.interface.js';
+import type { IProviderHelper } from '../../../src/providers/llm/helpers/provider-helper.js';
 
 // Mock the SDK dependencies
 vi.mock('@anthropic-ai/sdk', () => ({
