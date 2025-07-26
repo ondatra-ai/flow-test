@@ -5,7 +5,7 @@ import { Context } from '../../../../src/flow/context.js';
 import { ReadGitHubIssueStep } from '../../../../src/flow/types/read-github-issue-step.js';
 import { cast } from '../../../../src/utils/cast.js';
 import type { GitHubClient } from '../../../../src/utils/github-client.js';
-import type { ILogger } from '../../../../src/utils/logger.js';
+import type { ILogger } from '../../../../src/interfaces/utils/logger.interface.js';
 import type { ReadGitHubIssueStepConfig } from '../../../../src/validation/schemas/step.schema.js';
 
 // Mock dependencies

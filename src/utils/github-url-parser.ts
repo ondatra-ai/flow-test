@@ -1,7 +1,5 @@
 import type { IGitHubIssueArgs } from '../interfaces/github/index.js';
 
-// Re-export for backward compatibility
-export type { IGitHubIssueArgs } from '../interfaces/github/index.js';
 
 /**
  * Parse a GitHub issue URL and extract owner, repo, and issue number

@@ -1,8 +1,6 @@
 import type { IProviderHelper } from '../../../interfaces/providers/index.js';
 import type { IStreamEvent } from '../interfaces/provider.js';
 
-// Re-export for backward compatibility
-export type { IProviderHelper } from '../../../interfaces/providers/index.js';
 
 export class ProviderHelper implements IProviderHelper {
   async streamToString(

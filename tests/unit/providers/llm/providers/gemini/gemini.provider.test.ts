@@ -3,7 +3,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 import type { IProviderHelper } from '../../../../../../src/providers/llm/helpers/provider-helper.js';
-import type { IStreamRequest } from '../../../../../../src/providers/llm/interfaces/provider.js';
+import type { IStreamRequest } from '../../../../../../src/interfaces/providers/provider.interface.js';
 import { GeminiProvider } from '../../../../../../src/providers/llm/providers/gemini/gemini.provider.js';
 
 // Mock Google AI SDK

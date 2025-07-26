@@ -12,8 +12,6 @@ export enum LogLevel {
   DEBUG = 'debug',
 }
 
-// Re-export for backward compatibility
-export type { ILogger } from '../interfaces/utils/index.js';
 
 /**
  * Simple console logger implementation

@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-import { Flow, IFlow } from '../../../../src/flow/flow.js';
+import { Flow } from '../../../../src/flow/flow.js';
+import type { IFlow } from '../../../../src/interfaces/flow/flow.interface.js';
 import {
   Session,
   SessionStatus,

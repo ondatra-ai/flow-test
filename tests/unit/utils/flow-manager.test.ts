@@ -8,7 +8,7 @@ import { Flow } from '../../../src/flow/flow.js';
 import { StepFactory } from '../../../src/flow/step-factory.js';
 import { cast } from '../../../src/utils/cast.js';
 import { FlowManager } from '../../../src/utils/flow-manager.js';
-import { ILogger } from '../../../src/utils/logger.js';
+import type { ILogger } from '../../../src/interfaces/utils/logger.interface.js';
 
 import testData from './test-data.json';
 

@@ -4,8 +4,9 @@ import { SERVICES } from '../../config/tokens.js';
 import { type ILLMProvider } from '../../interfaces/providers/index.js';
 import { ILogger } from '../../utils/logger.js';
 import { type PlanGenerationStepConfig } from '../../validation/index.js';
-import { IContext } from '../context.js';
-import { Step, IStep } from '../step.js';
+import type { IContext } from '../../interfaces/flow/context.interface.js';
+import { Step } from '../step.js';
+import type { IStep } from '../../interfaces/flow/step.interface.js';
 
 /**
  * Flow step for generating execution plans from GitHub issue data

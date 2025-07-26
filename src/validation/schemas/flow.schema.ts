@@ -51,5 +51,3 @@ export const FlowConfigSchema = z
     }
   );
 
-// Re-export for backward compatibility
-export type { FlowConfig } from '../../types/validation/index.js';
