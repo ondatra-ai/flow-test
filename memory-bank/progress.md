@@ -11,6 +11,17 @@
 - **Reflection**: `memory-bank/reflection/nodejs-22-upgrade-reflection.md`
 - **Summary**: Successfully upgraded Node.js references to version 22 (project was already at target state)
 
+### Task 2: Zod Dependency Upgrade ✅ COMPLETE
+
+- **Date**: 2025-07-26
+- **Type**: Level 1 (Quick Bug Fix)
+- **Status**: COMPLETED & ARCHIVED
+- **Issue**: [#59](https://github.com/ondatra-ai/flow-test/issues/59)
+- **Pull Request**: [#115](https://github.com/ondatra-ai/flow-test/pull/115)
+- **Archive**: `memory-bank/archive/archive-upgrade-zod-dependency-20250726.md`
+- **Reflection**: `memory-bank/reflection/reflection-upgrade-zod-dependency-20250726.md`
+- **Summary**: Successfully upgraded Zod from v3.25.76 to v4.0.10, resolved breaking changes, fixed CI pipeline compatibility
+
 ## Current Status
 
 - ✅ QA standards established for all future tasks

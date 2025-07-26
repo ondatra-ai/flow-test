@@ -204,14 +204,14 @@ describe('FlowManager', () => {
     it('should throw error for invalid flow data', async () => {
       await runValidationTest(
         'not an object',
-        'Expected object, received string'
+        'Invalid input: expected object, received string'
       );
     });
 
     it('should throw error for invalid steps', async () => {
       await runValidationTest(
         { id: 'test', steps: 'not an array' },
-        'Expected array, received string'
+        'Invalid input: expected array, received string'
       );
     });
 
