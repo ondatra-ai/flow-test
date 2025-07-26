@@ -1,4 +1,4 @@
-import type { IContext } from '../interfaces/flow/index.js';
+import type { IContext } from '../interfaces/flow/context.interface.js';
 
 // Context implementation - Simple Map-based storage
 export class Context implements IContext, Iterable<[string, string]> {

@@ -5,12 +5,12 @@ import { StepFactory } from '../../../src/flow/step-factory.js';
 import { PlanGenerationStep } from '../../../src/flow/types/plan-generation-step.js';
 import { ReadGitHubIssueStep } from '../../../src/flow/types/read-github-issue-step.js';
 import type { ILogger } from '../../../src/interfaces/utils/logger.interface.js';
-import { cast } from '../../../src/utils/cast.js';
-import { GitHubClient } from '../../../src/utils/github-client.js';
 import {
   type ReadGitHubIssueStepConfig,
   type PlanGenerationStepConfig,
-} from '../../../src/validation/index.js';
+} from '../../../src/types/validation/schemas.types.js';
+import { cast } from '../../../src/utils/cast.js';
+import { GitHubClient } from '../../../src/utils/github-client.js';
 
 // Mock the container.resolve calls
 vi.mock('tsyringe', async () => {

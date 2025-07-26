@@ -8,8 +8,10 @@ import { Flow } from '../flow/flow.js';
 import { StepFactory } from '../flow/step-factory.js';
 import type { IFlow } from '../interfaces/flow/flow.interface.js';
 import type { IStep } from '../interfaces/flow/step.interface.js';
-import type { StepConfig } from '../types/validation/index.js';
-import type { FlowConfig } from '../validation/index.js';
+import type {
+  StepConfig,
+  FlowConfig,
+} from '../types/validation/schemas.types.js';
 import { FlowConfigSchema } from '../validation/schemas/flow.schema.js';
 
 import { castJson } from './cast.js';

@@ -92,6 +92,14 @@
       {
         "selector": "TSInterfaceDeclaration",
         "message": "Interface definitions must be in src/interfaces/ folder"
+      },
+      {
+        "selector": "ExportAllDeclaration",
+        "message": "Re-export statements are forbidden. Import and re-export explicitly or use direct imports."
+      },
+      {
+        "selector": "ExportNamedDeclaration[source]",
+        "message": "Re-export statements are forbidden. Import and re-export explicitly or use direct imports."
       }
     ]
   },

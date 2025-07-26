@@ -3,14 +3,12 @@ import 'reflect-metadata';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { PlanGenerationStep } from '../../../../src/flow/types/plan-generation-step.js';
-import type { PlanGenerationStepConfig } from '../../../../src/validation/index.js';
+import type { PlanGenerationStepConfig } from '../../../../src/types/validation/schemas.types.js';
 // Import centralized mocks
-import { expectMockCall } from '../../../test-utils/mock-validation/index.js';
-import {
-  createContextMock,
-  createLLMProviderMock,
-  createLoggerMock,
-} from '../../mocks/index.js';
+import { expectMockCall } from '../../../test-utils/mock-validation/expect-mock-call.js';
+import { createContextMock } from '../../mocks/flow/context-mock.js';
+import { createLLMProviderMock } from '../../mocks/providers/llm-provider-mock.js';
+import { createLoggerMock } from '../../mocks/utils/logger-mock.js';
 
 describe('PlanGenerationStep - Provider Testing', () => {
   let mockConfig: PlanGenerationStepConfig;

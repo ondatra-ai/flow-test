@@ -1,7 +1,7 @@
 import type { Command } from 'commander';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-import { createCommandMock } from '../mocks/index.js';
+import { createCommandMock } from '../mocks/cli/command-mock.js';
 
 describe('CLI Setup', () => {
   let mockProgram: Command;

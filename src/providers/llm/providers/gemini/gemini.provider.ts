@@ -1,11 +1,11 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
+import type { IProviderHelper } from '../../../../interfaces/providers/helper.interface.js';
 import type {
   ILLMProvider,
   IStreamRequest,
   IStreamEvent,
 } from '../../../../interfaces/providers/provider.interface.js';
-import type { IProviderHelper } from '../../helpers/provider-helper.js';
 
 export class GeminiProvider implements ILLMProvider {
   private readonly client: GoogleGenerativeAI;

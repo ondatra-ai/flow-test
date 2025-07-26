@@ -1,10 +1,10 @@
 import { container } from '../config/container.js';
 import { SERVICES } from '../config/tokens.js';
 import { Session } from '../flow/session/session.js';
-import type { IContext } from '../interfaces/flow/index.js';
+import type { IContext } from '../interfaces/flow/context.interface.js';
+import type { ILogger } from '../interfaces/utils/logger.interface.js';
 import { FlowManager } from '../utils/flow-manager.js';
 import { parseGitHubIssueUrl } from '../utils/github-url-parser.js';
-import type { ILogger } from '../utils/logger.js';
 
 /**
  * Handle GitHub issue URL option and populate context

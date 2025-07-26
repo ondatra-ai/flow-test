@@ -1,12 +1,12 @@
 import { Octokit } from '@octokit/rest';
 import { injectable } from 'tsyringe';
 
-import type { GitHubIssue, GitHubComment } from '../types/github/index.js';
+import type {
+  GitHubIssue,
+  GitHubComment,
+} from '../types/github/github.types.js';
 
 import { castError } from './cast.js';
-
-// Re-export for convenience
-export type { GitHubIssue, GitHubComment } from '../types/github/index.js';
 
 /**
  * GitHub API client for fetching issue and comment data
