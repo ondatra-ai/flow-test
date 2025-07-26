@@ -3,9 +3,9 @@ import 'reflect-metadata';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { PlanGenerationStep } from '../../../../src/flow/types/plan-generation-step.js';
-import type { StreamRequest } from '../../../../src/interfaces/providers/index.js';
 import type { PlanGenerationStepConfig } from '../../../../src/validation/index.js';
 // Import centralized mocks
+import { expectMockCall } from '../../../test-utils/mock-validation/index.js';
 import {
   createContextMock,
   createLLMProviderMock,
@@ -54,12 +54,22 @@ describe('PlanGenerationStep - Template Handling', () => {
 
       await step.execute(contextMock.mock);
 
-      const callArgs = providerMock.generate.mock.calls[0][0] as StreamRequest;
-      expect(callArgs.prompt).toContain('Generate a detailed execution plan');
-      expect(callArgs.prompt).toContain('Title: Issue Title');
-      expect(callArgs.prompt).toContain('Description: Issue Body');
-      expect(callArgs.prompt).toContain('1. Overview');
-      expect(callArgs.prompt).toContain('Format the response as markdown');
+      // Verify the provider was called with expected prompt content
+      expectMockCall(providerMock.generate).toHaveBeenCalledWithContaining({
+        prompt: expect.stringContaining('Generate a detailed execution plan'),
+      });
+      expectMockCall(providerMock.generate).toHaveBeenCalledWithContaining({
+        prompt: expect.stringContaining('Title: Issue Title'),
+      });
+      expectMockCall(providerMock.generate).toHaveBeenCalledWithContaining({
+        prompt: expect.stringContaining('Description: Issue Body'),
+      });
+      expectMockCall(providerMock.generate).toHaveBeenCalledWithContaining({
+        prompt: expect.stringContaining('1. Overview'),
+      });
+      expectMockCall(providerMock.generate).toHaveBeenCalledWithContaining({
+        prompt: expect.stringContaining('Format the response as markdown'),
+      });
     });
 
     it('should substitute template variables in custom prompt', async () => {
@@ -92,8 +102,10 @@ describe('PlanGenerationStep - Template Handling', () => {
 
       await stepWithTemplate.execute(contextMock.mock);
 
-      const callArgs = providerMock.generate.mock.calls[0][0] as StreamRequest;
-      expect(callArgs.prompt).toBe('Create plan for Issue Title - Issue Body');
+      // Verify the provider was called with the substituted template
+      expectMockCall(providerMock.generate).toHaveBeenCalledWithContaining({
+        prompt: 'Create plan for Issue Title - Issue Body',
+      });
     });
 
     it('should handle custom prompt template without variable substitution', async () => {
@@ -125,8 +137,10 @@ describe('PlanGenerationStep - Template Handling', () => {
 
       await stepWithTemplate.execute(contextMock.mock);
 
-      const callArgs = providerMock.generate.mock.calls[0][0] as StreamRequest;
-      expect(callArgs.prompt).toBe('Simple prompt without variables');
+      // Verify the provider was called with the template as-is
+      expectMockCall(providerMock.generate).toHaveBeenCalledWithContaining({
+        prompt: 'Simple prompt without variables',
+      });
     });
 
     it('should handle empty issue title and body in template substitution', async () => {
@@ -159,9 +173,10 @@ describe('PlanGenerationStep - Template Handling', () => {
 
       await stepWithTemplate.execute(contextMock.mock);
 
-      const callArgs = providerMock.generate.mock.calls[0][0] as StreamRequest;
-      // null values get converted to 'Unknown Issue' and ''
-      expect(callArgs.prompt).toBe('Title: Unknown Issue, Body: ');
+      // Verify the provider was called with default values for null context
+      expectMockCall(providerMock.generate).toHaveBeenCalledWithContaining({
+        prompt: 'Title: Unknown Issue, Body: ',
+      });
     });
   });
 });
