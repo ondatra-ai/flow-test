@@ -4,6 +4,20 @@ import type { ICallExpectation } from './types/mock-validation.interface.js';
 import type { MockArgument } from './types/mock-validation.types.js';
 
 /**
+ * Type guard to check if a value is a record of MockArguments
+ */
+function isRecordOfMockArgument(
+  value: unknown
+): value is Record<string, MockArgument> {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    !Array.isArray(value) &&
+    Object.prototype.toString.call(value) === '[object Object]'
+  );
+}
+
+/**
  * Call expectation utility for validating individual mock calls
  * Provides type-safe argument validation without unsafe type assertions
  */
@@ -37,11 +51,7 @@ export class CallExpectation implements ICallExpectation {
     }
 
     // For single argument that's an object, match against pattern
-    if (
-      this.args.length === 1 &&
-      typeof this.args[0] === 'object' &&
-      this.args[0] !== null
-    ) {
+    if (this.args.length === 1 && isRecordOfMockArgument(this.args[0])) {
       return this.matchObjectPattern(
         cast<Record<string, MockArgument>>(this.args[0]),
         pattern

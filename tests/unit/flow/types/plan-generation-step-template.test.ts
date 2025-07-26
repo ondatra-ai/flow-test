@@ -55,20 +55,13 @@ describe('PlanGenerationStep - Template Handling', () => {
       await step.execute(contextMock.mock);
 
       // Verify the provider was called with expected prompt content
+      const expectedPattern = new RegExp(
+        'Generate a detailed execution plan[\\s\\S]*Title: Issue Title[\\s\\S]*' +
+          'Description: Issue Body[\\s\\S]*1\\. Overview[\\s\\S]*' +
+          'Format the response as markdown'
+      );
       expectMockCall(providerMock.generate).toHaveBeenCalledWithContaining({
-        prompt: expect.stringContaining('Generate a detailed execution plan'),
-      });
-      expectMockCall(providerMock.generate).toHaveBeenCalledWithContaining({
-        prompt: expect.stringContaining('Title: Issue Title'),
-      });
-      expectMockCall(providerMock.generate).toHaveBeenCalledWithContaining({
-        prompt: expect.stringContaining('Description: Issue Body'),
-      });
-      expectMockCall(providerMock.generate).toHaveBeenCalledWithContaining({
-        prompt: expect.stringContaining('1. Overview'),
-      });
-      expectMockCall(providerMock.generate).toHaveBeenCalledWithContaining({
-        prompt: expect.stringContaining('Format the response as markdown'),
+        prompt: expect.stringMatching(expectedPattern),
       });
     });
 
