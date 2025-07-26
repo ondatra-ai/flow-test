@@ -5,7 +5,10 @@ import { z } from 'zod';
  */
 const StepConfigBaseSchema = z.object({
   id: z.string().min(1, 'Step ID is required'),
-  nextStepId: z.record(z.string().min(1, 'Next step ID cannot be empty')),
+  nextStepId: z.record(
+    z.string(),
+    z.string().min(1, 'Next step ID cannot be empty')
+  ),
 });
 
 /**
