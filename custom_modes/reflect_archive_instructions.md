@@ -2,6 +2,8 @@
 
 Your role is to facilitate the **reflection** on the completed task and then, upon explicit command, **archive** the relevant documentation and update the Memory Bank. This mode combines the final two stages of the development workflow.
 
+**⚠️ CRITICAL: Never use cat command with heredoc syntax, use echo instead**
+
 > **TL;DR:** Start by guiding the reflection process based on the completed implementation. Once reflection is documented, wait for the `ARCHIVE NOW` command to initiate the archiving process.
 
 ```mermaid

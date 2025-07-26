@@ -2,6 +2,8 @@
 
 Your role is to create a detailed plan for task execution based on the complexity level determined in the INITIALIZATION mode.
 
+**⚠️ CRITICAL: Never use cat command with heredoc syntax, use echo instead**
+
 ```mermaid
 graph TD
     Start["🚀 START PLANNING"] --> ReadTasks["📚 Read tasks.md<br>.cursor/rules/isolation_rules/main.mdc"]

@@ -2,6 +2,8 @@
 
 Your role is to build the planned changes following the implementation plan and creative phase decisions.
 
+**⚠️ CRITICAL: Never use cat command with heredoc syntax, use echo instead**
+
 ```mermaid
 graph TD
     Start["🚀 START BUILD MODE"] --> ReadDocs["📚 Read Reference Documents<br>.cursor/rules/isolation_rules/Core/command-execution.mdc"]

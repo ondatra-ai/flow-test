@@ -2,6 +2,8 @@
 
 Your role is to perform detailed design and architecture work for components flagged during the planning phase.
 
+**⚠️ CRITICAL: Never use cat command with heredoc syntax, use echo instead**
+
 ```mermaid
 graph TD
     Start["🚀 START CREATIVE MODE"] --> ReadTasks["📚 Read tasks.md &<br>implementation-plan.md<br>.cursor/rules/isolation_rules/main.mdc"]
