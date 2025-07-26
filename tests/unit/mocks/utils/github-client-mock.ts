@@ -3,8 +3,8 @@ import { vi } from 'vitest';
 import { cast } from '../../../../src/utils/cast.js';
 import type { GitHubClient } from '../../../../src/utils/github-client.js';
 import type {
-  GitHubClientMockOptions,
-  GitHubClientMockResult,
+  IGitHubClientMockOptions,
+  IGitHubClientMockResult,
 } from '../types.js';
 
 /**
@@ -22,8 +22,8 @@ import type {
  * );
  */
 export function createGitHubClientMock(
-  options?: GitHubClientMockOptions
-): GitHubClientMockResult {
+  options?: IGitHubClientMockOptions
+): IGitHubClientMockResult {
   const getIssueWithComments = vi.fn();
 
   // Set up default behaviors

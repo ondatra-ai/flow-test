@@ -2,12 +2,12 @@ export interface ILLMProvider {
   /**
    * Stream tokens as they are generated
    */
-  stream(request: StreamRequest): AsyncIterableIterator<StreamEvent>;
+  stream(request: IStreamRequest): AsyncIterableIterator<IStreamEvent>;
 
   /**
    * Generate complete response (non-streaming)
    */
-  generate(request: StreamRequest): Promise<string>;
+  generate(request: IStreamRequest): Promise<string>;
 
   /**
    * Get provider metadata
@@ -18,7 +18,7 @@ export interface ILLMProvider {
 
 // Only the essential types needed by ILLMProvider
 
-export interface StreamRequest {
+export interface IStreamRequest {
   prompt: string;
   signal: AbortSignal;
   model: string;
@@ -32,7 +32,7 @@ export interface StreamRequest {
   }>;
 }
 
-export interface StreamEvent {
+export interface IStreamEvent {
   type: 'token' | 'error' | 'done';
   // Union type - only the fields that exist for each type
   token?: string; // Only when type === 'token'

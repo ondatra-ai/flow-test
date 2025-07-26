@@ -6,7 +6,7 @@ import { PlanGenerationStep } from '../../../src/flow/types/plan-generation-step
 import { ReadGitHubIssueStep } from '../../../src/flow/types/read-github-issue-step.js';
 import { cast } from '../../../src/utils/cast.js';
 import { GitHubClient } from '../../../src/utils/github-client.js';
-import { Logger } from '../../../src/utils/logger.js';
+import { ILogger } from '../../../src/utils/logger.js';
 import {
   type ReadGitHubIssueStepConfig,
   type PlanGenerationStepConfig,
@@ -38,11 +38,11 @@ vi.mock('tsyringe', async () => {
 
 describe('StepFactory', () => {
   let stepFactory: StepFactory;
-  let mockLogger: Logger;
+  let mockLogger: ILogger;
   let mockGitHubClient: GitHubClient;
 
   beforeEach(() => {
-    mockLogger = cast<Logger>({
+    mockLogger = cast<ILogger>({
       info: vi.fn(),
       error: vi.fn(),
       warn: vi.fn(),

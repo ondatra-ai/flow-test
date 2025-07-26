@@ -3,8 +3,8 @@ import Anthropic from '@anthropic-ai/sdk';
 import type { IProviderHelper } from '../../helpers/provider-helper.js';
 import type {
   ILLMProvider,
-  StreamRequest,
-  StreamEvent,
+  IStreamRequest,
+  IStreamEvent,
 } from '../../interfaces/provider.js';
 
 export class ClaudeProvider implements ILLMProvider {
@@ -22,7 +22,7 @@ export class ClaudeProvider implements ILLMProvider {
     this.client = new Anthropic({ apiKey });
   }
 
-  private guardValidateRoles(messages: StreamRequest['messages']): void {
+  private guardValidateRoles(messages: IStreamRequest['messages']): void {
     for (const message of messages) {
       if (
         !ClaudeProvider.ALLOWED_ROLES.includes(
@@ -38,7 +38,7 @@ export class ClaudeProvider implements ILLMProvider {
   }
 
   private prepareMessages(
-    request: StreamRequest
+    request: IStreamRequest
   ): Array<{ role: 'user' | 'assistant'; content: string }> {
     this.guardValidateRoles(request.messages);
 
@@ -62,7 +62,7 @@ export class ClaudeProvider implements ILLMProvider {
     return filteredMessages;
   }
 
-  private extractSystemPrompt(request: StreamRequest): string | undefined {
+  private extractSystemPrompt(request: IStreamRequest): string | undefined {
     return (
       request.systemPrompt ||
       request.messages.find(m => m.role === 'system')?.content
@@ -70,7 +70,7 @@ export class ClaudeProvider implements ILLMProvider {
   }
 
   private async createStream(
-    request: StreamRequest,
+    request: IStreamRequest,
     messages: Array<{ role: 'user' | 'assistant'; content: string }>
   ): Promise<AsyncIterable<Anthropic.Messages.MessageStreamEvent>> {
     const systemPrompt = this.extractSystemPrompt(request);
@@ -87,7 +87,7 @@ export class ClaudeProvider implements ILLMProvider {
   private processContentDelta(
     chunk: Anthropic.Messages.MessageStreamEvent,
     _usage: { promptTokens: number; completionTokens: number }
-  ): StreamEvent | null {
+  ): IStreamEvent | null {
     if (
       chunk.type === 'content_block_delta' &&
       'delta' in chunk &&
@@ -135,7 +135,7 @@ export class ClaudeProvider implements ILLMProvider {
   private *processChunk(
     chunk: Anthropic.Messages.MessageStreamEvent,
     usage: { promptTokens: number; completionTokens: number }
-  ): Generator<StreamEvent> {
+  ): Generator<IStreamEvent> {
     const contentDelta = this.processContentDelta(chunk, usage);
     if (contentDelta) {
       yield contentDelta;
@@ -144,7 +144,7 @@ export class ClaudeProvider implements ILLMProvider {
     this.processMessageDelta(chunk, usage);
   }
 
-  async *stream(request: StreamRequest): AsyncIterableIterator<StreamEvent> {
+  async *stream(request: IStreamRequest): AsyncIterableIterator<IStreamEvent> {
     const messages = this.prepareMessages(request);
     const stream = await this.createStream(request, messages);
     const usage = { promptTokens: 0, completionTokens: 0 };
@@ -165,7 +165,7 @@ export class ClaudeProvider implements ILLMProvider {
     };
   }
 
-  async generate(request: StreamRequest): Promise<string> {
+  async generate(request: IStreamRequest): Promise<string> {
     // Use helper to convert stream to string
     return this.helper.streamToString(this.stream(request));
   }

@@ -2,7 +2,7 @@ import { inject, injectable } from 'tsyringe';
 
 import { SERVICES } from '../../config/tokens.js';
 import { type ILLMProvider } from '../../interfaces/providers/index.js';
-import { Logger } from '../../utils/logger.js';
+import { ILogger } from '../../utils/logger.js';
 import { type PlanGenerationStepConfig } from '../../validation/index.js';
 import { IContext } from '../context.js';
 import { Step, IStep } from '../step.js';
@@ -16,7 +16,7 @@ export class PlanGenerationStep extends Step implements IStep {
   private readonly llmProvider: ILLMProvider;
 
   constructor(
-    @inject(SERVICES.Logger) logger: Logger,
+    @inject(SERVICES.Logger) logger: ILogger,
     llmProvider: ILLMProvider,
     config: PlanGenerationStepConfig
   ) {

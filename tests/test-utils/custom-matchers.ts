@@ -1,12 +1,12 @@
 import type { ExpectationResult } from '@vitest/expect';
 
-interface CustomMatchers {
+interface ICustomMatchers {
   expectOutputToContain(expectedStrings: string[]): void;
 }
 
 declare module 'vitest' {
-  interface Assertion extends CustomMatchers {}
-  interface AsymmetricMatchersContaining extends CustomMatchers {}
+  interface Assertion extends ICustomMatchers {}
+  interface AsymmetricMatchersContaining extends ICustomMatchers {}
 }
 
 /**

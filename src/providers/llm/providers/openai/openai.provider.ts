@@ -6,8 +6,8 @@ import { OpenAIRole } from '../../../../types/providers/openai.types';
 import type { IProviderHelper } from '../../helpers/provider-helper.js';
 import type {
   ILLMProvider,
-  StreamRequest,
-  StreamEvent,
+  IStreamRequest,
+  IStreamEvent,
 } from '../../interfaces/provider.js';
 
 export class OpenAIProvider implements ILLMProvider {
@@ -25,7 +25,7 @@ export class OpenAIProvider implements ILLMProvider {
     this.client = new OpenAI({ apiKey });
   }
 
-  private guardValidateRoles(messages: StreamRequest['messages']): void {
+  private guardValidateRoles(messages: IStreamRequest['messages']): void {
     for (const message of messages) {
       if (
         !OpenAIProvider.ALLOWED_ROLES.includes(
@@ -41,7 +41,7 @@ export class OpenAIProvider implements ILLMProvider {
   }
 
   private validateAndPrepareMessages(
-    request: StreamRequest
+    request: IStreamRequest
   ): Array<{ role: OpenAIRole; content: string }> {
     this.guardValidateRoles(request.messages);
 
@@ -70,7 +70,7 @@ export class OpenAIProvider implements ILLMProvider {
   }
 
   private async createStream(
-    request: StreamRequest,
+    request: IStreamRequest,
     messages: Array<{ role: OpenAIRole; content: string }>
   ): Promise<AsyncIterable<OpenAI.Chat.Completions.ChatCompletionChunk>> {
     return await this.client.chat.completions.create({
@@ -82,7 +82,7 @@ export class OpenAIProvider implements ILLMProvider {
     });
   }
 
-  async *stream(request: StreamRequest): AsyncIterableIterator<StreamEvent> {
+  async *stream(request: IStreamRequest): AsyncIterableIterator<IStreamEvent> {
     const messages = this.validateAndPrepareMessages(request);
     const stream = await this.createStream(request, messages);
 
@@ -128,7 +128,7 @@ export class OpenAIProvider implements ILLMProvider {
     }
   }
 
-  async generate(request: StreamRequest): Promise<string> {
+  async generate(request: IStreamRequest): Promise<string> {
     return this.helper.streamToString(this.stream(request));
   }
 

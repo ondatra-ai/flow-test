@@ -1,10 +1,10 @@
-import type { StreamEvent } from './provider.interface.js';
+import type { IStreamEvent } from './provider.interface.js';
 
 export interface IProviderHelper {
   /**
    * Convert a stream to a complete string response
    */
-  streamToString(stream: AsyncIterableIterator<StreamEvent>): Promise<string>;
+  streamToString(stream: AsyncIterableIterator<IStreamEvent>): Promise<string>;
 
   /**
    * Check abort signal and throw if aborted
@@ -14,5 +14,5 @@ export interface IProviderHelper {
   /**
    * Wrap errors with abort signal context
    */
-  wrapError(error: Error, signal: AbortSignal): StreamEvent;
+  wrapError(error: Error, signal: AbortSignal): IStreamEvent;
 }

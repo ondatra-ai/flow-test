@@ -4,7 +4,7 @@ import { SERVICES } from '../config/tokens.js';
 import type { ILLMProvider } from '../interfaces/providers/index.js';
 import type { StepConfig } from '../types/validation/index.js';
 import { GitHubClient } from '../utils/github-client.js';
-import { Logger } from '../utils/logger.js';
+import { ILogger } from '../utils/logger.js';
 
 import type { IStep } from './step.js';
 import { PlanGenerationStep } from './types/plan-generation-step.js';
@@ -27,7 +27,7 @@ function assertNever(x: StepConfig): never {
 @injectable()
 export class StepFactory {
   constructor(
-    @inject(SERVICES.Logger) private readonly logger: Logger,
+    @inject(SERVICES.Logger) private readonly logger: ILogger,
     @inject(SERVICES.GitHubClient) private readonly githubClient: GitHubClient
   ) {}
 

@@ -7,7 +7,7 @@ import {
   type GitHubComment,
 } from '../../utils/github-client.js';
 import { parseGitHubIssueUrl } from '../../utils/github-url-parser.js';
-import { Logger } from '../../utils/logger.js';
+import { ILogger } from '../../utils/logger.js';
 import { type ReadGitHubIssueStepConfig } from '../../validation/index.js';
 import { IContext } from '../context.js';
 import { Step, IStep } from '../step.js';
@@ -21,7 +21,7 @@ export class ReadGitHubIssueStep extends Step implements IStep {
   public readonly githubToken: string;
 
   constructor(
-    @inject(SERVICES.Logger) logger: Logger,
+    @inject(SERVICES.Logger) logger: ILogger,
     @inject(SERVICES.GitHubClient)
     private readonly githubClient: GitHubClient,
     config: ReadGitHubIssueStepConfig

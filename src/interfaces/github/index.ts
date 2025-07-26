@@ -1,1 +1,1 @@
-export type { GitHubIssueArgs, MockOctokit } from './github.interface.js';
+export type { IGitHubIssueArgs, IMockOctokit } from './github.interface.js';

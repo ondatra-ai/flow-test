@@ -1,5 +1,5 @@
 import type { IStep } from '../interfaces/flow/index.js';
-import type { Logger } from '../utils/logger.js';
+import type { ILogger } from '../utils/logger.js';
 
 import type { IContext } from './context.js';
 
@@ -11,13 +11,13 @@ export class Step implements IStep {
   private readonly id: string;
   private readonly message: string;
   private readonly nextStepId: Record<string, string>;
-  protected readonly logger: Logger;
+  protected readonly logger: ILogger;
 
   constructor(
     id: string,
     message: string,
     nextStepId: Record<string, string>,
-    logger: Logger
+    logger: ILogger
   ) {
     this.id = id;
     this.message = message;

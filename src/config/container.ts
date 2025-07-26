@@ -11,7 +11,7 @@ import { GeminiProvider } from '../providers/llm/providers/gemini/gemini.provide
 import { OpenAIProvider } from '../providers/llm/providers/openai/openai.provider.js';
 import { FlowManager } from '../utils/flow-manager.js';
 import { GitHubClient } from '../utils/github-client.js';
-import { ConsoleLogger, LogLevel, Logger } from '../utils/logger.js';
+import { ConsoleLogger, LogLevel, ILogger } from '../utils/logger.js';
 
 import { SERVICES } from './tokens.js';
 
@@ -42,7 +42,7 @@ function registerLLMProvider<T extends ILLMProvider>(
  */
 export function initializeContainer(): DependencyContainer {
   // Register core services
-  container.register<Logger>(SERVICES.Logger, {
+  container.register<ILogger>(SERVICES.Logger, {
     useFactory: () => new ConsoleLogger(LogLevel.INFO),
   });
 

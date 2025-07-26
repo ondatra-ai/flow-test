@@ -1,8 +1,8 @@
 import { vi } from 'vitest';
 
-import type { Logger } from '../../../../src/interfaces/utils/logger.interface.js';
+import type { ILogger } from '../../../../src/interfaces/utils/logger.interface.js';
 import { cast } from '../../../../src/utils/cast.js';
-import type { LoggerMockOptions, LoggerMockResult } from '../types.js';
+import type { ILoggerMockOptions, ILoggerMockResult } from '../types.js';
 
 /**
  * Creates a Logger mock with simple property access pattern
@@ -18,15 +18,15 @@ import type { LoggerMockOptions, LoggerMockResult } from '../types.js';
  * expect(loggerMock.error).toHaveBeenCalledWith('error msg', error);
  */
 export function createLoggerMock(
-  options?: LoggerMockOptions
-): LoggerMockResult {
+  options?: ILoggerMockOptions
+): ILoggerMockResult {
   const info = vi.fn();
   const error = vi.fn();
   const warn = vi.fn();
   const debug = vi.fn();
   const log = vi.fn();
 
-  const mock = cast<Logger>({
+  const mock = cast<ILogger>({
     info,
     error,
     warn,

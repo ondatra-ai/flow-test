@@ -1,6 +1,6 @@
 // Re-export for backward compatibility
 export type {
   ILLMProvider,
-  StreamRequest,
-  StreamEvent,
+  IStreamRequest,
+  IStreamEvent,
 } from '../../../interfaces/providers/index.js';

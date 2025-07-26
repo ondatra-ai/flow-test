@@ -1,6 +1,6 @@
 import { injectable } from 'tsyringe';
 
-import type { Logger, LogMetadata } from '../interfaces/utils/index.js';
+import type { ILogger, LogMetadata } from '../interfaces/utils/index.js';
 
 /**
  * Log levels for the application
@@ -13,13 +13,13 @@ export enum LogLevel {
 }
 
 // Re-export for backward compatibility
-export type { Logger } from '../interfaces/utils/index.js';
+export type { ILogger } from '../interfaces/utils/index.js';
 
 /**
  * Simple console logger implementation
  */
 @injectable()
-export class ConsoleLogger implements Logger {
+export class ConsoleLogger implements ILogger {
   constructor(private readonly level: LogLevel = LogLevel.INFO) {}
 
   public error(message: string, error: Error, meta?: LogMetadata): void {

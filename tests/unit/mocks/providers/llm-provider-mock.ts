@@ -3,8 +3,8 @@ import { vi } from 'vitest';
 import type { ILLMProvider } from '../../../../src/interfaces/providers/provider.interface.js';
 import { cast } from '../../../../src/utils/cast.js';
 import type {
-  LLMProviderMockOptions,
-  LLMProviderMockResult,
+  ILLMProviderMockOptions,
+  ILLMProviderMockResult,
 } from '../types.js';
 
 /**
@@ -31,8 +31,8 @@ import type {
  * });
  */
 export function createLLMProviderMock(
-  options?: LLMProviderMockOptions
-): LLMProviderMockResult {
+  options?: ILLMProviderMockOptions
+): ILLMProviderMockResult {
   const stream = vi.fn();
   const generate = vi.fn();
   const getProviderName = vi.fn();

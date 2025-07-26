@@ -4,7 +4,7 @@ import { Session } from '../flow/session/session.js';
 import type { IContext } from '../interfaces/flow/index.js';
 import { FlowManager } from '../utils/flow-manager.js';
 import { parseGitHubIssueUrl } from '../utils/github-url-parser.js';
-import type { Logger } from '../utils/logger.js';
+import type { ILogger } from '../utils/logger.js';
 
 /**
  * Handle GitHub issue URL option and populate context
@@ -35,7 +35,7 @@ function setupFlowContext(
  * Handle the chat command
  */
 export function handleChatCommand(): void {
-  const logger = container.resolve<Logger>(SERVICES.Logger);
+  const logger = container.resolve<ILogger>(SERVICES.Logger);
   logger.info('Ondatra Code');
   logger.info('Chat interface functionality is not yet implemented');
 }
@@ -48,7 +48,7 @@ export async function handleFlowRunCommand(
   parameters: string[],
   options?: { githubIssue?: string }
 ): Promise<void> {
-  const logger = container.resolve<Logger>(SERVICES.Logger);
+  const logger = container.resolve<ILogger>(SERVICES.Logger);
   const flowManager = container.resolve<FlowManager>(SERVICES.FlowManager);
 
   logger.info(`Loading flow: ${flowName}`);
@@ -83,6 +83,6 @@ export async function handleFlowRunCommand(
  * Handle the default action when no command is specified
  */
 export function handleDefaultAction(): void {
-  const logger = container.resolve<Logger>(SERVICES.Logger);
+  const logger = container.resolve<ILogger>(SERVICES.Logger);
   logger.info('Ondatra Code');
 }

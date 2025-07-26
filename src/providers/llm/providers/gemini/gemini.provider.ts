@@ -3,8 +3,8 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import type { IProviderHelper } from '../../helpers/provider-helper.js';
 import type {
   ILLMProvider,
-  StreamRequest,
-  StreamEvent,
+  IStreamRequest,
+  IStreamEvent,
 } from '../../interfaces/provider.js';
 
 export class GeminiProvider implements ILLMProvider {
@@ -22,7 +22,7 @@ export class GeminiProvider implements ILLMProvider {
     this.client = new GoogleGenerativeAI(apiKey);
   }
 
-  private guardValidateRoles(messages: StreamRequest['messages']): void {
+  private guardValidateRoles(messages: IStreamRequest['messages']): void {
     for (const message of messages) {
       if (
         !GeminiProvider.ALLOWED_ROLES.includes(
@@ -37,7 +37,7 @@ export class GeminiProvider implements ILLMProvider {
     }
   }
 
-  private buildPromptAndHistory(request: StreamRequest): {
+  private buildPromptAndHistory(request: IStreamRequest): {
     prompt: string;
     history: Array<{ role: 'user' | 'model'; parts: [{ text: string }] }>;
   } {
@@ -73,7 +73,7 @@ export class GeminiProvider implements ILLMProvider {
     return { prompt, history };
   }
 
-  async *stream(request: StreamRequest): AsyncIterableIterator<StreamEvent> {
+  async *stream(request: IStreamRequest): AsyncIterableIterator<IStreamEvent> {
     const model = this.client.getGenerativeModel({ model: request.model });
     const { prompt, history } = this.buildPromptAndHistory(request);
 
@@ -119,7 +119,7 @@ export class GeminiProvider implements ILLMProvider {
     };
   }
 
-  async generate(request: StreamRequest): Promise<string> {
+  async generate(request: IStreamRequest): Promise<string> {
     return this.helper.streamToString(this.stream(request));
   }
 

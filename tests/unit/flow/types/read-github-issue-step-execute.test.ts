@@ -5,7 +5,7 @@ import { Context } from '../../../../src/flow/context.js';
 import { ReadGitHubIssueStep } from '../../../../src/flow/types/read-github-issue-step.js';
 import { cast } from '../../../../src/utils/cast.js';
 import type { GitHubClient } from '../../../../src/utils/github-client.js';
-import type { Logger } from '../../../../src/utils/logger.js';
+import type { ILogger } from '../../../../src/utils/logger.js';
 import type { ReadGitHubIssueStepConfig } from '../../../../src/validation/schemas/step.schema.js';
 
 // Mock dependencies
@@ -39,8 +39,8 @@ vi.mock('../../../../src/utils/github-client.js', () => ({
 }));
 
 // Test helper functions
-function createMockLogger(): Logger {
-  return cast<Logger>({
+function createMockLogger(): ILogger {
+  return cast<ILogger>({
     info: vi.fn(),
     error: vi.fn(),
     warn: vi.fn(),
@@ -70,7 +70,7 @@ function createMockGitHubClient(): GitHubClient {
 
 describe('ReadGitHubIssueStep - Execute', () => {
   let context: Context;
-  let mockLogger: Logger;
+  let mockLogger: ILogger;
   let mockGitHubClient: GitHubClient;
 
   beforeEach(() => {
