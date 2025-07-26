@@ -1,13 +1,26 @@
 # MEMORY BANK TASKS
 
-## Current Task Status: 🔨 IMPLEMENT MODE - Phase 1 Core Infrastructure
+## Current Task Status: 🔨 IMPLEMENT MODE - Phase 1 Core Infrastructure (RESTART)
 
 **Task ID**: improve-test-mock-validation-20250201
 **Issue**: #105 - Improve call argument validation and avoid unsafe type assertions in tests
 **Complexity**: Level 4 - Complex System
 **Branch**: task-20250201-improve-test-mock-validation
 **Start Date**: 2025-02-01
-**Status**: IMPLEMENT Mode - Building Core Assertion Infrastructure
+**Status**: IMPLEMENT Mode - Restarting after lessons learned from file organization mistakes
+
+## PREVIOUS ATTEMPT ANALYSIS (WHY WE'RE RESTARTING)
+
+**What Went Wrong**: Despite having documented lessons about test utility placement, the initial implementation placed files in `src/interfaces/testing/` and `src/types/testing/` instead of consolidating everything under `tests/test-utils/mock-validation/`. This led to:
+
+- 4 separate file movement operations
+- Multiple import path updates
+- ESLint configuration complications
+- Unnecessary complexity and rework
+
+**Root Cause**: Failed to read and follow existing lesson #4 in tasks.md before implementing.
+
+**Recovery Action**: Reverted all changes via `git restore` and `rm -rf` to return to clean planning state.
 
 ## REVISED EXECUTION PLAN - LESSONS LEARNED
 
@@ -38,13 +51,50 @@
    - Do proper organization from the start
    - Clean architecture prevents technical debt
 
-### Phase 1: Core Assertion Infrastructure (REVISED)
+6. **READ EXISTING LESSONS FIRST** ⚠️ NEW
+   - Always thoroughly review tasks.md lessons before implementing
+   - Don't ignore documented guidance that already exists
+   - Previous mistakes are documented for a reason
 
-- [ ] Create `tests/test-utils/mock-validation/` directory
-- [ ] Implement `expectMockCall` function
-- [ ] Build types in `tests/test-utils/types/mock-validation.types.ts`
-- [ ] Create `MockValidationError` class
-- [ ] Integrate Jest matcher support
+7. **TEST UTILITIES ARE FULLY SELF-CONTAINED** ⚠️ NEW
+   - ALL test utility code (interfaces, types, implementations) belongs in tests/ directory
+   - Don't split between src/interfaces/testing/ and tests/test-utils/
+   - Consolidate everything under tests/test-utils/mock-validation/
+
+8. **PLAN FILE ORGANIZATION UPFRONT** ⚠️ NEW
+   - Avoid multiple file movement operations
+   - Get the file structure right on first implementation
+   - Each file movement causes import updates and ESLint issues
+
+9. **USER PREFERENCES OVERRIDE PATTERNS** ⚠️ NEW
+   - When user has documented organizational preferences, follow them
+   - Don't rigidly apply project patterns (src/interfaces/ vs src/types/) to test code
+   - Test utilities have different organizational needs than production code
+
+### Phase 1: Core Assertion Infrastructure (CORRECTED ORGANIZATION)
+
+**File Structure** (Follow exactly, no deviations):
+
+```
+tests/test-utils/mock-validation/
+├── types/
+│   ├── mock-validation.interface.ts  (interfaces)
+│   └── mock-validation.types.ts      (type aliases)
+├── expect-mock-call.ts               (main function)
+├── mock-validation-error.ts          (error class)
+├── mock-call-expectation.ts          (main implementation)
+├── call-expectation.ts               (call-specific logic)
+├── negated-mock-call-expectation.ts  (negation logic)
+└── index.ts                          (public exports)
+```
+
+**Implementation Tasks**:
+
+- [ ] Create exact directory structure above
+- [ ] Implement all files with proper TypeScript typing
+- [ ] Use `MockArgument` type instead of `any`/`unknown`
+- [ ] Implement modular architecture (max-classes-per-file compliance)
+- [ ] Use `cast` utilities for type safety
 - [ ] Document API in `docs/testing/mock-validation-guide.md`
 - [ ] NO UNIT TESTS for the utilities themselves
 
