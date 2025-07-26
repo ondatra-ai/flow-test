@@ -32,9 +32,6 @@ export type {
 export type {
   MockArgument,
   MockValidationType,
-  MockValidationOptions,
-  MockValidationResult,
-  MockExpectationConfig,
 } from './types/mock-validation.types.js';
 
 // Error class for advanced usage

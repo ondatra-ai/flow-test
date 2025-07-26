@@ -1,12 +1,18 @@
 import type { Mock } from 'vitest';
 
-import { cast } from '../../../src/utils/cast.js';
-
 import { CallExpectation } from './call-expectation.js';
 import { MockValidationError } from './mock-validation-error.js';
 import { NegatedMockCallExpectation } from './negated-mock-call-expectation.js';
 import type { IMockCallExpectation } from './types/mock-validation.interface.js';
 import type { MockArgument } from './types/mock-validation.types.js';
+
+/**
+ * Helper function to convert mock calls to MockArgument arrays
+ * Since MockArgument is `unknown`, this is primarily for type clarity
+ */
+function convertMockCalls(calls: readonly unknown[][]): MockArgument[][] {
+  return calls.map(call => call);
+}
 
 /**
  * Main mock call expectation implementation
@@ -47,8 +53,7 @@ export class MockCallExpectation implements IMockCallExpectation {
     }
 
     const hasMatchingCall = calls.some(call => {
-      const callArgs = call.map(arg => cast<MockArgument>(arg));
-      const callExpectation = new CallExpectation(callArgs);
+      const callExpectation = new CallExpectation(call as MockArgument[]);
       return callExpectation.toMatch(...expectedArgs);
     });
 
@@ -56,7 +61,7 @@ export class MockCallExpectation implements IMockCallExpectation {
       throw new MockValidationError(
         this.mockName,
         expectedArgs,
-        calls.map(call => call.map(arg => cast<MockArgument>(arg))),
+        convertMockCalls(calls),
         'exact'
       );
     }
@@ -79,8 +84,7 @@ export class MockCallExpectation implements IMockCallExpectation {
     }
 
     const hasMatchingCall = calls.some(call => {
-      const callArgs = call.map(arg => cast<MockArgument>(arg));
-      const callExpectation = new CallExpectation(callArgs);
+      const callExpectation = new CallExpectation(call as MockArgument[]);
       return callExpectation.toMatchPattern(pattern);
     });
 
@@ -88,7 +92,7 @@ export class MockCallExpectation implements IMockCallExpectation {
       throw new MockValidationError(
         this.mockName,
         Object.values(pattern),
-        calls.map(call => call.map(arg => cast<MockArgument>(arg))),
+        convertMockCalls(calls),
         'pattern'
       );
     }
@@ -112,8 +116,7 @@ export class MockCallExpectation implements IMockCallExpectation {
     }
 
     const hasMatchingCall = calls.some(call => {
-      const callArgs = call.map(arg => cast<MockArgument>(arg));
-      const callExpectation = new CallExpectation(callArgs);
+      const callExpectation = new CallExpectation(call as MockArgument[]);
       return callExpectation.toContain(partial);
     });
 
@@ -121,7 +124,7 @@ export class MockCallExpectation implements IMockCallExpectation {
       throw new MockValidationError(
         this.mockName,
         Object.values(partial),
-        calls.map(call => call.map(arg => cast<MockArgument>(arg))),
+        convertMockCalls(calls),
         'containing'
       );
     }

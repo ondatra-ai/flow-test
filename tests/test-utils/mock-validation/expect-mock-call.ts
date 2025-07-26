@@ -42,12 +42,13 @@ export function expectMockCall(
  */
 export function isMock(value: unknown): value is Mock {
   return (
-    value !== null &&
     typeof value === 'object' &&
+    value !== null &&
     'mock' in value &&
-    typeof (value as { mock: unknown }).mock === 'object' &&
-    (value as { mock: { calls: unknown } }).mock !== null &&
-    'calls' in (value as { mock: object }).mock
+    typeof value.mock === 'object' &&
+    value.mock !== null &&
+    'calls' in value.mock &&
+    Array.isArray((value.mock as { calls: unknown }).calls)
   );
 }
 

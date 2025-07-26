@@ -1,5 +1,3 @@
-import { cast } from '../../../src/utils/cast.js';
-
 import type { ICallExpectation } from './types/mock-validation.interface.js';
 import type { MockArgument } from './types/mock-validation.types.js';
 
@@ -14,6 +12,21 @@ function isRecordOfMockArgument(
     value !== null &&
     !Array.isArray(value) &&
     Object.prototype.toString.call(value) === '[object Object]'
+  );
+}
+
+/**
+ * Type guard to check if a value is an asymmetric matcher
+ */
+function isAsymmetricMatcherWithMatch(
+  value: unknown
+): value is { asymmetricMatch: (value: MockArgument) => boolean } {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'asymmetricMatch' in value &&
+    typeof (value as { asymmetricMatch: unknown }).asymmetricMatch ===
+      'function'
   );
 }
 
@@ -52,10 +65,7 @@ export class CallExpectation implements ICallExpectation {
 
     // For single argument that's an object, match against pattern
     if (this.args.length === 1 && isRecordOfMockArgument(this.args[0])) {
-      return this.matchObjectPattern(
-        cast<Record<string, MockArgument>>(this.args[0]),
-        pattern
-      );
+      return this.matchObjectPattern(this.args[0], pattern);
     }
 
     // For multiple arguments, treat as indexed pattern
@@ -77,15 +87,8 @@ export class CallExpectation implements ICallExpectation {
     }
 
     // For single argument that's an object, check containment
-    if (
-      this.args.length === 1 &&
-      typeof this.args[0] === 'object' &&
-      this.args[0] !== null
-    ) {
-      return this.containsValues(
-        cast<Record<string, MockArgument>>(this.args[0]),
-        partial
-      );
+    if (this.args.length === 1 && isRecordOfMockArgument(this.args[0])) {
+      return this.containsValues(this.args[0], partial);
     }
 
     // For multiple arguments, treat as indexed containment
@@ -102,11 +105,8 @@ export class CallExpectation implements ICallExpectation {
    */
   private deepEqual(a: MockArgument, b: MockArgument): boolean {
     // Handle asymmetric matchers
-    if (this.isAsymmetricMatcher(b)) {
-      const matcher = cast<{
-        asymmetricMatch: (value: MockArgument) => boolean;
-      }>(b);
-      return matcher.asymmetricMatch(a);
+    if (isAsymmetricMatcherWithMatch(b)) {
+      return b.asymmetricMatch(a);
     }
 
     // Primitive comparison
@@ -136,15 +136,6 @@ export class CallExpectation implements ICallExpectation {
   }
 
   /**
-   * Check if value is an asymmetric matcher
-   */
-  private isAsymmetricMatcher(value: MockArgument): boolean {
-    return (
-      typeof value === 'object' && value !== null && 'asymmetricMatch' in value
-    );
-  }
-
-  /**
    * Check if value is null or undefined
    */
   private isNullOrUndefined(value: MockArgument): boolean {
@@ -169,12 +160,8 @@ export class CallExpectation implements ICallExpectation {
     if (keysA.length !== keysB.length) return false;
 
     return keysA.every(key => {
-      const valueA = cast<MockArgument>(
-        (a as Record<string, MockArgument>)[key]
-      );
-      const valueB = cast<MockArgument>(
-        (b as Record<string, MockArgument>)[key]
-      );
+      const valueA = (a as Record<string, MockArgument>)[key];
+      const valueB = (b as Record<string, MockArgument>)[key];
       return this.deepEqual(valueA, valueB);
     });
   }
