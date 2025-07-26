@@ -498,3 +498,54 @@ echo "line 3" >> file.txt
 - **Multi-line content** - Use multiple echo statements with >>
 - **Complex content** - Consider using printf or creating the file programmatically
 - **Verification** - Always verify file contents after writing
+
+## Mock Validation Architecture Patterns
+
+### Pattern: Type-Safe Mock Validation
+
+**Context**: Test files currently use unsafe type assertions when accessing mock call arguments
+**Problem**: `as Type` assertions bypass TypeScript's type checking, leading to runtime errors
+**Solution**: Create type-safe validation utilities with proper error handling
+
+```typescript
+// Instead of:
+const args = mock.calls[0][0] as StreamRequest;
+
+// Use:
+const args = getFirstCallArgs<StreamRequest>(mock);
+```
+
+### Pattern: Validation Result Wrapper
+
+**Context**: Need to provide clear error messages when validation fails
+**Problem**: Direct assertions provide poor error messages
+**Solution**: Wrap validation results with detailed error information
+
+```typescript
+interface ValidationResult<T> {
+  success: boolean;
+  value?: T;
+  error?: ValidationError;
+}
+```
+
+### Pattern: Progressive Enhancement
+
+**Context**: Large existing test suite needs migration
+**Problem**: Cannot update all tests at once
+**Solution**: Backward-compatible API that allows gradual adoption
+
+### Pattern: Mock Factory Enhancement
+
+**Context**: Existing mock factories need validation capabilities
+**Problem**: Adding validation shouldn't break existing usage
+**Solution**: Extend mock result interfaces with optional validation helpers
+
+```typescript
+interface LLMProviderMockResult {
+  mock: ILLMProvider;
+  generate: Mock;
+  // New validation helper
+  validateGenerateCall?: <T>(index: number) => T;
+}
+```

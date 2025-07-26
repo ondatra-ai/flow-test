@@ -55,6 +55,30 @@ Ondatra Code provides a command-line interface similar to claude-code, with the 
 - `npm run test:ui` - Run tests with UI interface
 - `npm run test:coverage` - Run tests with coverage report
 
+### Testing Standards
+
+This project includes **type-safe mock validation utilities** that eliminate unsafe type assertions in tests:
+
+```typescript
+// ❌ Avoid unsafe type assertions
+const callArgs = mockFn.mock.calls[0][0] as any;
+
+// ✅ Use type-safe mock validation
+import { expectMockCall } from './tests/test-utils/mock-validation';
+expectMockCall(mockFn).toHaveBeenCalledWithContaining({
+  prompt: expect.stringContaining('expected text'),
+});
+```
+
+**Key Benefits:**
+
+- **Type Safety**: No more `as any` or `as unknown` in tests
+- **Better Errors**: Detailed validation failure messages
+- **Fluent API**: Clear, readable test assertions
+- **Optional Migration**: Use alongside existing patterns
+
+See `docs/testing/mock-validation-guide.md` for complete documentation.
+
 ### Quality Control
 
 - `npm run pre-commit` - Run all checks (type-check, lint, format-check, test)

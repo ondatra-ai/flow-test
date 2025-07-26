@@ -5,6 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { PlanGenerationStep } from '../../../../src/flow/types/plan-generation-step.js';
 import type { PlanGenerationStepConfig } from '../../../../src/validation/index.js';
 // Import centralized mocks
+import { expectMockCall } from '../../../test-utils/mock-validation/index.js';
 import {
   createContextMock,
   createLLMProviderMock,
@@ -83,10 +84,13 @@ describe('PlanGenerationStep - Provider Testing', () => {
 
       await planGenerationStep.execute(contextMock.mock);
 
-      const callArgs = providerMock.generate.mock
-        .calls[0][0] as import('../../../../src/interfaces/providers/index.js').StreamRequest;
-      expect(callArgs.prompt).toContain('Title with "quotes" & <tags>');
-      expect(callArgs.prompt).toContain('Body with $pecial ch@rs!');
+      // Verify the provider was called with escaped special characters
+      expectMockCall(providerMock.generate).toHaveBeenCalledWithContaining({
+        prompt: expect.stringContaining('Title with "quotes" & <tags>'),
+      });
+      expectMockCall(providerMock.generate).toHaveBeenCalledWithContaining({
+        prompt: expect.stringContaining('Body with $pecial ch@rs!'),
+      });
     });
 
     it('should handle template variables with special regex characters', async () => {
@@ -116,11 +120,11 @@ describe('PlanGenerationStep - Provider Testing', () => {
 
       await stepWithTemplate.execute(contextMock.mock);
 
-      const callArgs = providerMock.generate.mock
-        .calls[0][0] as import('../../../../src/interfaces/providers/index.js').StreamRequest;
-      expect(callArgs.prompt).toBe(
-        'Process: Title with $1 and (parentheses) - Details: Body with [brackets] and {braces}'
-      );
+      // Verify provider called with template variables replaced
+      expectMockCall(providerMock.generate).toHaveBeenCalledWithContaining({
+        prompt:
+          'Process: Title with $1 and (parentheses) - Details: Body with [brackets] and {braces}',
+      });
     });
   });
 });

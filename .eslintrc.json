@@ -113,7 +113,29 @@
       }
     },
     {
-      "files": ["tests/**/*.test.ts", "tests/**/*.spec.ts", "tests/test-utils/**/*.ts"],
+      "files": ["tests/**/*.test.ts", "tests/**/*.spec.ts"],
+      "rules": {
+        "max-lines-per-function": ["error", { "max": 250, "skipBlankLines": true, "skipComments": true }],
+        "max-nested-callbacks": ["error", 5],
+        "@typescript-eslint/explicit-function-return-type": "off",
+        "@typescript-eslint/require-await": "off",
+        "@typescript-eslint/unbound-method": "off",
+        "@typescript-eslint/no-unsafe-assignment": "off", // Required for test mock objects and dynamic test data
+        "no-restricted-syntax": [
+          "error",
+          {
+            "selector": "TSAsExpression > TSUnknownKeyword",
+            "message": "Use cast<T>() from '@/utils/cast' instead of 'as unknown as T'"
+          },
+          {
+            "selector": "TSInterfaceDeclaration",
+            "message": "Interfaces should be in src/interfaces/, not src/types/"
+          }
+        ]
+      }
+    },
+    {
+      "files": ["tests/test-utils/**/*.ts"],
       "rules": {
         "max-lines-per-function": ["error", { "max": 250, "skipBlankLines": true, "skipComments": true }],
         "max-nested-callbacks": ["error", 5],
@@ -225,6 +247,23 @@
             "message": "Use cast<T>() from '@/utils/cast' instead of 'as unknown as T'"
           }
         ]
+      }
+    },
+    {
+      "files": [
+        "tests/test-utils/mock-validation/types/mock-validation.interface.ts",
+        "tests/test-utils/mock-validation/types/mock-validation.types.ts"
+      ],
+      "rules": {
+        "no-restricted-syntax": "off"
+      }
+    },
+    {
+      "files": ["tests/test-utils/mock-validation/**/*.ts"],
+      "rules": {
+        "complexity": ["error", { "max": 15 }],
+        "max-len": ["error", { "code": 120, "tabWidth": 2, "ignoreUrls": true, "ignoreStrings": true }],
+        "@typescript-eslint/no-base-to-string": "off"
       }
     }
   ]
