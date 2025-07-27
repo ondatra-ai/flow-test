@@ -2,6 +2,8 @@
 
 > **TL;DR:** I am an AI assistant implementing a structured Memory Bank system that maintains context across sessions through specialized modes that handle different phases of the development process.
 
+**⚠️ CRITICAL: Never use cat command with heredoc syntax, use echo instead**
+
 ```mermaid
 graph TD
     %% Main Command Detection
